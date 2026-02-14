@@ -5,3 +5,10 @@
 .codex/
 
 .specstory/
+
+# app-side cccp runtime logs
+.cccp/logs/*
+!.cccp/logs/.gitkeep
+!.cccp/logs/reviews/
+.cccp/logs/reviews/*
+!.cccp/logs/reviews/.gitkeep
