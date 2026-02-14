@@ -91,14 +91,14 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 **全てのドキュメント・仕様は日本語で記述すること。**
 
-| 対象 | 言語 | 備考 |
-|------|------|------|
-| OpenSpec spec.md | 日本語 | 見出し・本文・シナリオ全て |
-| OpenSpec change artifacts（proposal, tasks 等） | 日本語 | |
-| beads コメント・description | 日本語 | タグ名（STATUS:, PLAN: 等）は英語のまま |
-| CLAUDE.md / rules / skills | 日本語 | |
-| コード内コメント・docstring | 日本語 | |
-| git commit メッセージ | 日本語または英語 | 同志 Deprex の慣習に従う |
+| 対象                                            | 言語             | 備考                                    |
+| ----------------------------------------------- | ---------------- | --------------------------------------- |
+| OpenSpec spec.md                                | 日本語           | 見出し・本文・シナリオ全て              |
+| OpenSpec change artifacts（proposal, tasks 等） | 日本語           |                                         |
+| beads コメント・description                     | 日本語           | タグ名（STATUS:, PLAN: 等）は英語のまま |
+| CLAUDE.md / rules / skills                      | 日本語           |                                         |
+| コード内コメント・docstring                     | 日本語           |                                         |
+| git commit メッセージ                           | 日本語または英語 | 同志 Deprex の慣習に従う                |
 
 **例外（英語のまま残すもの）**:
 
@@ -121,7 +121,7 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 ## 詳細ルール（参照）
 
-- [CCCP ワークフロー全体像](.claude/cccp-ai-org-workflow.md)
+- [CCCP ワークフロー全体像](.claude/specs/cccp-ai-org-workflow.md)
 - [CCCP Core](.claude/rules/00-cccp-core.md)
 - [Beads（SSOT）](.claude/rules/05-beads.md)
 - [tmux（最大10並列）](.claude/rules/06-tmux.md)
@@ -136,9 +136,9 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 ## Dual-Beads（CCCP Infra vs Project）
 
-| 用途 | コマンド |
-|------|---------|
-| プロジェクトタスク | `bd <cmd>` |
+| 用途                | コマンド                            |
+| ------------------- | ----------------------------------- |
+| プロジェクトタスク  | `bd <cmd>`                          |
 | CCCP インフラタスク | `BEADS_DIR=.claude/.beads bd <cmd>` |
 
 SessionStart hook が `.claude/.beads/` を自動検出し、CCCP infra beads の状態を表示する。
