@@ -68,7 +68,7 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 ## 実行モード（3段階フロー）
 
-### 1. ちゃんとフロー（ブレスト → OpenSpec → 実装）
+### 1. ブレスト起点フロー（ブレスト → OpenSpec → 実装）
 
 - ブレスト判定でブレスト必須と判定された場合（Brainstorm-First ハードゲート）
 - `superpowers:brainstorming` → `BRAINSTORM:` 記録 → 思想局で仕様化 → ジューコフが兵士配備（最大10並列）
