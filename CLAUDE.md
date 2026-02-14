@@ -87,6 +87,36 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 - tmux 兵士は **最大 10 並列** を厳守する
 
+## ドキュメント言語規約（ハードゲート）
+
+**全てのドキュメント・仕様は日本語で記述すること。**
+
+| 対象 | 言語 | 備考 |
+|------|------|------|
+| OpenSpec spec.md | 日本語 | 見出し・本文・シナリオ全て |
+| OpenSpec change artifacts（proposal, tasks 等） | 日本語 | |
+| beads コメント・description | 日本語 | タグ名（STATUS:, PLAN: 等）は英語のまま |
+| CLAUDE.md / rules / skills | 日本語 | |
+| コード内コメント・docstring | 日本語 | |
+| git commit メッセージ | 日本語または英語 | 同志 Deprex の慣習に従う |
+
+**例外（英語のまま残すもの）**:
+
+- YAML frontmatter のフィールド名（`spec_id`, `governed_paths` 等）
+- REQ-xxx 等の要件ID
+- RFC 2119 キーワード（SHALL / SHALL NOT / SHOULD）
+- 技術用語・固有名詞（beads, NEEDS_COMRADE, Pydantic, TypeScript 等）
+- コード例・パス名・コマンド
+- Co-Authored-By 行
+
+**違反時の自己停止**:
+
+英語でドキュメント・仕様を書こうとした場合:
+
+1. **即座に停止**する
+2. 「⚠️ ドキュメント言語規約違反（日本語で記述すること）」と報告する
+3. 日本語で書き直してから再開する
+
 ---
 
 ## 詳細ルール（参照）
