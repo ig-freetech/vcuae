@@ -1,6 +1,7 @@
 # bd worktree
 .worktrees/
 
+.claude/
 .codex/
 
 .specstory/
