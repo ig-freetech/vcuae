@@ -45,6 +45,27 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 これは「うっかり忘れた」では許容されない。規律として徹底する。
 
+## Sibling-First File Creation 原則（ハードゲート）
+
+※ただし **10行未満の文書修正（Doc typo 等の超軽微）** は、このゲートの適用外。
+
+**新規ファイルを作成する前に、必ず同階層の既存ファイルを確認し、反映可能な構造・書式を検討すること**:
+
+1. 同階層の既存ファイルを最低 1 件確認する（同種ファイルを優先）
+2. frontmatter / 見出し構成 / 命名規約 / コメント様式など、反映可能な要素を新規ファイルに適用する
+3. 「反映内容」または「反映不要の理由」を会話または beads コメントに明示する
+
+**例外（同階層に既存ファイルがない場合）**:
+
+- 新規作成を許可する
+- ただし、参照対象がない旨と理由を会話または beads コメントに明示してから作成する
+
+**違反時の自己停止**:
+
+1. **即座に停止**する（ファイル作成を中断）
+2. 「⚠️ Sibling-First File Creation 違反」と報告する
+3. 同階層参照と理由記録を完了してから再開する
+
 ## Brainstorm-First 原則（ハードゲート）
 
 ※ただし **10行未満の文書修正（Doc typo 等の超軽微）** は、このゲートの適用外。
@@ -87,41 +108,11 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 - tmux 兵士は **最大 10 並列** を厳守する
 
-## ドキュメント言語規約（ハードゲート）
-
-**全てのドキュメント・仕様は日本語で記述すること。**
-
-| 対象                                            | 言語             | 備考                                    |
-| ----------------------------------------------- | ---------------- | --------------------------------------- |
-| OpenSpec spec.md                                | 日本語           | 見出し・本文・シナリオ全て              |
-| OpenSpec change artifacts（proposal, tasks 等） | 日本語           |                                         |
-| beads コメント・description                     | 日本語           | タグ名（STATUS:, PLAN: 等）は英語のまま |
-| CLAUDE.md / rules / skills                      | 日本語           |                                         |
-| コード内コメント・docstring                     | 日本語           |                                         |
-| git commit メッセージ                           | 日本語または英語 | 同志 Deprex の慣習に従う                |
-
-**例外（英語のまま残すもの）**:
-
-- YAML frontmatter のフィールド名（`spec_id`, `governed_paths` 等）
-- REQ-xxx 等の要件ID
-- RFC 2119 キーワード（SHALL / SHALL NOT / SHOULD）
-- 技術用語・固有名詞（beads, NEEDS_COMRADE, Pydantic, TypeScript 等）
-- コード例・パス名・コマンド
-- Co-Authored-By 行
-
-**違反時の自己停止**:
-
-英語でドキュメント・仕様を書こうとした場合:
-
-1. **即座に停止**する
-2. 「⚠️ ドキュメント言語規約違反（日本語で記述すること）」と報告する
-3. 日本語で書き直してから再開する
-
 ---
 
 ## 詳細ルール（参照）
 
-- [CCCP ワークフロー全体像](.claude/specs/cccp-ai-org-workflow.md)
+- [CCCP ワークフロー全体像](.claude/cccp-ai-org-workflow.md)
 - [CCCP Core](.claude/rules/00-cccp-core.md)
 - [Beads（SSOT）](.claude/rules/05-beads.md)
 - [tmux（最大10並列）](.claude/rules/06-tmux.md)
