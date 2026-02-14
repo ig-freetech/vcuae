@@ -104,6 +104,16 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 - Skills: [.claude/skills](.claude/skills)
 - Claude Code agents: [.claude/agents](.claude/agents)
 
+## Dual-Beads（CCCP Infra vs Project）
+
+| 用途 | コマンド |
+|------|---------|
+| プロジェクトタスク | `bd <cmd>` |
+| CCCP インフラタスク | `BEADS_DIR=.claude/.beads bd <cmd>` |
+
+SessionStart hook が `.claude/.beads/` を自動検出し、CCCP infra beads の状態を表示する。
+tmux spawn-worker は `cccp-agents-` prefix の bead に対して `BEADS_DIR` を自動設定する。
+
 ## Build & Development Commands
 
 <!-- Add commands as the project takes shape, e.g.: -->
