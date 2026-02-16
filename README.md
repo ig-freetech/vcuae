@@ -14,25 +14,26 @@
 
 ## GitHub Pages 公開 URL
 
-- ユーザー入力画面（`/web`）: `https://ig-freetech.github.io/vcuae/web/`
-- 管理画面（`/admin`）: `https://ig-freetech.github.io/vcuae/admin/`
+- カスタムドメイン: [vcuae.zer0ai.dev](https://vcuae.zer0ai.dev/)
+- ユーザー入力画面（`/web`）: [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/)
+- 管理画面（`/admin`）: [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/)
 
 ## スマホ・タブレットにアプリとしてインストールする手順
 
 ### iPhone / iPad（Safari）
 
-1. Safari で `https://ig-freetech.github.io/vcuae/web/` を開く
+1. Safari で [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) を開く
 2. 共有ボタンをタップ
 3. 「ホーム画面に追加」を選択
 4. 名前を確認して「追加」
 
 ### Android（Chrome）
 
-1. Chrome で `https://ig-freetech.github.io/vcuae/web/` を開く
+1. Chrome で [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) を開く
 2. メニューから「アプリをインストール」または「ホーム画面に追加」を選択
 3. 確認ダイアログでインストール
 
-管理者設定をアプリ化したい場合は `https://ig-freetech.github.io/vcuae/admin/` に対して同じ手順を行ってください。
+管理者設定をアプリ化したい場合は [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/) に対して同じ手順を行ってください。
 
 ## ディレクトリ構造
 
@@ -120,9 +121,9 @@ Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./dem
 ## ローカル実行（開発者向け）
 
 1. `cd demo && npm run serve`
-2. 管理画面 `http://localhost:3000/admin/` を開く
+2. 管理画面 [http://localhost:3000/admin/](http://localhost:3000/admin/) を開く
 3. 上記「最小セットアップ」に沿って接続設定
-4. ユーザー画面 `http://localhost:3000/web/` を開き、Customer Info → Staff Review → Submit
+4. ユーザー画面 [http://localhost:3000/web/](http://localhost:3000/web/) を開き、Customer Info → Staff Review → Submit
 
 ## テスト実行
 
