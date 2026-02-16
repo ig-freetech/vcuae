@@ -15,7 +15,7 @@
  */
 async function readLastRow() {
   const endpointUrl = process.env.GAS_ENDPOINT_URL;
-  const selfGeneratedToken = process.env.GAS_SELF_GENERATED_TOKEN || process.env.GAS_API_KEY;
+  const selfGeneratedToken = process.env.GAS_SELF_GENERATED_TOKEN;
   if (!endpointUrl || !selfGeneratedToken) {
     console.error('GAS_ENDPOINT_URL and GAS_SELF_GENERATED_TOKEN environment variables are required');
     process.exit(1);

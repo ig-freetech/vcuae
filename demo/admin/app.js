@@ -195,9 +195,7 @@
     return {
       endpoint: localStorage.getItem("ledger_endpoint") || "",
       token:
-        localStorage.getItem("ledger_selfGeneratedToken") ||
-        localStorage.getItem("ledger_apiKey") ||
-        "",
+        localStorage.getItem("ledger_selfGeneratedToken") || "",
     };
   }
 
@@ -213,13 +211,11 @@
     }
     localStorage.setItem("ledger_endpoint", ep);
     localStorage.setItem("ledger_selfGeneratedToken", token);
-    localStorage.removeItem("ledger_apiKey");
   }
 
   function clearStoredEndpointAndToken() {
     localStorage.removeItem("ledger_endpoint");
     localStorage.removeItem("ledger_selfGeneratedToken");
-    localStorage.removeItem("ledger_apiKey");
     localStorage.removeItem("ledger_connectionVerified");
   }
 

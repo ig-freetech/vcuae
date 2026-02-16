@@ -157,9 +157,7 @@
     return {
       endpoint: localStorage.getItem("ledger_endpoint") || "",
       token:
-        localStorage.getItem("ledger_selfGeneratedToken") ||
-        localStorage.getItem("ledger_apiKey") ||
-        "",
+        localStorage.getItem("ledger_selfGeneratedToken") || "",
     };
   }
 

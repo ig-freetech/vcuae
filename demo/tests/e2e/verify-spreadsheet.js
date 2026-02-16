@@ -9,7 +9,7 @@
  * Prerequisites:
  *   - ~/.clasprc.json with valid OAuth credentials (run: npx clasp login)
  *   - GAS_ENDPOINT_URL in demo/.env
- *   - GAS_SELF_GENERATED_TOKEN in demo/.env (or legacy GAS_API_KEY)
+ *   - GAS_SELF_GENERATED_TOKEN in demo/.env
  *   - googleapis npm package installed
  */
 
@@ -24,7 +24,7 @@ var LedgerCore = require(path.join(__dirname, "..", "..", "shared", "ledger-core
 // --- Read last row via GAS Web App doGet ---
 async function readLastRow() {
   var endpointUrl = process.env.GAS_ENDPOINT_URL;
-  var selfGeneratedToken = process.env.GAS_SELF_GENERATED_TOKEN || process.env.GAS_API_KEY;
+  var selfGeneratedToken = process.env.GAS_SELF_GENERATED_TOKEN;
 
   if (!endpointUrl || !selfGeneratedToken) {
     throw new Error("GAS_ENDPOINT_URL and GAS_SELF_GENERATED_TOKEN not set in .env");

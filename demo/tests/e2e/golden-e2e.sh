@@ -60,7 +60,7 @@ run 'await page.setDefaultTimeout(30000)'
 if [ "${MOCK_MODE:-}" != "true" ]; then
   run "await page.evaluate(() => {
     localStorage.setItem('ledger_endpoint', '${GAS_ENDPOINT_URL:-}');
-    localStorage.setItem('ledger_selfGeneratedToken', '${GAS_SELF_GENERATED_TOKEN:-${GAS_API_KEY:-}}');
+    localStorage.setItem('ledger_selfGeneratedToken', '${GAS_SELF_GENERATED_TOKEN:-}');
   })"
   playwright-cli goto "$BASE_URL" -s="$SESSION"
 fi

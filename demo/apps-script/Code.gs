@@ -597,8 +597,7 @@ function jsonResponse_(payload) {
  */
 function getStoredAuthToken_() {
   var props = PropertiesService.getScriptProperties();
-  // Backward compatibility: allow legacy API_KEY until old clients are migrated.
-  return props.getProperty("SELF_GENERATED_TOKEN") || props.getProperty("API_KEY") || "";
+  return props.getProperty("SELF_GENERATED_TOKEN") || "";
 }
 
 function getStoredAdminPasscode_() {
@@ -606,13 +605,11 @@ function getStoredAdminPasscode_() {
 }
 
 function getProvidedTokenFromParams_(params) {
-  // Backward compatibility: accept legacy apiKey query param.
-  return params.selfGeneratedToken || params.apiKey || "";
+  return params.selfGeneratedToken || "";
 }
 
 function getProvidedTokenFromBody_(body) {
-  // Backward compatibility: accept legacy apiKey body field.
-  return body.selfGeneratedToken || body.apiKey || "";
+  return body.selfGeneratedToken || "";
 }
 
 function doGet(e) {
