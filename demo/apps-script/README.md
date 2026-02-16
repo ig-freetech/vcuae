@@ -1,135 +1,56 @@
-# Apps Script セットアップガイド
+# Apps Script 最小セットアップガイド
 
-買取台帳の自動転記用 Google Apps Script Web App のデプロイ手順。
+このファイルは、非エンジニア向けに「動かすために必要な最小手順」のみを記載しています。
 
-## 前提条件
+## 1. Code.gs を貼り付ける
 
-- Google アカウント
-- Google スプレッドシート（列順: VisitDate, CsCategory, CustomerName, Gender, Birthday, Age, MobileNumber, Email, Address, REF, PaymentMethod, Country, CountryJP, Continent, Subregion, BirthMonth, TotalPurchase, GrandTotal）
+1. [script.google.com](https://script.google.com) を開く
+2. 「新しいプロジェクト」を作成
+3. 既存の `Code.gs` を全削除し、このリポジトリの `demo/apps-script/Code.gs` を貼り付けて保存
 
-## セットアップ手順
+## 2. Script Properties を設定する
 
-### 1. Apps Script プロジェクト作成
+Apps Script 画面の「プロジェクトの設定」→「スクリプト プロパティ」で次を追加:
 
-1. [Google Drive](https://drive.google.com) で「新規」→「その他」→「Google Apps Script」を選択
-2. プロジェクト名を「買取台帳 自動転記」等に変更
-3. デフォルトの `Code.gs` の内容を全て削除し、本リポジトリの `Code.gs` の内容を貼り付け
-4. 保存（Ctrl+S / Cmd+S）
+- `SELF_GENERATED_TOKEN`（任意の長い文字列）
+- `ADMIN_PASSCODE`（管理画面解錠用の任意文字列）
 
-### 2. Script Properties 設定
+## 3. Web App としてデプロイする
 
-1. 左メニューの歯車アイコン「プロジェクトの設定」を開く
-2. 下部の「スクリプト プロパティ」セクションで以下を追加:
+1. 「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」
+2. 次の設定でデプロイ:
+   - **次のユーザーとして実行**: `自分`（推奨）
+   - **アクセスできるユーザー**: `全員`
+3. 表示された **Web App URL** を控える
 
-| プロパティ名 | 値 | 説明 |
-|---|---|---|
-| `SELF_GENERATED_TOKEN` | ランダム文字列 | 自前で生成した共有トークン。クライアント（Web App）と同じ値を設定する |
-| `ADMIN_PASSCODE` | 任意の文字列 | 管理画面（`/admin`）の解錠に使用するパスコード |
-| `SHEET_ID` | - | ランタイム設定で自動保存（手動設定不要） |
-| `SHEET_NAME` | - | ランタイム設定で自動保存（デフォルト: `Sheet1`） |
+### なぜ「自分」を推奨するか
 
-※ `SELF_GENERATED_TOKEN` は `npm run deploy:gas` 実行時に自動生成され、ターミナルに表示されます。必ず保存してください。
+`ウェブアプリケーションにアクセスしているユーザー` を選ぶと、利用者全員に Google ログインとシート権限が必要になります。店舗の共用タブレット運用では失敗しやすいため、このプロジェクトでは `自分` を推奨します。
 
-※ `SHEET_ID` と `SHEET_NAME` は、管理画面（`/admin`）の Connection → Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。手動設定は不要です。
+## 4. 管理画面 `/admin` で URL を設定する
 
-### 3. Web App デプロイ
+1. `/admin` を開く
+2. Unlock で `ADMIN_PASSCODE` を入力
+3. Connection の `Web App URL` に控えた URL を入力
+4. `Self-Generated Token` に `SELF_GENERATED_TOKEN` を入力
+5. `Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
 
-1. 「デプロイ」→「新しいデプロイ」をクリック
-2. 「種類を選択」→ 歯車アイコンから「ウェブアプリ」を選択
-3. 以下を設定:
-   - **説明**: 任意（例: 「v1 - 初回デプロイ」）
-   - **次のユーザーとして実行**: 「自分」
-   - **アクセスできるユーザー**: 「全員」
-4. 「デプロイ」をクリック
-5. 「アクセスを承認」→ Google アカウントで認証
-6. 表示される **Web App URL** をコピーして控える
+### 今回の Web App URL（既に発行済み）
 
-## API エンドポイント
+`https://script.google.com/macros/s/AKfycbzjLINqnJ_hWbk8vgL9iXEMpNEWwV1sdItO472Iij2pcL45rJUQT9T3a1QFx9XgSU_B/exec`
 
-### doGet（読み取り系）
+## よくあるエラー
 
-| action | パラメータ | 説明 |
-|--------|-----------|------|
-| `health` | `selfGeneratedToken` | ヘルスチェック。`{ status: "ok" }` を返す |
-| `listSheets` | `selfGeneratedToken`, `spreadsheetId` | 指定スプレッドシートのシート名一覧を返す |
-| `getHeaders` | `selfGeneratedToken`, `spreadsheetId`, `sheetName` | 指定シートの1行目（ヘッダー）を返す |
-| `readLastRow` | `selfGeneratedToken` | 設定済みシートの最終行データを返す |
+- `CONFIG_ERROR: ADMIN_PASSCODE is not configured`
+  - Script Properties に `ADMIN_PASSCODE` が未設定
+- `AUTH_ERROR: Invalid self-generated token`
+  - `/admin` で入力したトークンが `SELF_GENERATED_TOKEN` と不一致
+- `AUTH_ERROR: Invalid admin passcode`
+  - `/admin` で入力したパスコードが `ADMIN_PASSCODE` と不一致
 
-例（ヘルスチェック）:
+## 更新時（コード変更後）
 
-```bash
-curl -L 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?action=health&selfGeneratedToken=YOUR_SELF_GENERATED_TOKEN'
-```
-
-### doPost（書き込み系）
-
-| action | body | 説明 |
-|--------|------|------|
-| （デフォルト） | `{ selfGeneratedToken, data: {...} }` | スプレッドシートに1行追記 |
-| `configure` | `{ selfGeneratedToken, action: "configure", config: { spreadsheetId, sheetName } }` | Script Properties の SHEET_ID/SHEET_NAME を更新 |
-| `verifyAdminPasscode` | `{ selfGeneratedToken, action: "verifyAdminPasscode", adminPasscode }` | `ADMIN_PASSCODE` をサーバー側で検証し、管理画面解錠の可否を返す |
-
-例（ランタイム設定）:
-
-```bash
-curl -L -X POST 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec' \
-  -H 'Content-Type: application/json' \
-  -d '{ "selfGeneratedToken": "YOUR_SELF_GENERATED_TOKEN", "action": "configure", "config": { "spreadsheetId": "SHEET_ID", "sheetName": "Sheet1" } }'
-```
-
-### 4. 動作確認
-
-curl でテスト送信:
-
-```bash
-curl -L -X POST \
-  'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "selfGeneratedToken": "YOUR_SELF_GENERATED_TOKEN",
-    "data": {
-      "visitDate": "2026-01-15",
-      "csCategory": "Sales (販売)",
-      "customerName": "テスト太郎",
-      "gender": "Male",
-      "birthday": "1990-05-15",
-      "mobileNumber": "+971501234567",
-      "email": "test@example.com",
-      "address": "Dubai Marina, Tower 5",
-      "ref": "REF-TEST",
-      "paymentMethod": "Cash",
-      "country": "UAE",
-      "totalPurchase": 10000,
-      "grandTotal": 11000
-    }
-  }'
-```
-
-成功時のレスポンス:
-
-```json
-{"status":"success","message":"Row appended successfully"}
-```
-
-## トラブルシューティング
-
-| 症状 | 原因 | 対処 |
-|------|------|------|
-| `AUTH_ERROR: Invalid self-generated token` | SELF_GENERATED_TOKEN が一致していない | Script Properties の `SELF_GENERATED_TOKEN` とクライアント設定を確認 |
-| `AUTH_ERROR: Invalid admin passcode` | ADMIN_PASSCODE が一致していない | Script Properties の `ADMIN_PASSCODE` と `/admin` の入力値を確認 |
-| `CONFIG_ERROR: ADMIN_PASSCODE is not configured` | ADMIN_PASSCODE 未設定 | Script Properties に `ADMIN_PASSCODE` を追加 |
-| `VALIDATION_ERROR` | 必須フィールドが不足 | エラーレスポンスの `errors` 配列で不足フィールドを確認 |
-| `SERVER_ERROR` | スプレッドシートへの書き込み失敗 | `SHEET_ID` と `SHEET_NAME` を確認。シートの列構成が正しいか確認 |
-| 403 / 権限エラー | デプロイ設定が不正 | 「アクセスできるユーザー」を「全員」に設定しているか確認 |
-| リダイレクトで結果が取れない | `-L` フラグ未指定 | curl に `-L`（リダイレクトに追従）を付ける |
-
-## 更新デプロイ
-
-コードを変更した場合:
-
-1. Code.gs を更新して保存
+1. `Code.gs` を更新して保存
 2. 「デプロイ」→「デプロイを管理」
-3. 鉛筆アイコン（編集）→「バージョン」を「新しいバージョン」に変更
-4. 「デプロイ」をクリック
-
-URL は変更されない。
+3. 既存デプロイを編集して「新しいバージョン」で再デプロイ
+4. URL は通常そのまま（変更なし）

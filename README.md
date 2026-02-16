@@ -44,13 +44,60 @@ demo/
 └── README.md        # このファイル
 ```
 
-## ローカル実行
+## 最小セットアップ（非エンジニア向け）
+
+### 1. 先に決める値（Apps Script Script Properties）
+
+| プロパティ | 説明 | デフォルト |
+|---|---|---|
+| `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
+| `ADMIN_PASSCODE` | 管理画面の解錠用パスコード | （必須） |
+
+### 2. Apps Script 側で設定する
+
+1. Apps Script エディタで「プロジェクトの設定」→「スクリプト プロパティ」を開く  
+2. `SELF_GENERATED_TOKEN` と `ADMIN_PASSCODE` を追加して保存する  
+3. Web App としてデプロイすると URL が発行されるので控える
+
+### 3. Web App デプロイ時の設定（重要）
+
+- **次のユーザーとして実行**: `自分`（推奨）
+- **アクセスできるユーザー**: `全員`
+
+`次のユーザーとして実行` を `ウェブアプリケーションにアクセスしているユーザー` にすると、利用者ごとに Google ログインとスプレッドシート権限が必要になり、店舗運用では失敗しやすくなります。
+
+### 4. 管理画面 `/admin` で URL を設定する
+
+1. 管理画面を開く  
+2. Unlock に `ADMIN_PASSCODE` を入力  
+3. Connection の `Web App URL` 欄に、控えた URL を貼り付ける  
+4. `Self-Generated Token` 欄に `SELF_GENERATED_TOKEN` を入力  
+5. `Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
+
+### 5. 今回の Web App URL（貼り付け先）
+
+下記 URL を **/admin の Connection > Web App URL** にそのまま貼り付けてください。
+
+`https://script.google.com/macros/s/AKfycbzjLINqnJ_hWbk8vgL9iXEMpNEWwV1sdItO472Iij2pcL45rJUQT9T3a1QFx9XgSU_B/exec`
+
+### 6. よくあるエラー
+
+- `CONFIG_ERROR: ADMIN_PASSCODE is not configured`
+  - 原因: Script Properties に `ADMIN_PASSCODE` が未設定
+  - 対処: Apps Script 側で `ADMIN_PASSCODE` を追加して保存し、`/admin` で再実行
+
+※ `SHEET_ID` と `SHEET_NAME` は管理画面（`/admin`）の Spreadsheet 設定ウィザードで自動保存されます。
+
+## 詳細セットアップ（必要な場合のみ）
+
+Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./demo/apps-script/README.md) を参照。
+
+## ローカル実行（開発者向け）
 
 1. `cd demo && npm run serve`
 2. 管理画面 `http://localhost:3000/admin/` を開く
-3. Unlock で `ADMIN_PASSCODE` を入力
-4. Connection で `Web App URL` と `Self-Generated Token` を入力し、Test Connection → Spreadsheet 設定 → Apply Spreadsheet
-5. ユーザー画面 `http://localhost:3000/web/` を開き、Customer Info → Staff Review → Submit
+3. 上記「最小セットアップ」に沿って接続設定
+4. ユーザー画面 `http://localhost:3000/web/` を開き、Customer Info → Staff Review → Submit
 
 ## テスト実行
 
@@ -58,26 +105,6 @@ demo/
 # Apps Script エンドポイントのテスト
 node demo/tests/apps-script.test.js
 ```
-
-## 環境変数（Apps Script Script Properties）
-
-| プロパティ | 説明 | デフォルト |
-|---|---|---|
-| `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
-| `ADMIN_PASSCODE` | 管理画面の解錠用パスコード | （必須） |
-
-### ADMIN_PASSCODE 初回セットアップ（必須）
-
-1. Apps Script エディタで「プロジェクトの設定」→「スクリプト プロパティ」を開く  
-2. `ADMIN_PASSCODE` を追加し、任意の値を設定して保存する  
-3. `/admin` の Unlock には、この `ADMIN_PASSCODE` を入力する  
-4. 未設定のまま進めると Test Connection 時に `CONFIG_ERROR: ADMIN_PASSCODE is not configured` になるため、設定後に再試行する
-
-※ `SHEET_ID` と `SHEET_NAME` は管理画面（`/admin`）の Spreadsheet 設定ウィザードで自動保存されます。
-
-## 詳細セットアップ
-
-Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./demo/apps-script/README.md) を参照。
 
 ## E2E テスト
 
