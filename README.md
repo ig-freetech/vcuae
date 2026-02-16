@@ -12,6 +12,28 @@
 - **Apps Script**: Google が提供するサーバーレス実行環境。Self-Generated Token 認証、バリデーション、派生フィールド計算を行い、スプレッドシートに 1 行追記する
 - **Google Spreadsheet**: データの永続化先
 
+## GitHub Pages 公開 URL
+
+- ユーザー入力画面（`/web`）: `https://ig-freetech.github.io/vcuae/web/`
+- 管理画面（`/admin`）: `https://ig-freetech.github.io/vcuae/admin/`
+
+## スマホ・タブレットにアプリとしてインストールする手順
+
+### iPhone / iPad（Safari）
+
+1. Safari で `https://ig-freetech.github.io/vcuae/web/` を開く
+2. 共有ボタンをタップ
+3. 「ホーム画面に追加」を選択
+4. 名前を確認して「追加」
+
+### Android（Chrome）
+
+1. Chrome で `https://ig-freetech.github.io/vcuae/web/` を開く
+2. メニューから「アプリをインストール」または「ホーム画面に追加」を選択
+3. 確認ダイアログでインストール
+
+管理者設定をアプリ化したい場合は `https://ig-freetech.github.io/vcuae/admin/` に対して同じ手順を行ってください。
+
 ## ディレクトリ構造
 
 ```
@@ -77,11 +99,11 @@ demo/
 3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
 4. 2回目以降は、保存済み URL/Token を使うため Unlock は `ADMIN_PASSCODE` のみ入力（セットアップガイドは非表示）
 
-### 5. 今回の Web App URL（貼り付け先）
+### 5. Web App URL の入力先
 
-下記 URL を **/admin の初回 Unlock（または Connection > Web App URL）** にそのまま貼り付けてください。
+`/admin` の初回 Unlock（または Connection > Web App URL）には、**あなたの Apps Script プロジェクトで発行した Web App URL** を入力してください。
 
-`https://script.google.com/macros/s/AKfycbzjLINqnJ_hWbk8vgL9iXEMpNEWwV1sdItO472Iij2pcL45rJUQT9T3a1QFx9XgSU_B/exec`
+形式は通常 `https://script.google.com/macros/s/.../exec` です。
 
 ### 6. よくあるエラー
 

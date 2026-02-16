@@ -38,9 +38,11 @@ Apps Script 画面の「プロジェクトの設定」→「スクリプト プ�
 3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
 4. 2回目以降の Unlock は `ADMIN_PASSCODE` のみ入力（セットアップガイドは非表示）
 
-### 今回の Web App URL（既に発行済み）
+### Web App URL について
 
-`https://script.google.com/macros/s/AKfycbzjLINqnJ_hWbk8vgL9iXEMpNEWwV1sdItO472Iij2pcL45rJUQT9T3a1QFx9XgSU_B/exec`
+`/admin` に入力する URL は、**この手順であなたがデプロイして発行した Web App URL** を使ってください。
+
+形式は通常 `https://script.google.com/macros/s/.../exec` です。
 
 ## よくあるエラー
 
