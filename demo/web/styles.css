@@ -87,6 +87,8 @@ body {
   letter-spacing: 0.01em;
   position: relative;
   z-index: 1;
+  user-select: none;
+  cursor: default;
 }
 
 .hero p {
@@ -542,33 +544,6 @@ button:disabled {
 .view { display: none; }
 .view.active { display: block; }
 
-/* === Gear FAB === */
-.gear-fab {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(120deg, var(--brand), var(--brand-soft));
-  color: #fff;
-  border: none;
-  box-shadow: 0 8px 16px rgba(6,22,44,0.25);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 180ms ease, box-shadow 180ms ease;
-  z-index: 100;
-}
-.gear-fab:hover { transform: scale(1.08) translateY(-2px); box-shadow: 0 12px 24px rgba(6,22,44,0.3); }
-.gear-fab:active { transform: scale(1.0); }
-.gear-fab svg { display: block; }
-.gear-fab.hidden { display: none; }
-
-@media (max-width: 840px) {
-  .gear-fab { bottom: 16px; left: 16px; }
-}
 
 /* === Config Banner === */
 .config-banner {

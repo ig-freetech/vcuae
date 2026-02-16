@@ -56,7 +56,6 @@
   // --- View navigation refs ---
   var mainView = document.getElementById("main-view");
   var settingsView = document.getElementById("settings-view");
-  var gearBtn = document.getElementById("gear-btn");
   var backToMain = document.getElementById("back-to-main");
   var backToMainBottom = document.getElementById("back-to-main-bottom");
   var configBanner = document.getElementById("config-banner");
@@ -191,11 +190,9 @@
     if (viewName === "settings") {
       mainView.classList.remove("active");
       settingsView.classList.add("active");
-      gearBtn.classList.add("hidden");
     } else {
       settingsView.classList.remove("active");
       mainView.classList.add("active");
-      gearBtn.classList.remove("hidden");
       updateConfigBanner();
     }
   }
@@ -348,8 +345,8 @@
   // --- Initialize view ---
   (function initView() {
     var hasEndpoint = localStorage.getItem("ledger_endpoint");
-    var hasApiKey = localStorage.getItem("ledger_apiKey");
-    if (!hasEndpoint || !hasApiKey) {
+    var hasToken = localStorage.getItem("ledger_selfGeneratedToken") || localStorage.getItem("ledger_apiKey");
+    if (!hasEndpoint || !hasToken) {
       showView("settings");
     } else {
       showView("main");
@@ -625,8 +622,22 @@
   visitDateInput.addEventListener("input", updateDerived);
   visitDateInput.addEventListener("change", updateDerived);
 
+  // --- Hidden admin gesture (tap title 5 times within 3 seconds) ---
+  var adminTapCount = 0;
+  var adminTapTimer = null;
+  document.querySelector(".hero h1").addEventListener("click", function () {
+    adminTapCount++;
+    if (adminTapCount === 1) {
+      adminTapTimer = setTimeout(function () { adminTapCount = 0; }, 3000);
+    }
+    if (adminTapCount >= 5) {
+      clearTimeout(adminTapTimer);
+      adminTapCount = 0;
+      showView("settings");
+    }
+  });
+
   // --- View navigation listeners ---
-  gearBtn.addEventListener("click", function() { showView("settings"); });
   backToMain.addEventListener("click", function() { showView("main"); });
   backToMainBottom.addEventListener("click", function() { showView("main"); });
 
