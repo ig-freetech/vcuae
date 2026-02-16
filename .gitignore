@@ -3,6 +3,7 @@
 .worktrees/
 docs/
 .specstory/
+openspec/
 
 .claude/
 .codex/
@@ -11,6 +12,7 @@ AGENTS.md
 
 **/CLAUDE.md
 
+.gitattributes
 .gitmodules
 
 # demo
