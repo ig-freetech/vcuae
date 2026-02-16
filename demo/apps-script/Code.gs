@@ -553,6 +553,44 @@ function doGet(e) {
       var data = sheet.getRange(lastRow, 1, 1, SHEET_HEADERS.length).getValues()[0];
       return jsonResponse_({ status: "success", headers: SHEET_HEADERS, row: data });
     }
+    if (action === "listSheets") {
+      var targetSheetId = params.spreadsheetId ||
+        PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+      if (!targetSheetId) {
+        return jsonResponse_({ status: "error", code: "CONFIG_ERROR", message: "No spreadsheet ID configured or provided" });
+      }
+      try {
+        var ss = SpreadsheetApp.openById(targetSheetId);
+        var sheets = ss.getSheets();
+        var sheetNames = [];
+        for (var i = 0; i < sheets.length; i++) {
+          sheetNames.push(sheets[i].getName());
+        }
+        return jsonResponse_({ status: "success", spreadsheetId: targetSheetId, sheets: sheetNames });
+      } catch (e) {
+        return jsonResponse_({ status: "error", code: "ACCESS_ERROR", message: "Cannot access spreadsheet: " + e.message });
+      }
+    }
+    if (action === "getHeaders") {
+      var hSheetId = params.spreadsheetId ||
+        PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+      var hSheetName = params.sheetName ||
+        PropertiesService.getScriptProperties().getProperty("SHEET_NAME") || "Sheet1";
+      if (!hSheetId) {
+        return jsonResponse_({ status: "error", code: "CONFIG_ERROR", message: "No spreadsheet ID configured or provided" });
+      }
+      try {
+        var hSheet = SpreadsheetApp.openById(hSheetId).getSheetByName(hSheetName);
+        if (!hSheet) {
+          return jsonResponse_({ status: "error", code: "NOT_FOUND", message: "Sheet '" + hSheetName + "' not found" });
+        }
+        var lastCol = hSheet.getLastColumn();
+        var headers = lastCol > 0 ? hSheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+        return jsonResponse_({ status: "success", headers: headers, sheetName: hSheetName, expectedHeaders: SHEET_HEADERS });
+      } catch (e) {
+        return jsonResponse_({ status: "error", code: "ACCESS_ERROR", message: e.message });
+      }
+    }
     return jsonResponse_({ status: "ok", message: "Web App is running" });
   } catch (err) {
     return jsonResponse_({ status: "error", code: "SERVER_ERROR", message: err.message });
@@ -602,7 +640,37 @@ function doPost(e) {
       });
     }
 
-    // --- 2. Extract data payload ---
+    // --- Route by action ---
+    var action = body.action || "appendRow";
+
+    if (action === "configure") {
+      var config = body.config;
+      if (!config || typeof config !== "object") {
+        return jsonResponse_({ status: "error", code: "VALIDATION_ERROR", message: "Missing or invalid config field" });
+      }
+      var props = PropertiesService.getScriptProperties();
+      if (config.spreadsheetId) {
+        try {
+          SpreadsheetApp.openById(config.spreadsheetId);
+        } catch (accessErr) {
+          return jsonResponse_({ status: "error", code: "ACCESS_ERROR", message: "Cannot access spreadsheet: " + accessErr.message });
+        }
+        props.setProperty("SHEET_ID", config.spreadsheetId);
+      }
+      if (config.sheetName) {
+        props.setProperty("SHEET_NAME", config.sheetName);
+      }
+      return jsonResponse_({
+        status: "success",
+        message: "Configuration updated",
+        currentConfig: {
+          sheetId: props.getProperty("SHEET_ID"),
+          sheetName: props.getProperty("SHEET_NAME") || "Sheet1"
+        }
+      });
+    }
+
+    // --- 2. Extract data payload (appendRow action) ---
     var data = body.data;
     if (!data || typeof data !== "object") {
       return jsonResponse_({
