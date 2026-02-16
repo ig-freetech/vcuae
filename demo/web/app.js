@@ -314,12 +314,12 @@
     var ssId = extractSpreadsheetId(ssUrl);
 
     if (!ssId) {
-      spreadsheetStatus.textContent = "有効なスプレッドシート URL を入力してください";
+      spreadsheetStatus.textContent = "Please enter a valid spreadsheet URL";
       spreadsheetStatus.className = "status err";
       return;
     }
 
-    spreadsheetStatus.textContent = "シート一覧を取得中...";
+    spreadsheetStatus.textContent = "Loading sheets...";
     spreadsheetStatus.className = "status";
     loadSheetsBtn.disabled = true;
 
@@ -331,7 +331,7 @@
           sheetNameSelect.innerHTML = "";
           var placeholder = document.createElement("option");
           placeholder.value = "";
-          placeholder.textContent = "-- シートを選択 --";
+          placeholder.textContent = "-- Select a sheet --";
           placeholder.disabled = true;
           placeholder.selected = true;
           sheetNameSelect.appendChild(placeholder);
@@ -343,10 +343,10 @@
             sheetNameSelect.appendChild(opt);
           }
           sheetNameSelect.disabled = false;
-          spreadsheetStatus.textContent = data.sheets.length + " シートを取得しました";
+          spreadsheetStatus.textContent = data.sheets.length + " sheet(s) retrieved";
           spreadsheetStatus.className = "status ok";
         } else {
-          spreadsheetStatus.textContent = data.message || "シート一覧の取得に失敗しました";
+          spreadsheetStatus.textContent = data.message || "Failed to retrieve sheet list";
           spreadsheetStatus.className = "status err";
         }
       })
@@ -368,17 +368,17 @@
     var selectedSheet = sheetNameSelect.value;
 
     if (!ssId) {
-      spreadsheetStatus.textContent = "有効なスプレッドシート URL を入力してください";
+      spreadsheetStatus.textContent = "Please enter a valid spreadsheet URL";
       spreadsheetStatus.className = "status err";
       return;
     }
     if (!selectedSheet) {
-      spreadsheetStatus.textContent = "シートを選択してください";
+      spreadsheetStatus.textContent = "Please select a sheet";
       spreadsheetStatus.className = "status err";
       return;
     }
 
-    spreadsheetStatus.textContent = "スプレッドシートを設定中...";
+    spreadsheetStatus.textContent = "Configuring spreadsheet...";
     spreadsheetStatus.className = "status";
     applySpreadsheetBtn.disabled = true;
 
@@ -403,13 +403,13 @@
           localStorage.setItem("ledger_sheetName", selectedSheet);
           localStorage.setItem("ledger_connectionVerified", "true");
 
-          spreadsheetStatus.textContent = "スプレッドシートを設定しました";
+          spreadsheetStatus.textContent = "Spreadsheet configured";
           spreadsheetStatus.className = "status ok";
 
           revealStep3();
           getHeaders(ep, ak, selectedSheet);
         } else {
-          spreadsheetStatus.textContent = data.message || "設定に失敗しました";
+          spreadsheetStatus.textContent = data.message || "Configuration failed";
           spreadsheetStatus.className = "status err";
         }
       })
@@ -532,7 +532,7 @@
     var ep = localStorage.getItem("ledger_endpoint");
     var ak = localStorage.getItem("ledger_apiKey");
     if (!ep || !ak) {
-      showStatus("接続設定を入力してください", "err");
+      showStatus("Please configure connection settings first", "err");
       return;
     }
 
@@ -547,7 +547,7 @@
       .then(function (response) {
         return response.json().then(function (result) {
           if (response.ok && result.status === "success") {
-            showStatus("送信成功", "ok");
+            showStatus("Submission successful", "ok");
             ledgerForm.reset();
             // Re-set default visit date after reset
             visitDateInput.value = todayISO();
@@ -561,14 +561,14 @@
             showPane("customer");
           } else {
             showStatus(
-              result.message || "送信エラー: " + response.status,
+              result.message || "Submission error: " + response.status,
               "err"
             );
           }
         });
       })
       .catch(function (err) {
-        showStatus("通信エラー: " + err.message, "err");
+        showStatus("Connection error: " + err.message, "err");
       })
       .finally(function () {
         submitBtn.disabled = false;

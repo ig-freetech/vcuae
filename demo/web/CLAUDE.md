@@ -7,8 +7,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #10631 | 2:01 AM | ✅ | Column Mapping Table Headers Localized to English | ~264 |
-| #10627 | 2:00 AM | 🔵 | Semantic HTML5 Progressive Web App Structure | ~872 |
-| #10615 | 1:49 AM | 🔵 | Progressive Web App UI with Multi-Step Forms and Real-Time Validation | ~849 |
-| #10605 | 1:36 AM | 🟣 | Settings UI Progressive Disclosure and Sheet Configuration Flow | ~598 |
+| #10633 | 2:01 AM | ✅ | Connection Test Error Message Internationalized | ~250 |
 </claude-mem-context>

@@ -9,6 +9,8 @@ docs/
 .CLAUDE.md
 .AGENTS.md
 
+**/.CLAUDE.md
+
 # demo
 demo/.env
 demo/node_modules/
