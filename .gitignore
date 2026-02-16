@@ -12,3 +12,8 @@
 !.cccp/logs/reviews/
 .cccp/logs/reviews/*
 !.cccp/logs/reviews/.gitkeep
+
+# demo
+demo/.env
+demo/node_modules/
+demo/.clasp.json
