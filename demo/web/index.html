@@ -25,37 +25,87 @@
       <section class="card settings-card">
         <details id="settings-panel">
           <summary>接続設定</summary>
-          <p class="help-text">
-            Google Apps Script の Web App URL と API Key を入力してください。
-          </p>
-          <div class="grid two-col">
-            <label>
-              <span>Web App URL</span>
-              <input
-                id="endpoint"
-                name="endpoint"
-                type="url"
-                placeholder="https://script.google.com/macros/s/.../exec"
-                autocomplete="off"
-                required
-              />
-            </label>
-            <label>
-              <span>API Key</span>
-              <input
-                id="api-key"
-                name="apiKey"
-                type="password"
-                placeholder="script properties に設定した値"
-                autocomplete="off"
-                required
-              />
-            </label>
+
+          <!-- Step 1: 接続情報 -->
+          <div id="settings-step-1" class="settings-step">
+            <h3 class="settings-step-title">
+              <span class="step-number">1</span> 接続情報
+            </h3>
+            <p class="help-text">Google Apps Script の Web App URL と API Key を入力してください。</p>
+            <div class="grid two-col">
+              <label>
+                <span>Web App URL</span>
+                <input id="endpoint" name="endpoint" type="url"
+                  placeholder="https://script.google.com/macros/s/.../exec"
+                  autocomplete="off" required />
+              </label>
+              <label>
+                <span>API Key</span>
+                <input id="api-key" name="apiKey" type="password"
+                  placeholder="Script Properties に設定した値"
+                  autocomplete="off" required />
+              </label>
+            </div>
+            <div class="actions">
+              <button id="test-connection" type="button" class="secondary">接続テスト</button>
+              <button id="save-settings" type="button" class="secondary">設定を保存</button>
+            </div>
+            <output id="connection-status" class="status" aria-live="polite"></output>
           </div>
-          <div class="actions">
-            <button id="save-settings" type="button" class="secondary">
-              設定を保存
-            </button>
+
+          <!-- Step 2: スプレッドシート設定 (initially hidden) -->
+          <div id="settings-step-2" class="settings-step hidden">
+            <h3 class="settings-step-title">
+              <span class="step-number">2</span> スプレッドシート設定
+            </h3>
+            <p class="help-text">
+              データの書き込み先スプレッドシートの URL を入力してください。
+              <br><small>例: https://docs.google.com/spreadsheets/d/XXXXX/edit</small>
+            </p>
+            <label class="full-width">
+              <span>Spreadsheet URL</span>
+              <input id="spreadsheet-url" name="spreadsheetUrl" type="url"
+                placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                autocomplete="off" />
+            </label>
+            <label>
+              <span>Sheet Name</span>
+              <select id="sheet-name" name="sheetName" disabled>
+                <option value="">-- シートを選択 --</option>
+              </select>
+            </label>
+            <div class="actions">
+              <button id="load-sheets" type="button" class="secondary">シート読み込み</button>
+              <button id="apply-spreadsheet" type="button" class="secondary">スプレッドシートを設定</button>
+            </div>
+            <output id="spreadsheet-status" class="status" aria-live="polite"></output>
+          </div>
+
+          <!-- Step 3: 列マッピング確認 (initially hidden) -->
+          <div id="settings-step-3" class="settings-step hidden">
+            <h3 class="settings-step-title">
+              <span class="step-number">3</span> 列マッピング確認
+            </h3>
+            <div id="column-mapping" class="column-mapping-grid"></div>
+            <div id="header-mismatch-warning" class="warning hidden">
+              <strong>注意:</strong> スプレッドシートのヘッダーが期待値と一致しません。
+              <pre id="header-diff"></pre>
+            </div>
+          </div>
+
+          <!-- セットアップガイド -->
+          <div class="setup-guide">
+            <details>
+              <summary>セットアップガイド</summary>
+              <ol class="guide-steps">
+                <li>Google Apps Script でプロジェクトを作成し、Code.gs をデプロイ</li>
+                <li>Script Properties に API_KEY を設定</li>
+                <li>上の「接続情報」に Web App URL と API Key を入力</li>
+                <li>「接続テスト」で接続を確認</li>
+                <li>「スプレッドシート設定」でデータの書き込み先を選択</li>
+                <li>列マッピングが正しいことを確認して完了</li>
+              </ol>
+            </details>
           </div>
         </details>
       </section>
@@ -75,19 +125,19 @@
             <h2>お客様入力</h2>
             <div class="grid two-col">
               <label>
-                <span>Customer Name</span>
+                <span>Customer Name <span class="col-badge">C</span></span>
                 <input name="customerName" required autocomplete="name" />
               </label>
               <label>
-                <span>Gender</span>
+                <span>Gender <span class="col-badge">D</span></span>
                 <select id="gender" name="gender" required></select>
               </label>
               <label>
-                <span>Birthday</span>
+                <span>Birthday <span class="col-badge">E</span></span>
                 <input name="birthday" type="date" required />
               </label>
               <label>
-                <span>Mobile Number</span>
+                <span>Mobile Number <span class="col-badge">G</span></span>
                 <input
                   name="mobileNumber"
                   type="tel"
@@ -97,11 +147,11 @@
                 />
               </label>
               <label>
-                <span>Email (任意)</span>
+                <span>Email (任意) <span class="col-badge">H</span></span>
                 <input name="email" type="email" autocomplete="email" />
               </label>
               <label>
-                <span>Country</span>
+                <span>Country <span class="col-badge">L</span></span>
                 <input
                   id="country"
                   name="country"
@@ -112,7 +162,7 @@
                 <datalist id="country-list"></datalist>
               </label>
               <label class="full">
-                <span>Address</span>
+                <span>Address <span class="col-badge">I</span></span>
                 <textarea
                   name="address"
                   rows="2"
@@ -121,15 +171,15 @@
                 ></textarea>
               </label>
               <label>
-                <span>CsCategory</span>
+                <span>CsCategory <span class="col-badge">B</span></span>
                 <select id="cs-category" name="csCategory" required></select>
               </label>
               <div class="derived">
-                <p>Age: <strong id="derived-age">-</strong></p>
-                <p>誕生月: <strong id="derived-month">-</strong></p>
-                <p>CountryJP: <strong id="derived-country-jp">-</strong></p>
-                <p>Continent: <strong id="derived-continent">-</strong></p>
-                <p>Subregion: <strong id="derived-subregion">-</strong></p>
+                <p>Age <span class="col-badge">F</span>: <strong id="derived-age">-</strong></p>
+                <p>誕生月 <span class="col-badge">P</span>: <strong id="derived-month">-</strong></p>
+                <p>国名（日） <span class="col-badge">M</span>: <strong id="derived-country-jp">-</strong></p>
+                <p>大陸 <span class="col-badge">N</span>: <strong id="derived-continent">-</strong></p>
+                <p>小地域 <span class="col-badge">O</span>: <strong id="derived-subregion">-</strong></p>
               </div>
             </div>
             <div class="actions">
@@ -141,19 +191,19 @@
             <h2>スタッフ入力</h2>
             <div class="grid two-col">
               <label>
-                <span>Visit Date</span>
+                <span>Visit Date <span class="col-badge">A</span></span>
                 <input name="visitDate" type="date" required />
               </label>
               <label>
-                <span>REF (任意)</span>
+                <span>REF (任意) <span class="col-badge">J</span></span>
                 <input name="ref" autocomplete="off" />
               </label>
               <label>
-                <span>Payment Method</span>
+                <span>Payment Method <span class="col-badge">K</span></span>
                 <select id="payment-method" name="paymentMethod" required></select>
               </label>
               <label>
-                <span>総買取額</span>
+                <span>総買取額 <span class="col-badge">Q</span></span>
                 <input
                   name="totalPurchase"
                   type="text"
@@ -163,7 +213,7 @@
                 />
               </label>
               <label>
-                <span>総合計</span>
+                <span>総合計 <span class="col-badge">R</span></span>
                 <input
                   name="grandTotal"
                   type="text"

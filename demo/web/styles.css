@@ -83,10 +83,12 @@ body {
 }
 
 .help-text {
-  margin: 0 0 0.7rem;
+  font-size: 0.85rem;
   color: var(--muted);
-  font-size: 0.9rem;
+  margin: 0.25rem 0 0.75rem;
+  line-height: 1.5;
 }
+.help-text small { opacity: 0.7; }
 
 .stepper {
   display: grid;
@@ -259,4 +261,116 @@ button:disabled {
   .actions.split {
     flex-direction: column-reverse;
   }
+}
+
+/* ── Column Badge ── */
+.col-badge {
+  display: inline-block;
+  background: #e8f0eb;
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  margin-left: 0.25em;
+  vertical-align: middle;
+  opacity: 0.55;
+  letter-spacing: 0.05em;
+}
+
+/* ── Settings Steps ── */
+.settings-step {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed var(--line);
+}
+.settings-step:last-of-type { border-bottom: none; }
+.settings-step.hidden { display: none; }
+
+.settings-step-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.full-width { grid-column: 1 / -1; }
+
+/* ── Column Mapping Table ── */
+.column-mapping-grid { overflow-x: auto; }
+
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.mapping-table th,
+.mapping-table td {
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.mapping-table th {
+  background: #f0f5f2;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.source-derived { color: var(--accent); font-style: italic; }
+.match-ok { color: #2e7d32; }
+.match-err { color: #c62828; font-weight: 600; }
+.match-pending { color: var(--muted); }
+
+/* ── Warning ── */
+.warning {
+  background: #fff4e5;
+  border: 1px solid #f0c36d;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #7a5d1f;
+}
+.warning.hidden { display: none; }
+.warning pre {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  color: #5a3f0a;
+}
+
+/* ── Setup Guide ── */
+.setup-guide {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.setup-guide > details > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+.guide-steps {
+  margin: 0.5rem 0 0;
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
 }
