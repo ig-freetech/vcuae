@@ -1,0 +1,19 @@
+.beads/
+.cccp/
+.worktrees/
+docs/
+.specstory/
+
+.claude/
+.codex/
+CLAUDE.md
+AGENTS.md
+
+**/CLAUDE.md
+
+# demo
+demo/.env
+demo/node_modules/
+demo/.clasp.json
+
+.playwright-cli/
