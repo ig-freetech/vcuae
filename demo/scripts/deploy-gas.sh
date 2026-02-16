@@ -9,14 +9,15 @@ WORK_DIR="$DEMO_DIR/.gas-work"  # clasp 作業ディレクトリ（一時的）
 echo "=== GAS Deploy Script ==="
 
 # 1. clasp チェック
-if ! npx clasp --version &>/dev/null; then
+if ! command -v clasp &>/dev/null && ! $CLASP --version &>/dev/null; then
   echo "Error: clasp not found. Run: npm install -g @google/clasp"
   exit 1
 fi
+CLASP=$(command -v clasp || echo "$CLASP")
 
 # 2. ログイン状態チェック
 if [ ! -f "$HOME/.clasprc.json" ]; then
-  echo "Error: Not logged in. Run: npx clasp login --no-localhost"
+  echo "Error: Not logged in. Run: $CLASP login --no-localhost"
   exit 1
 fi
 
@@ -32,7 +33,7 @@ cd "$WORK_DIR"
 # .clasp.json が既にあれば削除（新規作成のため）
 rm -f .clasp.json
 
-npx clasp create --type sheets --parentId "$SHEET_ID" --title "買取台帳 E2E"
+$CLASP create --type sheets --parentId "$SHEET_ID" --title "買取台帳 E2E"
 echo "GAS project created."
 
 # 5. Code.gs + appsscript.json をコピー
@@ -55,11 +56,11 @@ MANIFEST
 fi
 
 # 6. clasp push
-npx clasp push --force
+$CLASP push --force
 echo "Code pushed."
 
 # 7. clasp deploy（Web App）
-DEPLOY_OUTPUT=$(npx clasp deploy --description "E2E auto-deploy")
+DEPLOY_OUTPUT=$($CLASP deploy --description "E2E auto-deploy")
 echo "Deploy output: $DEPLOY_OUTPUT"
 
 # clasp deploy の出力からデプロイ ID を抽出
@@ -69,7 +70,7 @@ DEPLOY_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE 'AKfycb[A-Za-z0-9_-]+' || echo "")
 if [ -z "$DEPLOY_ID" ]; then
   echo "Warning: Could not parse deploy ID from output."
   echo "Attempting to list deployments..."
-  DEPLOY_LIST=$(npx clasp deployments)
+  DEPLOY_LIST=$($CLASP deployments)
   echo "$DEPLOY_LIST"
   DEPLOY_ID=$(echo "$DEPLOY_LIST" | grep -oE 'AKfycb[A-Za-z0-9_-]+' | tail -1 || echo "")
 fi
@@ -104,12 +105,12 @@ function setScriptProperties_() {
 }
 PROPS
 
-npx clasp push --force
-npx clasp run setScriptProperties_ 2>/dev/null || echo "Warning: clasp run failed (manual properties setup may be needed)"
+$CLASP push --force
+$CLASP run setScriptProperties_ 2>/dev/null || echo "Warning: clasp run failed (manual properties setup may be needed)"
 
 # 元の Code.gs に戻す（SetProperties.gs を削除）
 rm -f "$WORK_DIR/SetProperties.gs"
-npx clasp push --force
+$CLASP push --force
 
 # 9. .env 出力
 cat > "$DEMO_DIR/.env" <<ENV

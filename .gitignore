@@ -17,3 +17,5 @@
 demo/.env
 demo/node_modules/
 demo/.clasp.json
+
+.playwright-cli/

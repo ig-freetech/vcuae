@@ -22,87 +22,64 @@ const { google } = require('googleapis');
 function getAuthClient() {
   const clasprcPath = path.join(require('os').homedir(), '.clasprc.json');
   if (!fs.existsSync(clasprcPath)) {
-    throw new Error('~/.clasprc.json not found. Run: npx clasp login --no-localhost');
+    throw new Error('~/.clasprc.json not found. Run: clasp login --no-localhost');
   }
   const clasprc = JSON.parse(fs.readFileSync(clasprcPath, 'utf8'));
-  const oauth2Client = new google.auth.OAuth2(
-    clasprc.oauth2ClientSettings.clientId,
-    clasprc.oauth2ClientSettings.clientSecret
-  );
-  oauth2Client.setCredentials(clasprc.token);
+  let clientId, clientSecret, token;
+  if (clasprc.tokens && clasprc.tokens.default) {
+    // clasp v3.x format
+    const t = clasprc.tokens.default;
+    clientId = t.client_id;
+    clientSecret = t.client_secret;
+    token = { access_token: t.access_token, refresh_token: t.refresh_token };
+  } else {
+    // clasp v2.x format
+    clientId = clasprc.oauth2ClientSettings.clientId;
+    clientSecret = clasprc.oauth2ClientSettings.clientSecret;
+    token = clasprc.token;
+  }
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials(token);
   return oauth2Client;
 }
 
 /**
- * スプレッドシートのヘッダー行（Code.gs の SHEET_HEADERS と一致させる）
- */
-const HEADERS = [
-  'VisitDate', 'CsCategory', 'CustomerName', 'Gender', 'Birthday',
-  'Age', 'MobileNumber', 'Email', 'Address', 'REF',
-  'PaymentMethod', 'Country', 'CountryJP', 'Continent大陸',
-  'Subregion小地域', '誕生月', '総買取額', '総合計'
-];
-
-/**
- * 新しいスプレッドシートを作成しヘッダー行を設定する。
+ * 新しいスプレッドシートを Drive API で作成する。
+ * ヘッダー行は Code.gs の ensureHeaders_ が初回 POST 時に自動設定する。
  * stdout にスプレッドシートID を出力する。
  */
 async function createSheet() {
   const auth = getAuthClient();
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  // スプレッドシート作成
-  const res = await sheets.spreadsheets.create({
+  const drive = google.drive({ version: 'v3', auth });
+  const res = await drive.files.create({
     requestBody: {
-      properties: { title: '買取台帳 E2E テスト' },
-      sheets: [{
-        properties: { title: 'Sheet1' },
-      }],
+      name: '買取台帳 E2E テスト',
+      mimeType: 'application/vnd.google-apps.spreadsheet',
     },
+    fields: 'id',
   });
-
-  const spreadsheetId = res.data.spreadsheetId;
-
-  // ヘッダー行を設定
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: 'Sheet1!A1:R1',
-    valueInputOption: 'RAW',
-    requestBody: {
-      values: [HEADERS],
-    },
-  });
-
-  // stdout にスプレッドシートIDを出力（deploy-gas.sh で使う）
-  console.log(spreadsheetId);
+  console.log(res.data.id);
 }
 
 /**
- * スプレッドシートの最終行を読み取って JSON で出力する。
- * 環境変数 GOOGLE_SHEET_ID が必要。
+ * GAS Web App の doGet 経由でスプレッドシートの最終行を読み取って JSON で出力する。
+ * 環境変数 GAS_ENDPOINT_URL, GAS_API_KEY が必要。
  */
 async function readLastRow() {
-  const auth = getAuthClient();
-  const sheets = google.sheets({ version: 'v4', auth });
-  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-
-  if (!spreadsheetId) {
-    console.error('GOOGLE_SHEET_ID environment variable is required');
+  const endpointUrl = process.env.GAS_ENDPOINT_URL;
+  const apiKey = process.env.GAS_API_KEY;
+  if (!endpointUrl || !apiKey) {
+    console.error('GAS_ENDPOINT_URL and GAS_API_KEY environment variables are required');
     process.exit(1);
   }
-
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: 'Sheet1!A:R',
-  });
-
-  const rows = res.data.values;
-  if (!rows || rows.length < 2) {
-    console.error('No data rows found');
+  const url = `${endpointUrl}?action=readLastRow&apiKey=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, { redirect: 'follow' });
+  const json = await res.json();
+  if (json.status !== 'success') {
+    console.error(json.message || 'Failed to read last row');
     process.exit(1);
   }
-
-  console.log(JSON.stringify(rows[rows.length - 1]));
+  console.log(JSON.stringify(json.row));
 }
 
 // CLI

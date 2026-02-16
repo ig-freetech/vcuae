@@ -13,8 +13,6 @@
  */
 
 var path = require("path");
-var fs = require("fs");
-var os = require("os");
 
 // Load .env from demo root
 require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
@@ -22,45 +20,24 @@ require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
 // LedgerCore for expected-value computation
 var LedgerCore = require(path.join(__dirname, "..", "..", "shared", "ledger-core.js"));
 
-// --- Auth via ~/.clasprc.json ---
-function getAuthClient() {
-  var google = require("googleapis").google;
-  var clasprcPath = path.join(os.homedir(), ".clasprc.json");
-  if (!fs.existsSync(clasprcPath)) {
-    throw new Error(
-      "~/.clasprc.json not found. Run: npx clasp login --no-localhost"
-    );
-  }
-  var clasprc = JSON.parse(fs.readFileSync(clasprcPath, "utf8"));
-  var oauth2Client = new google.auth.OAuth2(
-    clasprc.oauth2ClientSettings.clientId,
-    clasprc.oauth2ClientSettings.clientSecret
-  );
-  oauth2Client.setCredentials(clasprc.token);
-  return { auth: oauth2Client, google: google };
-}
-
-// --- Read last row ---
+// --- Read last row via GAS Web App doGet ---
 async function readLastRow() {
-  var ctx = getAuthClient();
-  var sheets = ctx.google.sheets({ version: "v4", auth: ctx.auth });
-  var spreadsheetId = process.env.GOOGLE_SHEET_ID;
+  var endpointUrl = process.env.GAS_ENDPOINT_URL;
+  var apiKey = process.env.GAS_API_KEY;
 
-  if (!spreadsheetId) {
-    throw new Error("GOOGLE_SHEET_ID not set in .env");
+  if (!endpointUrl || !apiKey) {
+    throw new Error("GAS_ENDPOINT_URL and GAS_API_KEY not set in .env");
   }
 
-  var res = await sheets.spreadsheets.values.get({
-    spreadsheetId: spreadsheetId,
-    range: "Sheet1!A:R",
-  });
+  var url = endpointUrl + "?action=readLastRow&apiKey=" + encodeURIComponent(apiKey);
+  var res = await fetch(url, { redirect: "follow" });
+  var json = await res.json();
 
-  var rows = res.data.values;
-  if (!rows || rows.length < 2) {
-    throw new Error("No data rows found in spreadsheet");
+  if (json.status !== "success") {
+    throw new Error(json.message || "Failed to read last row from GAS");
   }
 
-  return rows[rows.length - 1]; // last row
+  return json.row;
 }
 
 // --- Build expected row from golden test input ---

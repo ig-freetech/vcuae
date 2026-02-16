@@ -521,6 +521,54 @@ function jsonResponse_(payload) {
 }
 
 // =====================================================================
+// GET endpoint (verification / health check)
+// =====================================================================
+
+/**
+ * GET endpoint for reading spreadsheet data (used by E2E verification).
+ *
+ * Query params:
+ *   - apiKey: string (required)
+ *   - action: "readLastRow" | "health"
+ *
+ * @param {Object} e - Apps Script event object
+ * @returns {TextOutput} JSON response
+ */
+function doGet(e) {
+  try {
+    var params = e.parameter || {};
+    var storedKey = PropertiesService.getScriptProperties().getProperty("API_KEY");
+    if (!params.apiKey || params.apiKey !== storedKey) {
+      return jsonResponse_({ status: "error", code: "AUTH_ERROR", message: "Invalid API key" });
+    }
+    var action = params.action || "health";
+    if (action === "readLastRow") {
+      var sheetId = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+      var sheetName = PropertiesService.getScriptProperties().getProperty("SHEET_NAME") || "Sheet1";
+      var sheet = SpreadsheetApp.openById(sheetId).getSheetByName(sheetName);
+      var lastRow = sheet.getLastRow();
+      if (lastRow < 2) {
+        return jsonResponse_({ status: "error", code: "NO_DATA", message: "No data rows found" });
+      }
+      var data = sheet.getRange(lastRow, 1, 1, SHEET_HEADERS.length).getValues()[0];
+      return jsonResponse_({ status: "success", headers: SHEET_HEADERS, row: data });
+    }
+    return jsonResponse_({ status: "ok", message: "Web App is running" });
+  } catch (err) {
+    return jsonResponse_({ status: "error", code: "SERVER_ERROR", message: err.message });
+  }
+}
+
+/**
+ * Ensure header row exists in the sheet. Called on first write.
+ */
+function ensureHeaders_(sheet) {
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(SHEET_HEADERS);
+  }
+}
+
+// =====================================================================
 // Main endpoint
 // =====================================================================
 
@@ -597,7 +645,9 @@ function doPost(e) {
     var sheetId = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
     var sheetName =
       PropertiesService.getScriptProperties().getProperty("SHEET_NAME") || "Sheet1";
-    SpreadsheetApp.openById(sheetId).getSheetByName(sheetName).appendRow(row);
+    var sheet = SpreadsheetApp.openById(sheetId).getSheetByName(sheetName);
+    ensureHeaders_(sheet);
+    sheet.appendRow(row);
 
     // --- 7. Success ---
     return jsonResponse_({
