@@ -6,7 +6,7 @@
     "test:e2e": "bash tests/e2e/golden-e2e.sh",
     "test:e2e:mock": "MOCK_MODE=true bash tests/e2e/golden-e2e.sh",
     "deploy:gas": "bash scripts/deploy-gas.sh",
-    "serve": "npx serve web -l 3000 --no-clipboard"
+    "serve": "npx serve . -l 3000 --no-clipboard"
   },
   "devDependencies": {
     "serve": "^14.2.0",
