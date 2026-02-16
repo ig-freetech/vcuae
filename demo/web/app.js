@@ -344,13 +344,7 @@
 
   // --- Initialize view ---
   (function initView() {
-    var hasEndpoint = localStorage.getItem("ledger_endpoint");
-    var hasToken = localStorage.getItem("ledger_selfGeneratedToken") || localStorage.getItem("ledger_apiKey");
-    if (!hasEndpoint || !hasToken) {
-      showView("settings");
-    } else {
-      showView("main");
-    }
+    showView("main");
   })();
 
   // --- Default visit date ---
