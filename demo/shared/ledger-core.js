@@ -519,18 +519,6 @@
       });
     }
 
-    if (record.totalPurchase === null) {
-      errors.push({
-        field: "totalPurchase",
-        message: "総買取額は数値で入力してください",
-      });
-    }
-    if (record.grandTotal === null) {
-      errors.push({
-        field: "grandTotal",
-        message: "総合計は数値で入力してください",
-      });
-    }
 
     if (
       record.csCategory &&

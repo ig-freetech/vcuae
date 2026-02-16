@@ -21,7 +21,7 @@
   var paymentSelect = document.getElementById("payment-select");
   var paymentOtherInput = document.getElementById("payment-other");
   var paymentHidden = document.getElementById("payment-value");
-  var countryList = document.getElementById("country-list");
+  var countrySelect = document.getElementById("country");
 
   var capturePhotoBtn = document.getElementById("capture-photo-btn");
   var retakePhotoBtn = document.getElementById("retake-photo-btn");
@@ -41,7 +41,7 @@
   var derivedSubregion = document.getElementById("derived-subregion");
 
   var birthdayInput = ledgerForm.elements.birthday;
-  var countryInput = document.getElementById("country");
+  var countryInput = countrySelect;
   var visitDateInput = ledgerForm.elements.visitDate;
   var configBanner = document.getElementById("config-banner");
 
@@ -221,7 +221,7 @@
   // --- Populate options ---
   populateSelect(genderSelect, LedgerCore.GENDER_OPTIONS, "-- Gender --");
   populateSelect(csCategorySelect, LedgerCore.CATEGORY_OPTIONS, "-- Category --");
-  populateDatalist(countryList, LedgerCore.COUNTRY_OPTIONS);
+  populateSelect(countrySelect, LedgerCore.COUNTRY_OPTIONS, "-- Country --");
 
   // --- "Other" toggle for REF and Payment Method ---
   function setupOtherToggle(selectEl, otherInput, hiddenInput) {
@@ -286,7 +286,6 @@
   // --- Derived preview updates ---
   birthdayInput.addEventListener("input", updateDerived);
   birthdayInput.addEventListener("change", updateDerived);
-  countryInput.addEventListener("input", updateDerived);
   countryInput.addEventListener("change", updateDerived);
   visitDateInput.addEventListener("input", updateDerived);
   visitDateInput.addEventListener("change", updateDerived);

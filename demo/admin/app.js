@@ -150,6 +150,28 @@
     setStatus(driveStatus, "", "");
   }
 
+  var WEB_FORM_FIELD_MAP = {
+    VisitDate: "Visit Date (Staff)",
+    CsCategory: "Category (Staff)",
+    CustomerName: "Customer Name",
+    Gender: "Gender",
+    Birthday: "Birthday",
+    Age: "(auto-derived)",
+    MobileNumber: "Mobile Number",
+    Email: "Email (optional)",
+    Address: "Address",
+    REF: "How did you hear about us?",
+    PaymentMethod: "Payment Method",
+    Country: "Country",
+    CountryJP: "(auto-derived)",
+    "Continent\u5927\u9678": "(auto-derived)",
+    "Subregion\u5C0F\u5730\u57DF": "(auto-derived)",
+    "\u8A95\u751F\u6708": "(auto-derived)",
+    "\u7DCF\u8CB7\u53D6\u984D": "Buy Total (AED) (Staff)",
+    "\u7DCF\u5408\u8A08": "Sales Total (AED) (Staff)",
+    CertificatePhotoUrl: "Certificate Photo (Staff)",
+  };
+
   function showColumnMapping(headers) {
     var expectedHeaders = LedgerCore.SHEET_HEADERS;
     columnMapping.innerHTML = "";
@@ -158,7 +180,7 @@
     table.className = "mapping-table";
     var thead = document.createElement("thead");
     var headerRow = document.createElement("tr");
-    var cols = ["Column", "Expected", "Actual", "Status"];
+    var cols = ["Column", "Expected", "Web Form Field", "Actual", "Status"];
     for (var c = 0; c < cols.length; c++) {
       var th = document.createElement("th");
       th.textContent = cols[c];
@@ -179,8 +201,13 @@
       tr.appendChild(tdCol);
 
       var tdExpected = document.createElement("td");
-      tdExpected.textContent = i < expectedHeaders.length ? expectedHeaders[i] : "(none)";
+      var expectedName = i < expectedHeaders.length ? expectedHeaders[i] : "(none)";
+      tdExpected.textContent = expectedName;
       tr.appendChild(tdExpected);
+
+      var tdWebField = document.createElement("td");
+      tdWebField.textContent = WEB_FORM_FIELD_MAP[expectedName] || "";
+      tr.appendChild(tdWebField);
 
       var tdActual = document.createElement("td");
       tdActual.textContent = i < headers.length ? headers[i] : "(none)";

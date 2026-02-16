@@ -39,19 +39,19 @@
             <h2>Customer Input</h2>
             <div class="grid two-col">
               <label>
-                <span>Customer Name <span class="col-badge">C</span></span>
+                <span>Customer Name</span>
                 <input name="customerName" required autocomplete="name" />
               </label>
               <label>
-                <span>Gender <span class="col-badge">D</span></span>
+                <span>Gender</span>
                 <select id="gender" name="gender" required></select>
               </label>
               <label>
-                <span>Birthday <span class="col-badge">E</span></span>
+                <span>Birthday</span>
                 <input name="birthday" type="date" required />
               </label>
               <label>
-                <span>Mobile Number <span class="col-badge">G</span></span>
+                <span>Mobile Number</span>
                 <input
                   name="mobileNumber"
                   type="tel"
@@ -61,22 +61,15 @@
                 />
               </label>
               <label>
-                <span>Email (optional) <span class="col-badge">H</span></span>
+                <span>Email (optional)</span>
                 <input name="email" type="email" autocomplete="email" />
               </label>
               <label>
-                <span>Country <span class="col-badge">L</span></span>
-                <input
-                  id="country"
-                  name="country"
-                  list="country-list"
-                  required
-                  autocomplete="country-name"
-                />
-                <datalist id="country-list"></datalist>
+                <span>Country</span>
+                <select id="country" name="country" required></select>
               </label>
               <label>
-                <span>How did you hear about us? <span class="col-badge">J</span></span>
+                <span>How did you hear about us?</span>
                 <select id="ref-select">
                   <option value="" disabled selected>-- Select --</option>
                   <option>Google Search</option>
@@ -93,7 +86,7 @@
                 <input type="hidden" name="ref" id="ref-value" />
               </label>
               <label>
-                <span>How would you like to be paid? <span class="col-badge">K</span></span>
+                <span>Payment Method</span>
                 <select id="payment-select" required>
                   <option value="" disabled selected>-- Select --</option>
                   <option>Cash</option>
@@ -110,7 +103,7 @@
                 <input type="hidden" name="paymentMethod" id="payment-value" />
               </label>
               <label class="full">
-                <span>Address <span class="col-badge">I</span></span>
+                <span>Address</span>
                 <textarea
                   name="address"
                   rows="2"
@@ -168,39 +161,37 @@
             <h2>Staff Input</h2>
             <div class="grid two-col">
               <label>
-                <span>Visit Date <span class="col-badge">A</span></span>
+                <span>Visit Date</span>
                 <input name="visitDate" type="date" required />
               </label>
               <label>
-                <span>CsCategory <span class="col-badge">B</span></span>
+                <span>Category</span>
                 <select id="cs-category" name="csCategory" required></select>
               </label>
               <label>
-                <span>Total Purchase <span class="col-badge">Q</span></span>
+                <span>Buy Total (AED)</span>
                 <input
                   name="totalPurchase"
                   type="text"
                   inputmode="decimal"
-                  required
                   placeholder="e.g. 1200"
                 />
               </label>
               <label>
-                <span>Grand Total <span class="col-badge">R</span></span>
+                <span>Sales Total (AED)</span>
                 <input
                   name="grandTotal"
                   type="text"
                   inputmode="decimal"
-                  required
                   placeholder="e.g. 1200"
                 />
               </label>
               <div class="derived full">
-                <p>Age <span class="col-badge">F</span>: <strong id="derived-age">-</strong></p>
-                <p>Birth Month <span class="col-badge">P</span>: <strong id="derived-month">-</strong></p>
-                <p>Country (JP) <span class="col-badge">M</span>: <strong id="derived-country-jp">-</strong></p>
-                <p>Continent <span class="col-badge">N</span>: <strong id="derived-continent">-</strong></p>
-                <p>Subregion <span class="col-badge">O</span>: <strong id="derived-subregion">-</strong></p>
+                <p>Age: <strong id="derived-age">-</strong></p>
+                <p>Birth Month: <strong id="derived-month">-</strong></p>
+                <p>Country (JP): <strong id="derived-country-jp">-</strong></p>
+                <p>Continent: <strong id="derived-continent">-</strong></p>
+                <p>Subregion: <strong id="derived-subregion">-</strong></p>
               </div>
               <section class="photo-capture full">
                 <h3>Certificate Photo</h3>
