@@ -735,13 +735,9 @@ button:disabled {
 .config-banner .config-help { color: #555; font-size: 0.85rem; }
 .config-import {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
-}
-@media (max-width: 480px) {
-  .config-import { flex-direction: column; }
-  .config-import button { width: 100%; }
 }
 .config-import input {
   flex: 1;
