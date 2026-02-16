@@ -77,7 +77,7 @@ node demo/tests/apps-script.test.js
 
 ## 詳細セットアップ
 
-Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./apps-script/README.md) を参照。
+Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./demo/apps-script/README.md) を参照。
 
 ## E2E テスト
 
