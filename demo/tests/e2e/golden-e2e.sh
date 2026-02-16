@@ -134,7 +134,7 @@ for _i in $(seq 1 15); do
   sleep 2
 done
 SNAP=$(cat "$SNAP_FILE")
-assert_contains "$SNAP" "送信成功" "status-success"
+assert_contains "$SNAP" "Submission successful" "status-success"
 
 echo "=== STEP 6: Spreadsheet verification ==="
 if [ "${MOCK_MODE:-}" != "true" ]; then

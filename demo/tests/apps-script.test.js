@@ -18,25 +18,47 @@ global.PropertiesService = {
       getProperty: function (key) {
         return scriptProperties[key] || null;
       },
-    };
-  },
-};
-
-global.SpreadsheetApp = {
-  openById: function (id) {
-    lastSheetId = id;
-    return {
-      getSheetByName: function (name) {
-        lastSheetName = name;
-        return {
-          appendRow: function (row) {
-            appendedRows.push(row);
-          },
-        };
+      setProperty: function (key, value) {
+        scriptProperties[key] = String(value);
       },
     };
   },
 };
+
+function makeSheetMock_(opts) {
+  var options = opts || {};
+  var hasHeader = options.hasHeader !== false;
+  var appendError = options.appendError || null;
+
+  return {
+    getLastRow: function () {
+      return hasHeader ? 1 : 0;
+    },
+    appendRow: function (row) {
+      if (appendError) {
+        throw appendError;
+      }
+      appendedRows.push(row);
+      hasHeader = true;
+    },
+  };
+}
+
+function installSpreadsheetMock_(opts) {
+  global.SpreadsheetApp = {
+    openById: function (id) {
+      lastSheetId = id;
+      return {
+        getSheetByName: function (name) {
+          lastSheetName = name;
+          return makeSheetMock_(opts);
+        },
+      };
+    },
+  };
+}
+
+installSpreadsheetMock_({ hasHeader: true });
 
 global.ContentService = {
   createTextOutput: function (text) {
@@ -73,6 +95,7 @@ function resetMocks() {
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
+  installSpreadsheetMock_({ hasHeader: true });
 }
 
 // --- Test runner ---
@@ -336,19 +359,10 @@ console.log("\n--- SERVER_ERROR ---");
   appendedRows = [];
 
   // Make appendRow throw
-  global.SpreadsheetApp = {
-    openById: function () {
-      return {
-        getSheetByName: function () {
-          return {
-            appendRow: function () {
-              throw new Error("Spreadsheet write failed");
-            },
-          };
-        },
-      };
-    },
-  };
+  installSpreadsheetMock_({
+    hasHeader: true,
+    appendError: new Error("Spreadsheet write failed"),
+  });
 
   var payload = {
     apiKey: "test-key-123",
@@ -374,21 +388,7 @@ console.log("\n--- SERVER_ERROR ---");
   assert(result.message.indexOf("Spreadsheet write failed") >= 0, "server error preserves message");
 
   // Restore mock
-  global.SpreadsheetApp = {
-    openById: function (id) {
-      lastSheetId = id;
-      return {
-        getSheetByName: function (name) {
-          lastSheetName = name;
-          return {
-            appendRow: function (row) {
-              appendedRows.push(row);
-            },
-          };
-        },
-      };
-    },
-  };
+  installSpreadsheetMock_({ hasHeader: true });
 })();
 
 // ===========================
