@@ -66,6 +66,13 @@ node demo/tests/apps-script.test.js
 | `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
 | `ADMIN_PASSCODE` | 管理画面の解錠用パスコード | （必須） |
 
+### ADMIN_PASSCODE 初回セットアップ（必須）
+
+1. Apps Script エディタで「プロジェクトの設定」→「スクリプト プロパティ」を開く  
+2. `ADMIN_PASSCODE` を追加し、任意の値を設定して保存する  
+3. `/admin` の Unlock には、この `ADMIN_PASSCODE` を入力する  
+4. 未設定のまま進めると Test Connection 時に `CONFIG_ERROR: ADMIN_PASSCODE is not configured` になるため、設定後に再試行する
+
 ※ `SHEET_ID` と `SHEET_NAME` は管理画面（`/admin`）の Spreadsheet 設定ウィザードで自動保存されます。
 
 ## 詳細セットアップ
