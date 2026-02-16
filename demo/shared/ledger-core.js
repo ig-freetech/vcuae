@@ -44,14 +44,6 @@
     "Card",
     "Bank Transfer",
     "Tabby",
-    "Tamara",
-  ];
-
-  var REF_OPTIONS = [
-    "Google Search",
-    "Website",
-    "Facebook",
-    "Instagram",
   ];
 
   var COUNTRY_METADATA = {
@@ -641,7 +633,6 @@
     CATEGORY_OPTIONS: CATEGORY_OPTIONS,
     GENDER_OPTIONS: GENDER_OPTIONS,
     PAYMENT_OPTIONS: PAYMENT_OPTIONS,
-    REF_OPTIONS: REF_OPTIONS,
     COUNTRY_OPTIONS: COUNTRY_OPTIONS,
     COUNTRY_METADATA: COUNTRY_METADATA,
     normalizeInput: normalizeInput,

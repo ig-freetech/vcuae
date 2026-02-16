@@ -76,20 +76,38 @@
                 <datalist id="country-list"></datalist>
               </label>
               <label>
-                <span>REF <span class="col-badge">J</span></span>
-                <input id="ref" name="ref" list="ref-list" autocomplete="off" />
-                <datalist id="ref-list"></datalist>
+                <span>How did you hear about us? <span class="col-badge">J</span></span>
+                <select id="ref-select">
+                  <option value="" disabled selected>-- Select --</option>
+                  <option>Google Search</option>
+                  <option>Website</option>
+                  <option>Facebook</option>
+                  <option>Instagram</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input
+                  id="ref-other"
+                  class="hidden"
+                  placeholder="Please specify"
+                />
+                <input type="hidden" name="ref" id="ref-value" />
               </label>
               <label>
-                <span>Payment Method <span class="col-badge">K</span></span>
+                <span>How would you like to be paid? <span class="col-badge">K</span></span>
+                <select id="payment-select" required>
+                  <option value="" disabled selected>-- Select --</option>
+                  <option>Cash</option>
+                  <option>Card</option>
+                  <option>Bank Transfer</option>
+                  <option>Tabby</option>
+                  <option value="Other">Other</option>
+                </select>
                 <input
-                  id="payment-method"
-                  name="paymentMethod"
-                  list="payment-list"
-                  required
-                  autocomplete="off"
+                  id="payment-other"
+                  class="hidden"
+                  placeholder="Please specify"
                 />
-                <datalist id="payment-list"></datalist>
+                <input type="hidden" name="paymentMethod" id="payment-value" />
               </label>
               <label class="full">
                 <span>Address <span class="col-badge">I</span></span>

@@ -15,8 +15,12 @@
 
   var genderSelect = document.getElementById("gender");
   var csCategorySelect = document.getElementById("cs-category");
-  var refList = document.getElementById("ref-list");
-  var paymentList = document.getElementById("payment-list");
+  var refSelect = document.getElementById("ref-select");
+  var refOtherInput = document.getElementById("ref-other");
+  var refHidden = document.getElementById("ref-value");
+  var paymentSelect = document.getElementById("payment-select");
+  var paymentOtherInput = document.getElementById("payment-other");
+  var paymentHidden = document.getElementById("payment-value");
   var countryList = document.getElementById("country-list");
 
   var capturePhotoBtn = document.getElementById("capture-photo-btn");
@@ -217,9 +221,29 @@
   // --- Populate options ---
   populateSelect(genderSelect, LedgerCore.GENDER_OPTIONS, "-- Gender --");
   populateSelect(csCategorySelect, LedgerCore.CATEGORY_OPTIONS, "-- Category --");
-  populateDatalist(refList, LedgerCore.REF_OPTIONS);
-  populateDatalist(paymentList, LedgerCore.PAYMENT_OPTIONS);
   populateDatalist(countryList, LedgerCore.COUNTRY_OPTIONS);
+
+  // --- "Other" toggle for REF and Payment Method ---
+  function setupOtherToggle(selectEl, otherInput, hiddenInput) {
+    otherInput.required = false;
+    selectEl.addEventListener("change", function () {
+      if (selectEl.value === "Other") {
+        otherInput.classList.remove("hidden");
+        otherInput.required = selectEl.hasAttribute("required");
+        hiddenInput.value = "";
+      } else {
+        otherInput.classList.add("hidden");
+        otherInput.required = false;
+        otherInput.value = "";
+        hiddenInput.value = selectEl.value;
+      }
+    });
+    otherInput.addEventListener("input", function () {
+      hiddenInput.value = otherInput.value;
+    });
+  }
+  setupOtherToggle(refSelect, refOtherInput, refHidden);
+  setupOtherToggle(paymentSelect, paymentOtherInput, paymentHidden);
 
   // --- Initial state ---
   updateConfigBanner();
