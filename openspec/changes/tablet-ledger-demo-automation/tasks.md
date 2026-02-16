@@ -1,3 +1,11 @@
+## impacted_paths
+
+- demo/shared/
+- demo/web/
+- demo/apps-script/
+- demo/tests/
+- demo/README.md
+
 ## 1. OpenSpec and Project Setup
 
 - [ ] 1.1 Confirm acceptance criteria and spreadsheet column mapping against client sample sheet
@@ -35,3 +43,15 @@
 - [ ] 5.3 Run OpenSpec verification to ensure proposal/spec/design/tasks remain coherent
 - [ ] 5.4 Update beads statuses for completed subtasks and record unresolved follow-ups
 - [ ] 5.5 Complete session landing checklist (`git pull --rebase`, `bd sync`, `git push`, final status check)
+
+## Phase 6: Recursive Brushup Loop
+
+- [ ] [BRUSHUP][vcuae-kvs.2] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
+- [ ] [BRUSHUP][vcuae-kvs.2] BRUSHUP: [450ef6cf4f] OpenSpec tasks.md has no impacted_paths block for completion audit.
+- [ ] [BRUSHUP][vcuae-kvs.2] BRUSHUP: [d9e38ea01a] Instruction details mention verification/tests but no test update was de
+- [ ] [BRUSHUP][vcuae-kvs] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
+- [ ] [BRUSHUP][vcuae-kvs] BRUSHUP: [450ef6cf4f] OpenSpec tasks.md has no impacted_paths block for completion audit.
+- [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [c4f23de019] Changed file is outside impacted_paths scope.
+- [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [c22017aebb] Changed file is outside impacted_paths scope.
+- [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
+- [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [450ef6cf4f] OpenSpec tasks.md has no impacted_paths block for completion audit.
