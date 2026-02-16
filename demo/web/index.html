@@ -14,293 +14,140 @@
   </head>
   <body>
     <main class="shell">
-      <!-- === Main View (customer-facing) === -->
-      <div id="main-view" class="view active">
-        <header class="hero">
-          <p class="hero-kicker">Purchase Ledger</p>
-          <h1>Purchase Ledger</h1>
-        </header>
+      <header class="hero">
+        <p class="hero-kicker">Purchase Ledger</p>
+        <h1>Purchase Ledger</h1>
+      </header>
 
-        <!-- Config not-set banner (hidden by default) -->
-        <div id="config-banner" class="config-banner hidden">
-          <span>&#9881;</span>
-          <span>Connection not configured. Contact your administrator.</span>
-        </div>
-
-        <section class="card workflow-card">
-          <nav class="stepper" aria-label="Input steps">
-            <button id="step-customer" class="step active" type="button">
-              1. Customer Info
-            </button>
-            <button id="step-staff" class="step" type="button" disabled>
-              2. Staff Review
-            </button>
-          </nav>
-
-          <form id="ledger-form" novalidate>
-            <section id="pane-customer" class="pane active">
-              <h2>Customer Input</h2>
-              <div class="grid two-col">
-                <label>
-                  <span>Customer Name <span class="col-badge">C</span></span>
-                  <input name="customerName" required autocomplete="name" />
-                </label>
-                <label>
-                  <span>Gender <span class="col-badge">D</span></span>
-                  <select id="gender" name="gender" required></select>
-                </label>
-                <label>
-                  <span>Birthday <span class="col-badge">E</span></span>
-                  <input name="birthday" type="date" required />
-                </label>
-                <label>
-                  <span>Mobile Number <span class="col-badge">G</span></span>
-                  <input
-                    name="mobileNumber"
-                    type="tel"
-                    inputmode="tel"
-                    required
-                    autocomplete="tel"
-                  />
-                </label>
-                <label>
-                  <span>Email (optional) <span class="col-badge">H</span></span>
-                  <input name="email" type="email" autocomplete="email" />
-                </label>
-                <label>
-                  <span>Country <span class="col-badge">L</span></span>
-                  <input
-                    id="country"
-                    name="country"
-                    list="country-list"
-                    required
-                    autocomplete="country-name"
-                  />
-                  <datalist id="country-list"></datalist>
-                </label>
-                <label class="full">
-                  <span>Address <span class="col-badge">I</span></span>
-                  <textarea
-                    name="address"
-                    rows="2"
-                    required
-                    autocomplete="street-address"
-                  ></textarea>
-                </label>
-                <label>
-                  <span>CsCategory <span class="col-badge">B</span></span>
-                  <select id="cs-category" name="csCategory" required></select>
-                </label>
-                <div class="derived">
-                  <p>Age <span class="col-badge">F</span>: <strong id="derived-age">-</strong></p>
-                  <p>Birth Month <span class="col-badge">P</span>: <strong id="derived-month">-</strong></p>
-                  <p>Country (JP) <span class="col-badge">M</span>: <strong id="derived-country-jp">-</strong></p>
-                  <p>Continent <span class="col-badge">N</span>: <strong id="derived-continent">-</strong></p>
-                  <p>Subregion <span class="col-badge">O</span>: <strong id="derived-subregion">-</strong></p>
-                </div>
-              </div>
-              <div class="actions">
-                <button id="next-btn" type="button">Next: Staff Review</button>
-              </div>
-            </section>
-
-            <section id="pane-staff" class="pane">
-              <h2>Staff Input</h2>
-              <div class="grid two-col">
-                <label>
-                  <span>Visit Date <span class="col-badge">A</span></span>
-                  <input name="visitDate" type="date" required />
-                </label>
-                <label>
-                  <span>REF (optional) <span class="col-badge">J</span></span>
-                  <input name="ref" autocomplete="off" />
-                </label>
-                <label>
-                  <span>Payment Method <span class="col-badge">K</span></span>
-                  <select id="payment-method" name="paymentMethod" required></select>
-                </label>
-                <label>
-                  <span>Total Purchase <span class="col-badge">Q</span></span>
-                  <input
-                    name="totalPurchase"
-                    type="text"
-                    inputmode="decimal"
-                    required
-                    placeholder="e.g. 1200"
-                  />
-                </label>
-                <label>
-                  <span>Grand Total <span class="col-badge">R</span></span>
-                  <input
-                    name="grandTotal"
-                    type="text"
-                    inputmode="decimal"
-                    required
-                    placeholder="e.g. 1200"
-                  />
-                </label>
-              </div>
-              <div class="actions split">
-                <button id="back-btn" type="button" class="secondary">
-                  Back
-                </button>
-                <button id="submit-btn" type="submit">Submit to Spreadsheet</button>
-              </div>
-            </section>
-          </form>
-
-          <output id="status" class="status" aria-live="polite"></output>
-        </section>
+      <div id="config-banner" class="config-banner hidden">
+        <span>&#9881;</span>
+        <span>Connection not configured. Contact your administrator.</span>
       </div>
 
-      <!-- === Settings View (staff-facing) === -->
-      <div id="settings-view" class="view">
-        <header class="hero">
-          <button id="back-to-main" class="back-link" type="button">&#8592; Back</button>
-          <h1>Configuration</h1>
-          <p>Set up your connection and spreadsheet integration</p>
-        </header>
+      <section class="card workflow-card">
+        <nav class="stepper" aria-label="Input steps">
+          <button id="step-customer" class="step active" type="button">
+            1. Customer Info
+          </button>
+          <button id="step-staff" class="step" type="button" disabled>
+            2. Staff Review
+          </button>
+        </nav>
 
-        <section class="card settings-card">
-          <!-- Step 1: Connection -->
-          <div id="settings-step-1" class="settings-step">
-            <h3 class="settings-step-title">
-              <span class="step-number">1</span> Connection
-            </h3>
-            <p class="help-text">Enter the Web App URL and Self-Generated Token from your Google Apps Script deployment.</p>
+        <form id="ledger-form" novalidate>
+          <section id="pane-customer" class="pane active">
+            <h2>Customer Input</h2>
             <div class="grid two-col">
               <label>
-                <span>Web App URL</span>
-                <input id="endpoint" name="endpoint" type="url"
-                  placeholder="https://script.google.com/macros/s/.../exec"
-                  autocomplete="off" required />
+                <span>Customer Name <span class="col-badge">C</span></span>
+                <input name="customerName" required autocomplete="name" />
               </label>
               <label>
-                <span>Self-Generated Token</span>
-                <input id="self-generated-token" name="selfGeneratedToken" type="password"
-                  placeholder="Value set in Script Properties: SELF_GENERATED_TOKEN"
-                  autocomplete="off" required />
+                <span>Gender <span class="col-badge">D</span></span>
+                <select id="gender" name="gender" required></select>
+              </label>
+              <label>
+                <span>Birthday <span class="col-badge">E</span></span>
+                <input name="birthday" type="date" required />
+              </label>
+              <label>
+                <span>Mobile Number <span class="col-badge">G</span></span>
+                <input
+                  name="mobileNumber"
+                  type="tel"
+                  inputmode="tel"
+                  required
+                  autocomplete="tel"
+                />
+              </label>
+              <label>
+                <span>Email (optional) <span class="col-badge">H</span></span>
+                <input name="email" type="email" autocomplete="email" />
+              </label>
+              <label>
+                <span>Country <span class="col-badge">L</span></span>
+                <input
+                  id="country"
+                  name="country"
+                  list="country-list"
+                  required
+                  autocomplete="country-name"
+                />
+                <datalist id="country-list"></datalist>
+              </label>
+              <label class="full">
+                <span>Address <span class="col-badge">I</span></span>
+                <textarea
+                  name="address"
+                  rows="2"
+                  required
+                  autocomplete="street-address"
+                ></textarea>
+              </label>
+              <label>
+                <span>CsCategory <span class="col-badge">B</span></span>
+                <select id="cs-category" name="csCategory" required></select>
+              </label>
+              <div class="derived">
+                <p>Age <span class="col-badge">F</span>: <strong id="derived-age">-</strong></p>
+                <p>Birth Month <span class="col-badge">P</span>: <strong id="derived-month">-</strong></p>
+                <p>Country (JP) <span class="col-badge">M</span>: <strong id="derived-country-jp">-</strong></p>
+                <p>Continent <span class="col-badge">N</span>: <strong id="derived-continent">-</strong></p>
+                <p>Subregion <span class="col-badge">O</span>: <strong id="derived-subregion">-</strong></p>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="next-btn" type="button">Next: Staff Review</button>
+            </div>
+          </section>
+
+          <section id="pane-staff" class="pane">
+            <h2>Staff Input</h2>
+            <div class="grid two-col">
+              <label>
+                <span>Visit Date <span class="col-badge">A</span></span>
+                <input name="visitDate" type="date" required />
+              </label>
+              <label>
+                <span>REF (optional) <span class="col-badge">J</span></span>
+                <input name="ref" autocomplete="off" />
+              </label>
+              <label>
+                <span>Payment Method <span class="col-badge">K</span></span>
+                <select id="payment-method" name="paymentMethod" required></select>
+              </label>
+              <label>
+                <span>Total Purchase <span class="col-badge">Q</span></span>
+                <input
+                  name="totalPurchase"
+                  type="text"
+                  inputmode="decimal"
+                  required
+                  placeholder="e.g. 1200"
+                />
+              </label>
+              <label>
+                <span>Grand Total <span class="col-badge">R</span></span>
+                <input
+                  name="grandTotal"
+                  type="text"
+                  inputmode="decimal"
+                  required
+                  placeholder="e.g. 1200"
+                />
               </label>
             </div>
-            <div class="actions">
-              <button id="test-connection" type="button" class="secondary">Test Connection</button>
-              <button id="save-settings" type="button" class="secondary">Save Settings</button>
+            <div class="actions split">
+              <button id="back-btn" type="button" class="secondary">
+                Back
+              </button>
+              <button id="submit-btn" type="submit">Submit to Spreadsheet</button>
             </div>
-            <output id="connection-status" class="status" aria-live="polite"></output>
-          </div>
+          </section>
+        </form>
 
-          <!-- Step 2: Spreadsheet (initially hidden) -->
-          <div id="settings-step-2" class="settings-step hidden">
-            <h3 class="settings-step-title">
-              <span class="step-number">2</span> Spreadsheet
-            </h3>
-            <p class="help-text">
-              Enter the URL of the target spreadsheet.
-              <br><small>e.g. https://docs.google.com/spreadsheets/d/XXXXX/edit</small>
-            </p>
-            <label class="full-width">
-              <span>Spreadsheet URL</span>
-              <input id="spreadsheet-url" name="spreadsheetUrl" type="url"
-                placeholder="https://docs.google.com/spreadsheets/d/.../edit"
-                autocomplete="off" />
-            </label>
-            <label>
-              <span>Sheet Name</span>
-              <select id="sheet-name" name="sheetName" disabled>
-                <option value="">-- Select a sheet --</option>
-              </select>
-            </label>
-            <div class="actions">
-              <button id="load-sheets" type="button" class="secondary">Load Sheets</button>
-              <button id="apply-spreadsheet" type="button" class="secondary">Apply Spreadsheet</button>
-            </div>
-            <output id="spreadsheet-status" class="status" aria-live="polite"></output>
-          </div>
-
-          <!-- Step 3: Column Mapping (initially hidden) -->
-          <div id="settings-step-3" class="settings-step hidden">
-            <h3 class="settings-step-title">
-              <span class="step-number">3</span> Column Mapping
-            </h3>
-            <div id="column-mapping" class="column-mapping-grid"></div>
-            <div id="header-mismatch-warning" class="warning hidden">
-              <strong>Warning:</strong> Spreadsheet headers do not match the expected values.
-              <pre id="header-diff"></pre>
-            </div>
-          </div>
-
-          <!-- Setup Guide -->
-          <div class="setup-guide">
-            <details>
-              <summary>セットアップガイド（初回設定）</summary>
-              <ol class="guide-steps">
-                <li class="guide-step-item">
-                  <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
-                  <p class="guide-desc">
-                    <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> にアクセスし、「新しいプロジェクト」をクリックしてください。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 2: Code.gs を貼り付け</strong>
-                  <p class="guide-desc">
-                    下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
-                  </p>
-                  <div class="guide-action">
-                    <button id="copy-code-gs" type="button" class="secondary guide-btn">
-                      <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
-                    </button>
-                    <span id="copy-code-gs-status" class="guide-status"></span>
-                  </div>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 3: トークンを生成して Script Properties に設定</strong>
-                  <p class="guide-desc">
-                    下のボタンでセキュアなトークンを生成＆コピーします。Apps Script の「プロジェクトの設定」（&#9881;）→「スクリプト プロパティを追加」で、プロパティ名 <code>SELF_GENERATED_TOKEN</code>、値に生成したトークンを貼り付けてください。
-                  </p>
-                  <div class="guide-action">
-                    <button id="generate-token" type="button" class="secondary guide-btn">
-                      <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
-                    </button>
-                    <span id="generate-token-status" class="guide-status"></span>
-                  </div>
-                  <div class="guide-warning">
-                    &#9888; トークンは一度しか表示されません。必ずこの画面と Script Properties の両方に保存してください。
-                  </div>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 4: Web App としてデプロイ</strong>
-                  <p class="guide-desc">
-                    Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」を選択。次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」に設定し、「デプロイ」をクリック。表示された Web App URL をコピーしてください。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 5: Connection に URL とトークンを入力</strong>
-                  <p class="guide-desc">
-                    上の「Connection」セクションに、コピーした Web App URL と Step 3 で生成したトークンを入力してください。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 6: Test Connection で接続確認</strong>
-                  <p class="guide-desc">
-                    「Test Connection」ボタンをクリックし、接続が成功すると「Spreadsheet」セクションが表示されます。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 7: Spreadsheet と Column Mapping を設定</strong>
-                  <p class="guide-desc">
-                    Spreadsheet URL を入力 →「Load Sheets」→ シートを選択 →「Apply Spreadsheet」。Column Mapping で全列 &#10003; を確認して完了です。
-                  </p>
-                </li>
-              </ol>
-            </details>
-          </div>
-        </section>
-
-        <div class="settings-footer">
-          <button id="back-to-main-bottom" type="button" class="secondary">Back to Ledger</button>
-        </div>
-      </div>
-
+        <output id="status" class="status" aria-live="polite"></output>
+      </section>
     </main>
   </body>
 </html>

@@ -18,7 +18,14 @@
 demo/
 ├── shared/          # 共通ロジック（バリデーション、派生計算）
 │   └── ledger-core.js
-├── web/             # タブレット向け PWA
+├── web/             # ユーザー入力用 PWA（/web）
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   ├── sw.js
+│   ├── manifest.webmanifest
+│   └── icons/
+├── admin/           # 管理者設定用 PWA（/admin）
 │   ├── index.html
 │   ├── app.js
 │   ├── styles.css
@@ -39,11 +46,11 @@ demo/
 
 ## ローカル実行
 
-1. `demo/web/index.html` をブラウザで開く（または `cd demo && npm run serve`）
-2. Connection Settings で Web App URL と Self-Generated Token を入力 → Test Connection
-3. Spreadsheet URL を入力 → Load Sheets → シート選択 → Apply Spreadsheet
-4. Column Mapping で全列 ✓ を確認
-5. Customer Info 入力 → Staff Review → Submit to Spreadsheet
+1. `cd demo && npm run serve`
+2. 管理画面 `http://localhost:3000/admin/` を開く
+3. Unlock で `ADMIN_PASSCODE` を入力
+4. Connection で `Web App URL` と `Self-Generated Token` を入力し、Test Connection → Spreadsheet 設定 → Apply Spreadsheet
+5. ユーザー画面 `http://localhost:3000/web/` を開き、Customer Info → Staff Review → Submit
 
 ## テスト実行
 
@@ -57,8 +64,9 @@ node demo/tests/apps-script.test.js
 | プロパティ | 説明 | デフォルト |
 |---|---|---|
 | `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
+| `ADMIN_PASSCODE` | 管理画面の解錠用パスコード | （必須） |
 
-※ `SHEET_ID` と `SHEET_NAME` はアプリの Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。
+※ `SHEET_ID` と `SHEET_NAME` は管理画面（`/admin`）の Spreadsheet 設定ウィザードで自動保存されます。
 
 ## 詳細セットアップ
 

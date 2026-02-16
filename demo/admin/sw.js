@@ -1,4 +1,4 @@
-var CACHE_NAME = "ledger-web-v8";
+var CACHE_NAME = "ledger-admin-v1";
 var PRECACHE_URLS = [
   "./index.html",
   "./styles.css",
@@ -63,12 +63,12 @@ self.addEventListener("fetch", function (event) {
   }
 
   var path = url.pathname;
-  var isAppShell =
-    /\/web\/?$/.test(path) ||
-    path.endsWith("/web/index.html") ||
-    path.endsWith("/web/app.js");
+  var isAdminShell =
+    /\/admin\/?$/.test(path) ||
+    path.endsWith("/admin/index.html") ||
+    path.endsWith("/admin/app.js");
 
-  event.respondWith(isAppShell ? networkFirst(event.request) : cacheFirst(event.request));
+  event.respondWith(isAdminShell ? networkFirst(event.request) : cacheFirst(event.request));
 });
 
 self.addEventListener("activate", function (event) {

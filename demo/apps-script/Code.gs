@@ -5,7 +5,7 @@
  * Google スプレッドシートへ 1 行追記する。
  *
  * Dependencies: なし (standalone Apps Script)
- * Used by: demo/web/ (PWA クライアント)
+ * Used by: demo/web/, demo/admin/ (PWA クライアント)
  */
 
 // =====================================================================
@@ -529,7 +529,7 @@ function jsonResponse_(payload) {
  *
  * Query params:
  *   - selfGeneratedToken: string (required)
- *   - action: "readLastRow" | "health"
+ *   - action: "readLastRow" | "health" | "listSheets" | "getHeaders"
  *
  * @param {Object} e - Apps Script event object
  * @returns {TextOutput} JSON response
@@ -538,6 +538,10 @@ function getStoredAuthToken_() {
   var props = PropertiesService.getScriptProperties();
   // Backward compatibility: allow legacy API_KEY until old clients are migrated.
   return props.getProperty("SELF_GENERATED_TOKEN") || props.getProperty("API_KEY") || "";
+}
+
+function getStoredAdminPasscode_() {
+  return PropertiesService.getScriptProperties().getProperty("ADMIN_PASSCODE") || "";
 }
 
 function getProvidedTokenFromParams_(params) {
@@ -637,6 +641,8 @@ function ensureHeaders_(sheet) {
  * Expected JSON body:
  * {
  *   selfGeneratedToken: string,
+ *   action?: "appendRow" | "configure" | "verifyAdminPasscode",
+ *   adminPasscode?: string,
  *   data: {
  *     visitDate, csCategory, customerName, gender, birthday,
  *     mobileNumber, email?, address, ref?, paymentMethod,
@@ -664,6 +670,32 @@ function doPost(e) {
 
     // --- Route by action ---
     var action = body.action || "appendRow";
+
+    if (action === "verifyAdminPasscode") {
+      var storedAdminPasscode = getStoredAdminPasscode_();
+      if (!storedAdminPasscode) {
+        return jsonResponse_({
+          status: "error",
+          code: "CONFIG_ERROR",
+          message: "ADMIN_PASSCODE is not configured",
+        });
+      }
+      var providedAdminPasscode =
+        body.adminPasscode === undefined || body.adminPasscode === null
+          ? ""
+          : String(body.adminPasscode);
+      if (!providedAdminPasscode || providedAdminPasscode !== storedAdminPasscode) {
+        return jsonResponse_({
+          status: "error",
+          code: "AUTH_ERROR",
+          message: "Invalid admin passcode",
+        });
+      }
+      return jsonResponse_({
+        status: "success",
+        message: "Admin passcode verified",
+      });
+    }
 
     if (action === "configure") {
       var config = body.config;

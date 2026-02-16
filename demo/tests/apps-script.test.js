@@ -91,7 +91,12 @@ function callDoPost(payload) {
 }
 
 function resetMocks() {
-  scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
+  scriptProperties = {
+    SELF_GENERATED_TOKEN: "test-key-123",
+    ADMIN_PASSCODE: "admin-9876",
+    SHEET_ID: "sheet-abc",
+    SHEET_NAME: "TestSheet",
+  };
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
@@ -154,6 +159,46 @@ resetMocks();
   var result = callDoPost({ data: {} });
   assertEqual(result.status, "error", "missing selfGeneratedToken returns error");
   assertEqual(result.code, "AUTH_ERROR", "missing selfGeneratedToken returns AUTH_ERROR");
+})();
+
+// ===========================
+// Test: verifyAdminPasscode
+// ===========================
+console.log("\n--- VERIFY ADMIN PASSCODE ---");
+resetMocks();
+(function () {
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "verifyAdminPasscode",
+    adminPasscode: "admin-9876",
+  });
+  assertEqual(result.status, "success", "verifyAdminPasscode success status");
+  assert(result.message.indexOf("verified") >= 0, "verifyAdminPasscode success message");
+})();
+
+(function () {
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "verifyAdminPasscode",
+    adminPasscode: "wrong-passcode",
+  });
+  assertEqual(result.status, "error", "verifyAdminPasscode invalid passcode status");
+  assertEqual(result.code, "AUTH_ERROR", "verifyAdminPasscode invalid passcode code");
+})();
+
+(function () {
+  scriptProperties = {
+    SELF_GENERATED_TOKEN: "test-key-123",
+    SHEET_ID: "sheet-abc",
+    SHEET_NAME: "TestSheet",
+  };
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "verifyAdminPasscode",
+    adminPasscode: "any-value",
+  });
+  assertEqual(result.status, "error", "verifyAdminPasscode missing property status");
+  assertEqual(result.code, "CONFIG_ERROR", "verifyAdminPasscode missing property code");
 })();
 
 // ===========================

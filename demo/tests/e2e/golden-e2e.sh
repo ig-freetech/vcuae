@@ -127,7 +127,7 @@ echo "=== STEP 5: UI verification ==="
 FOUND_SUCCESS=false
 for _i in $(seq 1 15); do
   playwright-cli snapshot --filename="$SNAP_FILE" -s="$SESSION" > /dev/null 2>&1
-  if grep -q "送信成功" "$SNAP_FILE" 2>/dev/null; then
+  if grep -q "Submission successful" "$SNAP_FILE" 2>/dev/null; then
     FOUND_SUCCESS=true
     break
   fi

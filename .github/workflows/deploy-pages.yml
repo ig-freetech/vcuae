@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "demo/web/**"
+      - "demo/admin/**"
       - "demo/shared/**"
   workflow_dispatch:
 

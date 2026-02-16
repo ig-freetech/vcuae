@@ -1,0 +1,11 @@
+{
+  "name": "Purchase Ledger Admin",
+  "short_name": "Ledger Admin",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7ed",
+  "theme_color": "#1f5f4a",
+  "icons": [
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

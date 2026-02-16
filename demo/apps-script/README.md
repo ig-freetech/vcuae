@@ -24,12 +24,13 @@
 | プロパティ名 | 値 | 説明 |
 |---|---|---|
 | `SELF_GENERATED_TOKEN` | ランダム文字列 | 自前で生成した共有トークン。クライアント（Web App）と同じ値を設定する |
+| `ADMIN_PASSCODE` | 任意の文字列 | 管理画面（`/admin`）の解錠に使用するパスコード |
 | `SHEET_ID` | - | ランタイム設定で自動保存（手動設定不要） |
 | `SHEET_NAME` | - | ランタイム設定で自動保存（デフォルト: `Sheet1`） |
 
 ※ `SELF_GENERATED_TOKEN` は `npm run deploy:gas` 実行時に自動生成され、ターミナルに表示されます。必ず保存してください。
 
-※ `SHEET_ID` と `SHEET_NAME` は、Web App の Connection Settings → Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。手動設定は不要です。
+※ `SHEET_ID` と `SHEET_NAME` は、管理画面（`/admin`）の Connection → Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。手動設定は不要です。
 
 ### 3. Web App デプロイ
 
@@ -50,8 +51,8 @@
 | action | パラメータ | 説明 |
 |--------|-----------|------|
 | `health` | `selfGeneratedToken` | ヘルスチェック。`{ status: "ok" }` を返す |
-| `listSheets` | `selfGeneratedToken`, `spreadsheetUrl` | 指定スプレッドシートのシート名一覧を返す |
-| `getHeaders` | `selfGeneratedToken`, `sheetName` | 指定シートの1行目（ヘッダー）を返す |
+| `listSheets` | `selfGeneratedToken`, `spreadsheetId` | 指定スプレッドシートのシート名一覧を返す |
+| `getHeaders` | `selfGeneratedToken`, `spreadsheetId`, `sheetName` | 指定シートの1行目（ヘッダー）を返す |
 | `readLastRow` | `selfGeneratedToken` | 設定済みシートの最終行データを返す |
 
 例（ヘルスチェック）:
@@ -65,14 +66,15 @@ curl -L 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?action=healt
 | action | body | 説明 |
 |--------|------|------|
 | （デフォルト） | `{ selfGeneratedToken, data: {...} }` | スプレッドシートに1行追記 |
-| `configure` | `{ selfGeneratedToken, action: "configure", spreadsheetId, sheetName }` | Script Properties の SHEET_ID/SHEET_NAME を更新 |
+| `configure` | `{ selfGeneratedToken, action: "configure", config: { spreadsheetId, sheetName } }` | Script Properties の SHEET_ID/SHEET_NAME を更新 |
+| `verifyAdminPasscode` | `{ selfGeneratedToken, action: "verifyAdminPasscode", adminPasscode }` | `ADMIN_PASSCODE` をサーバー側で検証し、管理画面解錠の可否を返す |
 
 例（ランタイム設定）:
 
 ```bash
 curl -L -X POST 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec' \
   -H 'Content-Type: application/json' \
-  -d '{ "selfGeneratedToken": "YOUR_SELF_GENERATED_TOKEN", "action": "configure", "spreadsheetId": "SHEET_ID", "sheetName": "Sheet1" }'
+  -d '{ "selfGeneratedToken": "YOUR_SELF_GENERATED_TOKEN", "action": "configure", "config": { "spreadsheetId": "SHEET_ID", "sheetName": "Sheet1" } }'
 ```
 
 ### 4. 動作確認
@@ -114,6 +116,8 @@ curl -L -X POST \
 | 症状 | 原因 | 対処 |
 |------|------|------|
 | `AUTH_ERROR: Invalid self-generated token` | SELF_GENERATED_TOKEN が一致していない | Script Properties の `SELF_GENERATED_TOKEN` とクライアント設定を確認 |
+| `AUTH_ERROR: Invalid admin passcode` | ADMIN_PASSCODE が一致していない | Script Properties の `ADMIN_PASSCODE` と `/admin` の入力値を確認 |
+| `CONFIG_ERROR: ADMIN_PASSCODE is not configured` | ADMIN_PASSCODE 未設定 | Script Properties に `ADMIN_PASSCODE` を追加 |
 | `VALIDATION_ERROR` | 必須フィールドが不足 | エラーレスポンスの `errors` 配列で不足フィールドを確認 |
 | `SERVER_ERROR` | スプレッドシートへの書き込み失敗 | `SHEET_ID` と `SHEET_NAME` を確認。シートの列構成が正しいか確認 |
 | 403 / 権限エラー | デプロイ設定が不正 | 「アクセスできるユーザー」を「全員」に設定しているか確認 |

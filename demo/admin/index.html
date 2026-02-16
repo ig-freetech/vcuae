@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#06162c" />
+    <title>Purchase Ledger Admin</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="../shared/ledger-core.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="hero-kicker">Purchase Ledger</p>
+        <h1>Administration</h1>
+        <p>Unlock to manage connection and spreadsheet integration.</p>
+      </header>
+
+      <section id="admin-lock" class="card settings-card">
+        <h3 class="settings-step-title">
+          <span class="step-number">0</span> Admin Unlock
+        </h3>
+        <p class="help-text">
+          Enter <code>ADMIN_PASSCODE</code> configured in Apps Script Script Properties.
+          Once unlocked, connection settings and setup guide are shown.
+        </p>
+        <div class="grid">
+          <label>
+            <span>Admin Passcode</span>
+            <input
+              id="unlock-passcode"
+              type="password"
+              placeholder="ADMIN_PASSCODE"
+              autocomplete="off"
+              required
+            />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="unlock-admin" type="button">Unlock Administration</button>
+        </div>
+        <output id="unlock-status" class="status" aria-live="polite"></output>
+      </section>
+
+      <div id="admin-panel" class="hidden">
+        <section class="card settings-card">
+          <div id="settings-step-1" class="settings-step">
+            <h3 class="settings-step-title">
+              <span class="step-number">1</span> Connection
+            </h3>
+            <p class="help-text">
+              Enter the Web App URL and Self-Generated Token from your Google Apps Script deployment.
+            </p>
+            <div class="grid two-col">
+              <label>
+                <span>Web App URL</span>
+                <input
+                  id="endpoint"
+                  name="endpoint"
+                  type="url"
+                  placeholder="https://script.google.com/macros/s/.../exec"
+                  autocomplete="off"
+                  required
+                />
+              </label>
+              <label>
+                <span>Self-Generated Token</span>
+                <input
+                  id="self-generated-token"
+                  name="selfGeneratedToken"
+                  type="password"
+                  placeholder="Value set in Script Properties: SELF_GENERATED_TOKEN"
+                  autocomplete="off"
+                  required
+                />
+              </label>
+            </div>
+            <div class="actions">
+              <button id="test-connection" type="button" class="secondary">Test Connection</button>
+              <button id="save-settings" type="button" class="secondary">Save Settings</button>
+            </div>
+            <output id="connection-status" class="status" aria-live="polite"></output>
+          </div>
+
+          <div id="settings-step-2" class="settings-step hidden">
+            <h3 class="settings-step-title">
+              <span class="step-number">2</span> Spreadsheet
+            </h3>
+            <p class="help-text">
+              Enter the URL of the target spreadsheet.
+              <br /><small>e.g. https://docs.google.com/spreadsheets/d/XXXXX/edit</small>
+            </p>
+            <label class="full-width">
+              <span>Spreadsheet URL</span>
+              <input
+                id="spreadsheet-url"
+                name="spreadsheetUrl"
+                type="url"
+                placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                autocomplete="off"
+              />
+            </label>
+            <label>
+              <span>Sheet Name</span>
+              <select id="sheet-name" name="sheetName" disabled>
+                <option value="">-- Select a sheet --</option>
+              </select>
+            </label>
+            <div class="actions">
+              <button id="load-sheets" type="button" class="secondary">Load Sheets</button>
+              <button id="apply-spreadsheet" type="button" class="secondary">Apply Spreadsheet</button>
+            </div>
+            <output id="spreadsheet-status" class="status" aria-live="polite"></output>
+          </div>
+
+          <div id="settings-step-3" class="settings-step hidden">
+            <h3 class="settings-step-title">
+              <span class="step-number">3</span> Column Mapping
+            </h3>
+            <div id="column-mapping" class="column-mapping-grid"></div>
+            <div id="header-mismatch-warning" class="warning hidden">
+              <strong>Warning:</strong> Spreadsheet headers do not match the expected values.
+              <pre id="header-diff"></pre>
+            </div>
+          </div>
+
+          <div class="setup-guide">
+            <details>
+              <summary>セットアップガイド（初回設定）</summary>
+              <ol class="guide-steps">
+                <li class="guide-step-item">
+                  <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
+                  <p class="guide-desc">
+                    <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>
+                    にアクセスし、「新しいプロジェクト」をクリックしてください。
+                  </p>
+                </li>
+                <li class="guide-step-item">
+                  <strong>Step 2: Code.gs を貼り付け</strong>
+                  <p class="guide-desc">
+                    下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
+                  </p>
+                  <div class="guide-action">
+                    <button id="copy-code-gs" type="button" class="secondary guide-btn">
+                      <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
+                    </button>
+                    <span id="copy-code-gs-status" class="guide-status"></span>
+                  </div>
+                </li>
+                <li class="guide-step-item">
+                  <strong>Step 3: トークンを生成して Script Properties と この画面上部の Self-Generated Token に設定</strong>
+                  <p class="guide-desc">
+                    下のボタンで SELF_GENERATED_TOKEN 用のランダムトークンを生成＆コピーします。
+                    さらに Script Properties に <code>ADMIN_PASSCODE</code> も任意値で追加してください。
+                  </p>
+                  <div class="guide-action">
+                    <button id="generate-token" type="button" class="secondary guide-btn">
+                      <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
+                    </button>
+                    <span id="generate-token-status" class="guide-status"></span>
+                  </div>
+                </li>
+                <li class="guide-step-item">
+                  <strong>Step 4: Web App としてデプロイ</strong>
+                  <p class="guide-desc">
+                    Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」。
+                    次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」を選択。
+                  </p>
+                </li>
+                <li class="guide-step-item">
+                  <strong>Step 5: Unlock で認証</strong>
+                  <p class="guide-desc">
+                    この画面の Unlock で Admin Passcode を入力し、管理画面を解錠します。
+                  </p>
+                </li>
+                <li class="guide-step-item">
+                  <strong>Step 6: Connection → Spreadsheet → Column Mapping を完了</strong>
+                  <p class="guide-desc">
+                    Test Connection → Load Sheets → Apply Spreadsheet の順で設定し、
+                    Column Mapping で全列 &#10003; を確認してください。
+                  </p>
+                </li>
+              </ol>
+            </details>
+          </div>
+        </section>
+
+        <div class="settings-footer">
+          <button id="lock-admin" type="button" class="secondary">Lock Administration</button>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
