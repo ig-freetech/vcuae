@@ -390,6 +390,14 @@ button:disabled {
   color: var(--brand);
 }
 
+.consent-guidance {
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
 .consent-item {
   display: grid;
   grid-template-columns: auto 1fr;

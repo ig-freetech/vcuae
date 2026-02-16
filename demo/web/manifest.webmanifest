@@ -1,13 +1,11 @@
 {
-  "name": "Transaction Ledger",
-  "short_name": "Ledger",
+  "name": "VC Ledger",
+  "short_name": "VC Ledger",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f7ed",
   "theme_color": "#1f5f4a",
   "icons": [
-    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    { "src": "../assets/VC_logo_blue.webp", "sizes": "any", "type": "image/webp" }
   ]
 }

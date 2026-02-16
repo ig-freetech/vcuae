@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#06162c" />
-    <title>Transaction Ledger</title>
+    <title>VC Ledger</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="icon" href="../assets/VC_logo_blue.webp" type="image/webp" />
+    <link rel="apple-touch-icon" href="../assets/VC_logo_blue.webp" />
     <link rel="stylesheet" href="./styles.css" />
     <script src="../shared/ledger-core.js" defer></script>
     <script src="./app.js" defer></script>
@@ -114,8 +114,9 @@
             </div>
             <section class="consent-block">
               <h3>Conditions</h3>
+              <p class="consent-guidance">For buyback customers: please confirm all conditions below before proceeding.</p>
               <label class="consent-item">
-                <input type="checkbox" name="consent1" required />
+                <input type="checkbox" name="consent1" />
                 <span
                   >If an item is found to be stolen or counterfeit after purchase, we will immediately
                   notify the police and hand over the item, and legal action will be taken in
@@ -123,7 +124,7 @@
                 >
               </label>
               <label class="consent-item">
-                <input type="checkbox" name="consent2" required />
+                <input type="checkbox" name="consent2" />
                 <span
                   >If items do not meet our quality standards during the authentication process, the
                   initial quotation given over the phone will be revised or the item will be rejected
@@ -131,7 +132,7 @@
                 >
               </label>
               <label class="consent-item consent-item-highlight">
-                <input type="checkbox" name="consent3" required />
+                <input type="checkbox" name="consent3" />
                 <span
                   >If the authenticity of the item(s) are found to be Fake, Counterfeit or Undetermined
                   by the 3rd party authentication systems used by the company, the customer is
@@ -141,7 +142,7 @@
                 >
               </label>
               <label class="consent-item">
-                <input type="checkbox" name="consent4" required />
+                <input type="checkbox" name="consent4" />
                 <span
                   >By signing this document, the customer confirms that they are the rightful owner of
                   the items and that the company has paid the total amount as per the final agreed
