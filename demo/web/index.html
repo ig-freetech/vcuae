@@ -232,52 +232,64 @@
           <!-- Setup Guide -->
           <div class="setup-guide">
             <details>
-              <summary>セットアップガイド（日本語スタッフ向け）</summary>
+              <summary>セットアップガイド（初回設定）</summary>
               <ol class="guide-steps">
-                <li>
-                  <strong>Google Apps Script でプロジェクトを作成</strong>
-                  <ul>
-                    <li><a href="https://script.google.com" target="_blank" rel="noopener">https://script.google.com</a> にアクセス</li>
-                    <li>「新しいプロジェクト」をクリック</li>
-                    <li>Code.gs に<a href="https://github.com/ig-freetech/vcuae/blob/main/demo/apps-script/Code.gs" target="_blank" rel="noopener">提供されたスクリプト</a>を貼り付けて保存</li>
-                  </ul>
+                <li class="guide-step-item">
+                  <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
+                  <p class="guide-desc">
+                    <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> にアクセスし、「新しいプロジェクト」をクリックしてください。
+                  </p>
                 </li>
-                <li>
-                  <strong>Script Properties に SELF_GENERATED_TOKEN を設定</strong>
-                  <ul>
-                    <li>左サイドバー「プロジェクトの設定」（&#9881; 歯車アイコン）をクリック</li>
-                    <li>下部の「スクリプト プロパティを追加」をクリック</li>
-                    <li>プロパティ: <code>SELF_GENERATED_TOKEN</code></li>
-                    <li>値: 推測されにくいランダム文字列を設定（パスワードジェネレーター等で32文字以上推奨）</li>
-                  </ul>
+                <li class="guide-step-item">
+                  <strong>Step 2: Code.gs を貼り付け</strong>
+                  <p class="guide-desc">
+                    下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
+                  </p>
+                  <div class="guide-action">
+                    <button id="copy-code-gs" type="button" class="secondary guide-btn">
+                      <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
+                    </button>
+                    <span id="copy-code-gs-status" class="guide-status"></span>
+                  </div>
                 </li>
-                <li>
-                  <strong>Web App としてデプロイ</strong>
-                  <ul>
-                    <li>右上「デプロイ」→「新しいデプロイ」</li>
-                    <li>種類の選択で「ウェブアプリ」を選択</li>
-                    <li>次のユーザーとして実行: 「自分」</li>
-                    <li>アクセスできるユーザー: 「全員」</li>
-                    <li>「デプロイ」をクリック → 表示された Web App URL をコピー</li>
-                  </ul>
+                <li class="guide-step-item">
+                  <strong>Step 3: トークンを生成して Script Properties に設定</strong>
+                  <p class="guide-desc">
+                    下のボタンでセキュアなトークンを生成＆コピーします。Apps Script の「プロジェクトの設定」（&#9881;）→「スクリプト プロパティを追加」で、プロパティ名 <code>SELF_GENERATED_TOKEN</code>、値に生成したトークンを貼り付けてください。
+                  </p>
+                  <div class="guide-action">
+                    <button id="generate-token" type="button" class="secondary guide-btn">
+                      <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
+                    </button>
+                    <span id="generate-token-status" class="guide-status"></span>
+                  </div>
+                  <div class="guide-warning">
+                    &#9888; トークンは一度しか表示されません。必ずこの画面と Script Properties の両方に保存してください。
+                  </div>
                 </li>
-                <li>
-                  <strong>上の「Connection」に Web App URL と Self-Generated Token を入力</strong>
+                <li class="guide-step-item">
+                  <strong>Step 4: Web App としてデプロイ</strong>
+                  <p class="guide-desc">
+                    Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」を選択。次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」に設定し、「デプロイ」をクリック。表示された Web App URL をコピーしてください。
+                  </p>
                 </li>
-                <li>
-                  <strong>「Test Connection」で接続確認</strong>
-                  <ul>
-                    <li>成功すると「Spreadsheet」セクションが表示されます</li>
-                  </ul>
+                <li class="guide-step-item">
+                  <strong>Step 5: Connection に URL とトークンを入力</strong>
+                  <p class="guide-desc">
+                    上の「Connection」セクションに、コピーした Web App URL と Step 3 で生成したトークンを入力してください。
+                  </p>
                 </li>
-                <li>
-                  <strong>「Spreadsheet」で書き込み先を設定</strong>
-                  <ul>
-                    <li>Spreadsheet URL を入力 →「Load Sheets」→ シートを選択 →「Apply Spreadsheet」</li>
-                  </ul>
+                <li class="guide-step-item">
+                  <strong>Step 6: Test Connection で接続確認</strong>
+                  <p class="guide-desc">
+                    「Test Connection」ボタンをクリックし、接続が成功すると「Spreadsheet」セクションが表示されます。
+                  </p>
                 </li>
-                <li>
-                  <strong>「Column Mapping」で全列 &#10003; を確認して完了</strong>
+                <li class="guide-step-item">
+                  <strong>Step 7: Spreadsheet と Column Mapping を設定</strong>
+                  <p class="guide-desc">
+                    Spreadsheet URL を入力 →「Load Sheets」→ シートを選択 →「Apply Spreadsheet」。Column Mapping で全列 &#10003; を確認して完了です。
+                  </p>
                 </li>
               </ol>
             </details>
