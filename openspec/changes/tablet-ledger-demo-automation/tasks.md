@@ -55,3 +55,7 @@
 - [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [c22017aebb] Changed file is outside impacted_paths scope.
 - [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
 - [ ] [BRUSHUP][vcuae-kvs.2.1] BRUSHUP: [450ef6cf4f] OpenSpec tasks.md has no impacted_paths block for completion audit.
+- [ ] [BRUSHUP][vcuae-rww.1] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
+- [ ] [BRUSHUP][vcuae-rww.1] BRUSHUP: [244c9157b8] Instruction details mention verification/tests but no test update was de
+- [ ] [BRUSHUP][vcuae-hkf.1] BRUSHUP: [8197acafe8] plan_path could not be resolved for completion audit.
+- [ ] [BRUSHUP][vcuae-hkf.1] BRUSHUP: [5e5a023f02] Instruction details mention verification/tests but no test update was de
