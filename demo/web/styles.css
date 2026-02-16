@@ -61,7 +61,7 @@ body::before {
   position: relative;
   z-index: 1;
   width: min(1080px, calc(100% - 2rem));
-  margin: 1.6rem auto 2.4rem;
+  margin: 0 auto 2.4rem;
   display: grid;
   gap: 1.15rem;
 }
@@ -71,11 +71,13 @@ body::before {
   overflow: hidden;
   background: linear-gradient(122deg, var(--brand), var(--brand-soft));
   color: #f7f7f7;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   padding: 1.4rem 1.35rem 1.6rem;
-  box-shadow: var(--shadow-card);
-  animation: lift-in 260ms ease both;
+  box-shadow: none;
+  animation: none;
   border-bottom: 2px solid var(--accent);
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
 }
 
 .hero::before {
