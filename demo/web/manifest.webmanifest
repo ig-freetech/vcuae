@@ -1,6 +1,6 @@
 {
-  "name": "Purchase Ledger Demo",
-  "short_name": "PurchaseLedger",
+  "name": "Purchase Ledger",
+  "short_name": "Ledger",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f7ed",

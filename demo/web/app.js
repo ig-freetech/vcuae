@@ -5,7 +5,6 @@
   var endpoint = document.getElementById("endpoint");
   var apiKey = document.getElementById("api-key");
   var saveSettings = document.getElementById("save-settings");
-  var settingsPanel = document.getElementById("settings-panel");
 
   var stepCustomer = document.getElementById("step-customer");
   var stepStaff = document.getElementById("step-staff");
@@ -47,6 +46,14 @@
   var columnMapping = document.getElementById("column-mapping");
   var headerMismatchWarning = document.getElementById("header-mismatch-warning");
   var headerDiff = document.getElementById("header-diff");
+
+  // --- View navigation refs ---
+  var mainView = document.getElementById("main-view");
+  var settingsView = document.getElementById("settings-view");
+  var gearBtn = document.getElementById("gear-btn");
+  var backToMain = document.getElementById("back-to-main");
+  var backToMainBottom = document.getElementById("back-to-main-bottom");
+  var configBanner = document.getElementById("config-banner");
 
   // --- Helpers ---
   function populateSelect(selectEl, options, placeholder) {
@@ -112,6 +119,29 @@
 
   function revealStep3() {
     settingsStep3.classList.remove("hidden");
+  }
+
+  // --- View Navigation ---
+  function showView(viewName) {
+    if (viewName === "settings") {
+      mainView.classList.remove("active");
+      settingsView.classList.add("active");
+      gearBtn.classList.add("hidden");
+    } else {
+      settingsView.classList.remove("active");
+      mainView.classList.add("active");
+      gearBtn.classList.remove("hidden");
+      updateConfigBanner();
+    }
+  }
+
+  function updateConfigBanner() {
+    var isConfigured = localStorage.getItem("ledger_connectionVerified") === "true";
+    if (isConfigured) {
+      configBanner.classList.add("hidden");
+    } else {
+      configBanner.classList.remove("hidden");
+    }
   }
 
   // --- Header Validation ---
@@ -218,9 +248,6 @@
   var savedApiKey = localStorage.getItem("ledger_apiKey");
   if (savedEndpoint) endpoint.value = savedEndpoint;
   if (savedApiKey) apiKey.value = savedApiKey;
-  if (savedEndpoint && savedApiKey) {
-    settingsPanel.removeAttribute("open");
-  }
 
   // --- Restore spreadsheet settings ---
   var savedSpreadsheetUrl = localStorage.getItem("ledger_spreadsheetUrl");
@@ -247,6 +274,17 @@
       getHeaders(savedEndpoint, savedApiKey, savedSheetName);
     }
   }
+
+  // --- Initialize view ---
+  (function initView() {
+    var hasEndpoint = localStorage.getItem("ledger_endpoint");
+    var hasApiKey = localStorage.getItem("ledger_apiKey");
+    if (!hasEndpoint || !hasApiKey) {
+      showView("settings");
+    } else {
+      showView("main");
+    }
+  })();
 
   // --- Default visit date ---
   if (!visitDateInput.value) {
@@ -291,6 +329,7 @@
           localStorage.setItem("ledger_endpoint", ep);
           localStorage.setItem("ledger_apiKey", ak);
           localStorage.setItem("ledger_connectionVerified", "true");
+          updateConfigBanner();
           revealStep2();
         } else {
           connectionStatus.textContent = "Connection error: " + (data.message || "Unknown error");
@@ -503,6 +542,11 @@
   countryInput.addEventListener("change", updateDerived);
   visitDateInput.addEventListener("input", updateDerived);
   visitDateInput.addEventListener("change", updateDerived);
+
+  // --- View navigation listeners ---
+  gearBtn.addEventListener("click", function() { showView("settings"); });
+  backToMain.addEventListener("click", function() { showView("main"); });
+  backToMainBottom.addEventListener("click", function() { showView("main"); });
 
   // --- Form submission ---
   ledgerForm.addEventListener("submit", function (e) {
