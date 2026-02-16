@@ -1,0 +1,18 @@
+{
+  "name": "vcuae-demo",
+  "private": true,
+  "scripts": {
+    "test:unit": "node tests/ledger-core.test.js && node tests/apps-script.test.js",
+    "test:e2e": "bash tests/e2e/golden-e2e.sh",
+    "test:e2e:mock": "MOCK_MODE=true bash tests/e2e/golden-e2e.sh",
+    "deploy:gas": "bash scripts/deploy-gas.sh",
+    "serve": "npx serve . -l 3000 --no-clipboard"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0",
+    "dotenv": "^16.4.0"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}
