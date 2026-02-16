@@ -26,14 +26,18 @@
 
   var settingsStep2 = document.getElementById("settings-step-2");
   var settingsStep3 = document.getElementById("settings-step-3");
+  var settingsStep4 = document.getElementById("settings-step-4");
   var testConnectionBtn = document.getElementById("test-connection");
   var connectionStatus = document.getElementById("connection-status");
   var spreadsheetUrl = document.getElementById("spreadsheet-url");
   var driveFolderUrl = document.getElementById("drive-folder-url");
+  var sheetConfigPanel = document.getElementById("sheet-config-panel");
   var sheetNameSelect = document.getElementById("sheet-name");
   var loadSheetsBtn = document.getElementById("load-sheets");
   var applySpreadsheetBtn = document.getElementById("apply-spreadsheet");
+  var applyDriveBtn = document.getElementById("apply-drive");
   var spreadsheetStatus = document.getElementById("spreadsheet-status");
+  var driveStatus = document.getElementById("drive-status");
   var columnMapping = document.getElementById("column-mapping");
   var headerMismatchWarning = document.getElementById("header-mismatch-warning");
   var headerDiff = document.getElementById("header-diff");
@@ -115,16 +119,35 @@
     settingsStep3.classList.remove("hidden");
   }
 
+  function revealStep4() {
+    settingsStep4.classList.remove("hidden");
+  }
+
+  function hideSheetConfigPanel() {
+    if (sheetConfigPanel) {
+      sheetConfigPanel.classList.add("hidden");
+    }
+    sheetNameSelect.innerHTML = '<option value="">-- Select a sheet --</option>';
+    sheetNameSelect.disabled = true;
+  }
+
+  function showSheetConfigPanel() {
+    if (sheetConfigPanel) {
+      sheetConfigPanel.classList.remove("hidden");
+    }
+  }
+
   function resetSpreadsheetUiState() {
     settingsStep2.classList.add("hidden");
     settingsStep3.classList.add("hidden");
-    sheetNameSelect.innerHTML = '<option value="">-- Select a sheet --</option>';
-    sheetNameSelect.disabled = true;
+    settingsStep4.classList.add("hidden");
+    hideSheetConfigPanel();
     columnMapping.innerHTML = "";
     headerMismatchWarning.classList.add("hidden");
     headerDiff.textContent = "";
     setStatus(connectionStatus, "", "");
     setStatus(spreadsheetStatus, "", "");
+    setStatus(driveStatus, "", "");
   }
 
   function showColumnMapping(headers) {
@@ -363,7 +386,9 @@
 
     if (savedConnectionVerified === "true" && creds.endpoint && creds.token) {
       revealStep2();
+      revealStep3();
       if (savedSheetName) {
+        showSheetConfigPanel();
         var opt = document.createElement("option");
         opt.value = savedSheetName;
         opt.textContent = savedSheetName;
@@ -372,7 +397,7 @@
         sheetNameSelect.disabled = false;
       }
       if (savedSpreadsheetId && savedSheetName) {
-        revealStep3();
+        revealStep4();
         getHeaders(creds.endpoint, creds.token, savedSheetName);
       }
     }
@@ -445,7 +470,8 @@
                 unlockStatus,
                 "Connection failed while using saved " +
                   sourceParts.join("/") +
-                  " from localStorage. Health check succeeded, so saved values are reachable. Hard refresh this page and retry.",
+                  " from localStorage. Health check succeeded, so saved values are reachable. Hard refresh this page and retry. Details: " +
+                  (result.message || "Connection error"),
                 "err",
               );
               return;
@@ -454,7 +480,8 @@
               unlockStatus,
               "Connection failed while using saved " +
                 sourceParts.join("/") +
-                " from localStorage. Re-enter URL, Token, and passcode.",
+                " from localStorage. Re-enter URL, Token, and passcode. Details: " +
+                (result.message || "Connection error"),
               "err",
             );
             return;
@@ -464,14 +491,16 @@
             if (result.diagnosticCode === "POST_FAILED_HEALTH_OK") {
               setStatus(
                 unlockStatus,
-                "Connection failed while using entered values. Health check succeeded, so URL/Token are likely valid. Hard refresh this page and retry.",
+                "Connection failed while using entered values. Health check succeeded, so URL/Token are likely valid. Hard refresh this page and retry. Details: " +
+                  (result.message || "Connection error"),
                 "err",
               );
               return;
             }
             setStatus(
               unlockStatus,
-              "Connection failed while using entered values. Check Web App URL, deployment access (Anyone), and network.",
+              "Connection failed while using entered values. Check Web App URL, deployment access (Anyone), and network. Details: " +
+                (result.message || "Connection error"),
               "err",
             );
             return;
@@ -601,6 +630,7 @@
           localStorage.setItem("ledger_connectionVerified", "true");
           syncUnlockMode();
           revealStep2();
+          revealStep3();
         } else {
           setStatus(connectionStatus, "Connection error: " + (data.message || "Unknown error"), "err");
         }
@@ -618,17 +648,35 @@
   });
 
   // --- Spreadsheet step ---
+  spreadsheetUrl.addEventListener("input", function () {
+    hideSheetConfigPanel();
+    settingsStep4.classList.add("hidden");
+    columnMapping.innerHTML = "";
+    headerMismatchWarning.classList.add("hidden");
+    headerDiff.textContent = "";
+    setStatus(spreadsheetStatus, "", "");
+  });
+
   loadSheetsBtn.addEventListener("click", function () {
     var ep = endpoint.value.trim();
     var token = selfGeneratedTokenInput.value.trim();
     var ssUrl = spreadsheetUrl.value.trim();
     var ssId = extractSpreadsheetId(ssUrl);
 
+    if (!ep || !token) {
+      setStatus(spreadsheetStatus, "Please complete Connection setup in Step 1 first", "err");
+      return;
+    }
     if (!ssId) {
       setStatus(spreadsheetStatus, "Please enter a valid spreadsheet URL", "err");
       return;
     }
 
+    hideSheetConfigPanel();
+    settingsStep4.classList.add("hidden");
+    columnMapping.innerHTML = "";
+    headerMismatchWarning.classList.add("hidden");
+    headerDiff.textContent = "";
     setStatus(spreadsheetStatus, "Verifying passcode and loading sheets...", "");
     loadSheetsBtn.disabled = true;
 
@@ -649,7 +697,7 @@
         return res.json();
       })
       .then(function (data) {
-        if (data.status === "success" && data.sheets) {
+        if (data.status === "success" && data.sheets && data.sheets.length > 0) {
           sheetNameSelect.innerHTML = "";
           var placeholder = document.createElement("option");
           placeholder.value = "";
@@ -664,8 +712,11 @@
             opt.textContent = data.sheets[i];
             sheetNameSelect.appendChild(opt);
           }
+          showSheetConfigPanel();
           sheetNameSelect.disabled = false;
           setStatus(spreadsheetStatus, data.sheets.length + " sheet(s) retrieved", "ok");
+        } else if (data.status === "success" && data.sheets && data.sheets.length === 0) {
+          setStatus(spreadsheetStatus, "No sheets found in this spreadsheet", "err");
         } else {
           setStatus(spreadsheetStatus, data.message || "Failed to retrieve sheet list", "err");
         }
@@ -683,16 +734,14 @@
     var token = selfGeneratedTokenInput.value.trim();
     var ssUrl = spreadsheetUrl.value.trim();
     var ssId = extractSpreadsheetId(ssUrl);
-    var driveFolderUrlValue = driveFolderUrl.value.trim();
-    var driveFolderId = extractDriveFolderId(driveFolderUrlValue);
     var selectedSheet = sheetNameSelect.value;
 
-    if (!ssId) {
-      setStatus(spreadsheetStatus, "Please enter a valid spreadsheet URL", "err");
+    if (!ep || !token) {
+      setStatus(spreadsheetStatus, "Please complete Connection setup in Step 1 first", "err");
       return;
     }
-    if (!driveFolderUrlValue || !driveFolderId) {
-      setStatus(spreadsheetStatus, "Please enter a valid Google Drive folder URL", "err");
+    if (!ssId) {
+      setStatus(spreadsheetStatus, "Please enter a valid spreadsheet URL", "err");
       return;
     }
     if (!selectedSheet) {
@@ -717,7 +766,6 @@
             config: {
               spreadsheetId: ssId,
               sheetName: selectedSheet,
-              driveFolderUrl: driveFolderUrlValue,
             },
           }),
         });
@@ -730,11 +778,10 @@
           localStorage.setItem("ledger_spreadsheetUrl", ssUrl);
           localStorage.setItem("ledger_spreadsheetId", ssId);
           localStorage.setItem("ledger_sheetName", selectedSheet);
-          localStorage.setItem("ledger_driveFolderUrl", driveFolderUrlValue);
           localStorage.setItem("ledger_connectionVerified", "true");
 
           setStatus(spreadsheetStatus, "Spreadsheet configured", "ok");
-          revealStep3();
+          revealStep4();
           getHeaders(ep, token, selectedSheet);
         } else {
           setStatus(spreadsheetStatus, data.message || "Configuration failed", "err");
@@ -745,6 +792,66 @@
       })
       .finally(function () {
         applySpreadsheetBtn.disabled = false;
+      });
+  });
+
+  // --- Google Drive step ---
+  driveFolderUrl.addEventListener("input", function () {
+    setStatus(driveStatus, "", "");
+  });
+
+  applyDriveBtn.addEventListener("click", function () {
+    var ep = endpoint.value.trim();
+    var token = selfGeneratedTokenInput.value.trim();
+    var driveFolderUrlValue = driveFolderUrl.value.trim();
+    var driveFolderId = extractDriveFolderId(driveFolderUrlValue);
+
+    if (!ep || !token) {
+      setStatus(driveStatus, "Please complete Connection setup in Step 1 first", "err");
+      return;
+    }
+    if (!driveFolderUrlValue || !driveFolderId) {
+      setStatus(driveStatus, "Please enter a valid Google Drive folder URL", "err");
+      return;
+    }
+
+    setStatus(driveStatus, "Verifying passcode and configuring Google Drive folder...", "");
+    applyDriveBtn.disabled = true;
+
+    ensureVerifiedPasscode(ep, token)
+      .then(function (verifyResult) {
+        if (!verifyResult.ok) {
+          throw new Error(verifyResult.message || "Admin passcode verification failed");
+        }
+        return fetch(ep, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({
+            selfGeneratedToken: token,
+            action: "configure",
+            config: {
+              driveFolderUrl: driveFolderUrlValue,
+            },
+          }),
+        });
+      })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        if (data.status === "success") {
+          localStorage.setItem("ledger_driveFolderUrl", driveFolderUrlValue);
+          localStorage.setItem("ledger_connectionVerified", "true");
+          setStatus(driveStatus, "Google Drive folder configured", "ok");
+        } else {
+          setStatus(driveStatus, data.message || "Configuration failed", "err");
+        }
+      })
+      .catch(function (err) {
+        setStatus(driveStatus, err.message || "Connection error", "err");
+      })
+      .finally(function () {
+        applyDriveBtn.disabled = false;
       });
   });
 

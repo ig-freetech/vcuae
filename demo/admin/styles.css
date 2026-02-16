@@ -287,6 +287,17 @@ button:active:not(:disabled) {
   transform: translateY(0);
 }
 
+button.btn-connect {
+  background: linear-gradient(135deg, #fff 0%, #ffe066 100%);
+  color: var(--brand);
+  border-color: #e6c84a;
+}
+
+button.btn-connect:hover:not(:disabled) {
+  border-color: #d4a800;
+  box-shadow: 0 8px 14px rgba(230, 200, 74, 0.18);
+}
+
 button.secondary {
   background: #fff;
   color: var(--brand);
@@ -296,6 +307,26 @@ button.secondary {
 button.secondary:hover:not(:disabled) {
   border-color: var(--brand);
   box-shadow: 0 8px 14px rgba(6, 22, 44, 0.08);
+}
+
+button.btn-load-sheets {
+  background: linear-gradient(132deg, #29a55f 0%, #ffffff 100%);
+  color: #0f3a27;
+  border-color: #8fd5b0;
+}
+
+button.btn-load-sheets:hover:not(:disabled) {
+  box-shadow: 0 10px 16px rgba(25, 120, 68, 0.22);
+}
+
+button.btn-apply {
+  background: linear-gradient(132deg, #f16b91 0%, #df3f6f 100%);
+  color: #fff;
+  border-color: #c43761;
+}
+
+button.btn-apply:hover:not(:disabled) {
+  box-shadow: 0 10px 16px rgba(196, 55, 97, 0.28);
 }
 
 button:focus-visible {
@@ -366,6 +397,12 @@ button:disabled {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px dashed var(--line);
+}
+
+.sheet-config-panel {
+  margin-top: 0.52rem;
+  display: grid;
+  gap: 0.7rem;
 }
 
 .settings-step:last-of-type {

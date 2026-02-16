@@ -121,9 +121,9 @@
                 </p>
               </li>
               <li class="guide-step-item">
-                <strong>Step 6: Connection &rarr; Spreadsheet &rarr; Column Mapping</strong>
+                <strong>Step 6: Connection &rarr; Spreadsheet &rarr; Google Drive &rarr; Column Mapping</strong>
                 <p class="guide-desc">
-                  Test Connection &rarr; Load Sheets &rarr; Apply Spreadsheet, then verify all columns show &#10003; in Column Mapping.
+                  Connect, then configure Spreadsheet (Load Sheets &rarr; Apply), configure Google Drive folder (Apply), and finally verify all columns show &#10003; in Column Mapping.
                 </p>
               </li>
             </ol>
@@ -144,7 +144,7 @@
               </li>
               <li class="guide-step-item">
                 <code>CONFIG_ERROR: Google Drive folder is not configured</code>
-                <p class="guide-desc">Set a Google Drive Folder URL in Step 6 and click "Apply Spreadsheet".</p>
+                <p class="guide-desc">Set a Google Drive Folder URL in Step 6 and click "Apply" in the Google Drive section.</p>
               </li>
             </ul>
 
@@ -206,8 +206,8 @@
               <span class="step-number">2</span> Spreadsheet
             </h3>
             <p class="help-text">
-              Enter the URL of the target spreadsheet.
-              <br /><small>e.g. https://docs.google.com/spreadsheets/d/XXXXX/edit</small>
+              Select where customer submission rows are written in Google Spreadsheet.
+              <br /><small>Paste a Spreadsheet URL, load available sheets, then choose one target sheet.</small>
             </p>
             <label class="full-width">
               <span>Spreadsheet URL</span>
@@ -219,6 +219,31 @@
                 autocomplete="off"
               />
             </label>
+            <div class="actions">
+              <button id="load-sheets" type="button" class="btn-load-sheets">Load Sheets</button>
+            </div>
+            <div id="sheet-config-panel" class="sheet-config-panel hidden">
+              <label>
+                <span>Sheet Name</span>
+                <select id="sheet-name" name="sheetName" disabled>
+                  <option value="">-- Select a sheet --</option>
+                </select>
+              </label>
+              <div class="actions">
+                <button id="apply-spreadsheet" type="button" class="btn-apply">Apply</button>
+              </div>
+            </div>
+            <output id="spreadsheet-status" class="status" aria-live="polite"></output>
+          </div>
+
+          <div id="settings-step-3" class="settings-step hidden">
+            <h3 class="settings-step-title">
+              <span class="step-number">3</span> Google Drive
+            </h3>
+            <p class="help-text">
+              Certificate photos are stored in this Google Drive folder.
+              <br /><small>Set a folder URL that can be accessed by the deployed Apps Script account.</small>
+            </p>
             <label class="full-width">
               <span>Google Drive Folder URL (for certificate photos)</span>
               <input
@@ -229,22 +254,15 @@
                 autocomplete="off"
               />
             </label>
-            <label>
-              <span>Sheet Name</span>
-              <select id="sheet-name" name="sheetName" disabled>
-                <option value="">-- Select a sheet --</option>
-              </select>
-            </label>
             <div class="actions">
-              <button id="load-sheets" type="button" class="secondary">Load Sheets</button>
-              <button id="apply-spreadsheet" type="button" class="secondary">Apply Spreadsheet</button>
+              <button id="apply-drive" type="button" class="btn-apply">Apply</button>
             </div>
-            <output id="spreadsheet-status" class="status" aria-live="polite"></output>
+            <output id="drive-status" class="status" aria-live="polite"></output>
           </div>
 
-          <div id="settings-step-3" class="settings-step hidden">
+          <div id="settings-step-4" class="settings-step hidden">
             <h3 class="settings-step-title">
-              <span class="step-number">3</span> Column Mapping
+              <span class="step-number">4</span> Column Mapping
             </h3>
             <div id="column-mapping" class="column-mapping-grid"></div>
             <div id="header-mismatch-warning" class="warning hidden">
