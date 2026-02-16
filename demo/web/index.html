@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f5f4a" />
+    <title>買取台帳デモ</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="../shared/ledger-core.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="hero-kicker">Purchase Ledger Demo</p>
+        <h1>買取台帳 自動転記デモ</h1>
+        <p>
+          顧客入力とスタッフ確認を分離し、Googleスプレッドシートに自動で1行追記します。
+        </p>
+      </header>
+
+      <section class="card settings-card">
+        <details id="settings-panel">
+          <summary>接続設定</summary>
+          <p class="help-text">
+            Google Apps Script の Web App URL と API Key を入力してください。
+          </p>
+          <div class="grid two-col">
+            <label>
+              <span>Web App URL</span>
+              <input
+                id="endpoint"
+                name="endpoint"
+                type="url"
+                placeholder="https://script.google.com/macros/s/.../exec"
+                autocomplete="off"
+                required
+              />
+            </label>
+            <label>
+              <span>API Key</span>
+              <input
+                id="api-key"
+                name="apiKey"
+                type="password"
+                placeholder="script properties に設定した値"
+                autocomplete="off"
+                required
+              />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="save-settings" type="button" class="secondary">
+              設定を保存
+            </button>
+          </div>
+        </details>
+      </section>
+
+      <section class="card">
+        <nav class="stepper" aria-label="入力ステップ">
+          <button id="step-customer" class="step active" type="button">
+            1. お客様情報
+          </button>
+          <button id="step-staff" class="step" type="button" disabled>
+            2. スタッフ確認
+          </button>
+        </nav>
+
+        <form id="ledger-form" novalidate>
+          <section id="pane-customer" class="pane active">
+            <h2>お客様入力</h2>
+            <div class="grid two-col">
+              <label>
+                <span>Customer Name</span>
+                <input name="customerName" required autocomplete="name" />
+              </label>
+              <label>
+                <span>Gender</span>
+                <select id="gender" name="gender" required></select>
+              </label>
+              <label>
+                <span>Birthday</span>
+                <input name="birthday" type="date" required />
+              </label>
+              <label>
+                <span>Mobile Number</span>
+                <input
+                  name="mobileNumber"
+                  type="tel"
+                  inputmode="tel"
+                  required
+                  autocomplete="tel"
+                />
+              </label>
+              <label>
+                <span>Email (任意)</span>
+                <input name="email" type="email" autocomplete="email" />
+              </label>
+              <label>
+                <span>Country</span>
+                <input
+                  id="country"
+                  name="country"
+                  list="country-list"
+                  required
+                  autocomplete="country-name"
+                />
+                <datalist id="country-list"></datalist>
+              </label>
+              <label class="full">
+                <span>Address</span>
+                <textarea
+                  name="address"
+                  rows="2"
+                  required
+                  autocomplete="street-address"
+                ></textarea>
+              </label>
+              <label>
+                <span>CsCategory</span>
+                <select id="cs-category" name="csCategory" required></select>
+              </label>
+              <div class="derived">
+                <p>Age: <strong id="derived-age">-</strong></p>
+                <p>誕生月: <strong id="derived-month">-</strong></p>
+                <p>CountryJP: <strong id="derived-country-jp">-</strong></p>
+                <p>Continent: <strong id="derived-continent">-</strong></p>
+                <p>Subregion: <strong id="derived-subregion">-</strong></p>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="next-btn" type="button">スタッフ確認へ</button>
+            </div>
+          </section>
+
+          <section id="pane-staff" class="pane">
+            <h2>スタッフ入力</h2>
+            <div class="grid two-col">
+              <label>
+                <span>Visit Date</span>
+                <input name="visitDate" type="date" required />
+              </label>
+              <label>
+                <span>REF (任意)</span>
+                <input name="ref" autocomplete="off" />
+              </label>
+              <label>
+                <span>Payment Method</span>
+                <select id="payment-method" name="paymentMethod" required></select>
+              </label>
+              <label>
+                <span>総買取額</span>
+                <input
+                  name="totalPurchase"
+                  type="text"
+                  inputmode="decimal"
+                  required
+                  placeholder="例: 1200"
+                />
+              </label>
+              <label>
+                <span>総合計</span>
+                <input
+                  name="grandTotal"
+                  type="text"
+                  inputmode="decimal"
+                  required
+                  placeholder="例: 1200"
+                />
+              </label>
+            </div>
+            <div class="actions split">
+              <button id="back-btn" type="button" class="secondary">
+                戻る
+              </button>
+              <button id="submit-btn" type="submit">スプレッドシートに送信</button>
+            </div>
+          </section>
+        </form>
+
+        <output id="status" class="status" aria-live="polite"></output>
+      </section>
+    </main>
+  </body>
+</html>
