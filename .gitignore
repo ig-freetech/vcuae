@@ -11,6 +11,8 @@ AGENTS.md
 
 **/CLAUDE.md
 
+.gitmodules/
+
 # demo
 demo/.env
 demo/node_modules/
