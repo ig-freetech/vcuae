@@ -8,7 +8,8 @@
  *
  * Prerequisites:
  *   - ~/.clasprc.json with valid OAuth credentials (run: npx clasp login)
- *   - GOOGLE_SHEET_ID in demo/.env
+ *   - GAS_ENDPOINT_URL in demo/.env
+ *   - GAS_SELF_GENERATED_TOKEN in demo/.env (or legacy GAS_API_KEY)
  *   - googleapis npm package installed
  */
 
