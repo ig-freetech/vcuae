@@ -414,6 +414,7 @@
     if (savedConnectionVerified === "true" && creds.endpoint && creds.token) {
       revealStep2();
       revealStep3();
+      showShareStep();
       if (savedSheetName) {
         showSheetConfigPanel();
         var opt = document.createElement("option");
@@ -658,6 +659,7 @@
           syncUnlockMode();
           revealStep2();
           revealStep3();
+          showShareStep();
         } else {
           setStatus(connectionStatus, "Connection error: " + (data.message || "Unknown error"), "err");
         }
@@ -806,6 +808,7 @@
           localStorage.setItem("ledger_spreadsheetId", ssId);
           localStorage.setItem("ledger_sheetName", selectedSheet);
           localStorage.setItem("ledger_connectionVerified", "true");
+          showShareStep();
 
           setStatus(spreadsheetStatus, "Spreadsheet configured", "ok");
           revealStep4();
@@ -869,6 +872,7 @@
         if (data.status === "success") {
           localStorage.setItem("ledger_driveFolderUrl", driveFolderUrlValue);
           localStorage.setItem("ledger_connectionVerified", "true");
+          showShareStep();
           setStatus(driveStatus, "Google Drive folder configured", "ok");
         } else {
           setStatus(driveStatus, data.message || "Configuration failed", "err");
@@ -881,6 +885,40 @@
         applyDriveBtn.disabled = false;
       });
   });
+
+  // --- Share config to Web App ---
+  var shareConfigBtn = document.getElementById("share-config");
+  var shareConfigStatus = document.getElementById("share-config-status");
+  var shareConfigStep = document.getElementById("settings-step-share");
+
+  function showShareStep() {
+    if (shareConfigStep && localStorage.getItem("ledger_connectionVerified") === "true") {
+      shareConfigStep.classList.remove("hidden");
+    }
+  }
+
+  if (shareConfigBtn) {
+    shareConfigBtn.addEventListener("click", function () {
+      var creds = getStoredEndpointAndToken();
+      if (!creds.endpoint || !creds.token) {
+        setStatus(shareConfigStatus, "No connection configured yet. Complete Step 1 first.", "err");
+        return;
+      }
+      var configString = btoa(JSON.stringify({ e: creds.endpoint, t: creds.token }));
+      navigator.clipboard.writeText(configString)
+        .then(function () {
+          setStatus(shareConfigStatus, "Config copied! Open the Web App and paste it.", "ok");
+        })
+        .catch(function () {
+          setStatus(shareConfigStatus, "Auto-copy failed. Copy manually:", "err");
+          var pre = document.createElement("pre");
+          pre.textContent = configString;
+          pre.style.wordBreak = "break-all";
+          pre.style.userSelect = "all";
+          shareConfigStatus.appendChild(pre);
+        });
+    });
+  }
 
   // --- Initial load ---
   populateConnectionFieldsFromStorage();

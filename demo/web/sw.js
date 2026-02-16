@@ -1,4 +1,4 @@
-var CACHE_NAME = "ledger-web-v26";
+var CACHE_NAME = "ledger-web-v27";
 var PRECACHE_URLS = [
   "./index.html",
   "./styles.css",

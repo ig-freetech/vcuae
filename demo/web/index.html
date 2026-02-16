@@ -20,8 +20,13 @@
       </header>
 
       <div id="config-banner" class="config-banner hidden">
-        <span>&#9881;</span>
-        <span>Connection not configured. Contact your administrator.</span>
+        <p><strong>&#9881; Connection not configured.</strong></p>
+        <p class="config-help">Open the Admin app, tap <em>Copy Config for Web App</em>, then paste below.</p>
+        <div class="config-import">
+          <input id="config-input" type="text" placeholder="Paste config here" autocomplete="off" />
+          <button id="apply-config" type="button">Apply</button>
+        </div>
+        <output id="config-status" class="status" aria-live="polite"></output>
       </div>
 
       <section class="card workflow-card">

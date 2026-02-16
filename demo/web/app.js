@@ -43,6 +43,9 @@
   var countryInput = countrySelect;
   var visitDateInput = ledgerForm.elements.visitDate;
   var configBanner = document.getElementById("config-banner");
+  var configInput = document.getElementById("config-input");
+  var applyConfigBtn = document.getElementById("apply-config");
+  var configStatus = document.getElementById("config-status");
   var successOverlay = document.getElementById("success-overlay");
   var newEntryBtn = document.getElementById("new-entry-btn");
 
@@ -174,6 +177,55 @@
     } else {
       configBanner.classList.remove("hidden");
     }
+  }
+
+  function applyConfig(configString) {
+    try {
+      var json = JSON.parse(atob(configString.trim()));
+      if (!json.e || !json.t) {
+        throw new Error("Missing endpoint or token");
+      }
+      localStorage.setItem("ledger_endpoint", json.e);
+      localStorage.setItem("ledger_selfGeneratedToken", json.t);
+      localStorage.setItem("ledger_connectionVerified", "true");
+      updateConfigBanner();
+      if (configStatus) {
+        configStatus.textContent = "Configuration applied successfully.";
+        configStatus.className = "status ok";
+      }
+      return true;
+    } catch (err) {
+      if (configStatus) {
+        configStatus.textContent = "Invalid config. Please copy again from Admin app.";
+        configStatus.className = "status err";
+      }
+      return false;
+    }
+  }
+
+  // --- Config import via URL parameter ---
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var configParam = params.get("config");
+    if (configParam) {
+      applyConfig(configParam);
+      history.replaceState(null, "", window.location.pathname);
+    }
+  })();
+
+  // --- Config import via paste ---
+  if (applyConfigBtn && configInput) {
+    applyConfigBtn.addEventListener("click", function () {
+      var val = configInput.value.trim();
+      if (!val) {
+        if (configStatus) {
+          configStatus.textContent = "Please paste the config string first.";
+          configStatus.className = "status err";
+        }
+        return;
+      }
+      applyConfig(val);
+    });
   }
 
   function showPane(target) {
