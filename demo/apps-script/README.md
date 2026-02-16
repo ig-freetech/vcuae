@@ -27,13 +27,15 @@ Apps Script 画面の「プロジェクトの設定」→「スクリプト プ�
 
 `ウェブアプリケーションにアクセスしているユーザー` を選ぶと、利用者全員に Google ログインとシート権限が必要になります。店舗の共用タブレット運用では失敗しやすいため、このプロジェクトでは `自分` を推奨します。
 
-## 4. 管理画面 `/admin` で URL を設定する
+## 4. 管理画面 `/admin` で初回認証する
 
 1. `/admin` を開く
-2. Unlock で `ADMIN_PASSCODE` を入力
-3. Connection の `Web App URL` に控えた URL を入力
-4. `Self-Generated Token` に `SELF_GENERATED_TOKEN` を入力
-5. `Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
+2. 初回 Unlock で次の3つを入力
+   - `Web App URL`（控えた URL）
+   - `Self-Generated Token`（`SELF_GENERATED_TOKEN`）
+   - `ADMIN_PASSCODE`
+3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
+4. 2回目以降の Unlock は `ADMIN_PASSCODE` のみ入力
 
 ### 今回の Web App URL（既に発行済み）
 

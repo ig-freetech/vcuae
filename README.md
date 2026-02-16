@@ -66,17 +66,19 @@ demo/
 
 `次のユーザーとして実行` を `ウェブアプリケーションにアクセスしているユーザー` にすると、利用者ごとに Google ログインとスプレッドシート権限が必要になり、店舗運用では失敗しやすくなります。
 
-### 4. 管理画面 `/admin` で URL を設定する
+### 4. 管理画面 `/admin` で初回認証する
 
 1. 管理画面を開く  
-2. Unlock に `ADMIN_PASSCODE` を入力  
-3. Connection の `Web App URL` 欄に、控えた URL を貼り付ける  
-4. `Self-Generated Token` 欄に `SELF_GENERATED_TOKEN` を入力  
-5. `Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
+2. 初回 Unlock で次の3つを入力  
+   - `Web App URL`（控えた URL）
+   - `Self-Generated Token`（`SELF_GENERATED_TOKEN` の値）
+   - `ADMIN_PASSCODE`
+3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
+4. 2回目以降は、保存済み URL/Token を使うため Unlock は `ADMIN_PASSCODE` のみ入力
 
 ### 5. 今回の Web App URL（貼り付け先）
 
-下記 URL を **/admin の Connection > Web App URL** にそのまま貼り付けてください。
+下記 URL を **/admin の初回 Unlock（または Connection > Web App URL）** にそのまま貼り付けてください。
 
 `https://script.google.com/macros/s/AKfycbzjLINqnJ_hWbk8vgL9iXEMpNEWwV1sdItO472Iij2pcL45rJUQT9T3a1QFx9XgSU_B/exec`
 

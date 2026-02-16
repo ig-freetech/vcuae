@@ -24,12 +24,35 @@
         <h3 class="settings-step-title">
           <span class="step-number">0</span> Admin Unlock
         </h3>
-        <p class="help-text">
-          Enter <code>ADMIN_PASSCODE</code> configured in Apps Script Script Properties.
-          Once unlocked, connection settings and setup guide are shown.
+        <p id="unlock-help-initial" class="help-text">
+          First time on this browser: enter Web App URL, Self-Generated Token, and
+          <code>ADMIN_PASSCODE</code>. URL and Token are saved for next sessions.
         </p>
-        <div class="grid">
-          <label>
+        <p id="unlock-help-saved" class="help-text hidden">
+          Saved URL and Token found on this browser. Enter only <code>ADMIN_PASSCODE</code>.
+        </p>
+        <div class="grid two-col">
+          <label id="unlock-endpoint-field">
+            <span>Web App URL</span>
+            <input
+              id="unlock-endpoint"
+              type="url"
+              placeholder="https://script.google.com/macros/s/.../exec"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <label id="unlock-token-field">
+            <span>Self-Generated Token</span>
+            <input
+              id="unlock-token"
+              type="password"
+              placeholder="SELF_GENERATED_TOKEN"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <label class="full-width">
             <span>Admin Passcode</span>
             <input
               id="unlock-passcode"
@@ -174,7 +197,8 @@
                 <li class="guide-step-item">
                   <strong>Step 5: Unlock で認証</strong>
                   <p class="guide-desc">
-                    この画面の Unlock で Admin Passcode を入力し、管理画面を解錠します。
+                    初回は Web App URL / Self-Generated Token / Admin Passcode を入力します。
+                    2回目以降は Admin Passcode のみで解錠できます。
                   </p>
                 </li>
                 <li class="guide-step-item">

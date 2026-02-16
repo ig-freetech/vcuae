@@ -7,7 +7,13 @@
   // --- Unlock refs ---
   var adminLock = document.getElementById("admin-lock");
   var adminPanel = document.getElementById("admin-panel");
+  var unlockEndpoint = document.getElementById("unlock-endpoint");
+  var unlockToken = document.getElementById("unlock-token");
+  var unlockEndpointField = document.getElementById("unlock-endpoint-field");
+  var unlockTokenField = document.getElementById("unlock-token-field");
   var unlockPasscode = document.getElementById("unlock-passcode");
+  var unlockHelpInitial = document.getElementById("unlock-help-initial");
+  var unlockHelpSaved = document.getElementById("unlock-help-saved");
   var unlockAdminBtn = document.getElementById("unlock-admin");
   var unlockStatus = document.getElementById("unlock-status");
   var lockAdminBtn = document.getElementById("lock-admin");
@@ -171,6 +177,28 @@
     };
   }
 
+  function hasStoredUnlockCredentials() {
+    var creds = getStoredEndpointAndToken();
+    return Boolean(creds.endpoint && creds.token);
+  }
+
+  function persistEndpointAndToken(ep, token) {
+    var current = getStoredEndpointAndToken();
+    if (current.endpoint !== ep || current.token !== token) {
+      localStorage.removeItem("ledger_connectionVerified");
+    }
+    localStorage.setItem("ledger_endpoint", ep);
+    localStorage.setItem("ledger_selfGeneratedToken", token);
+    localStorage.removeItem("ledger_apiKey");
+  }
+
+  function clearStoredEndpointAndToken() {
+    localStorage.removeItem("ledger_endpoint");
+    localStorage.removeItem("ledger_selfGeneratedToken");
+    localStorage.removeItem("ledger_apiKey");
+    localStorage.removeItem("ledger_connectionVerified");
+  }
+
   function verifyAdminPasscode(ep, token, passcode) {
     return fetch(ep, {
       method: "POST",
@@ -231,11 +259,32 @@
 
   function populateConnectionFieldsFromStorage() {
     var creds = getStoredEndpointAndToken();
-    if (creds.endpoint) {
-      endpoint.value = creds.endpoint;
+    endpoint.value = creds.endpoint || "";
+    selfGeneratedTokenInput.value = creds.token || "";
+  }
+
+  function syncUnlockMode() {
+    var hasSaved = hasStoredUnlockCredentials();
+    var creds = getStoredEndpointAndToken();
+
+    if (unlockEndpointField) {
+      unlockEndpointField.classList.toggle("hidden", hasSaved);
     }
-    if (creds.token) {
-      selfGeneratedTokenInput.value = creds.token;
+    if (unlockTokenField) {
+      unlockTokenField.classList.toggle("hidden", hasSaved);
+    }
+    if (unlockHelpInitial) {
+      unlockHelpInitial.classList.toggle("hidden", hasSaved);
+    }
+    if (unlockHelpSaved) {
+      unlockHelpSaved.classList.toggle("hidden", !hasSaved);
+    }
+
+    if (unlockEndpoint) {
+      unlockEndpoint.value = creds.endpoint || "";
+    }
+    if (unlockToken) {
+      unlockToken.value = creds.token || "";
     }
   }
 
@@ -286,38 +335,45 @@
       return;
     }
 
-    unlockAdminBtn.disabled = true;
-    setStatus(unlockStatus, "Verifying admin passcode...", "");
-
     var creds = getStoredEndpointAndToken();
+    var ep = creds.endpoint || unlockEndpoint.value.trim();
+    var token = creds.token || unlockToken.value.trim();
 
-    if (!creds.endpoint || !creds.token) {
-      // First-time bootstrap: allow opening admin panel to set endpoint/token,
-      // then enforce passcode verification on Test Connection.
-      sessionStorage.setItem(SESSION_PASSCODE_KEY, passcode);
-      sessionStorage.setItem(SESSION_AUTH_KEY, "true");
-      restoreSavedSpreadsheetState();
-      showAdminPanel();
-      setStatus(
-        unlockStatus,
-        "Unlocked for initial setup. Enter endpoint/token and run Test Connection to complete verification.",
-        "ok",
-      );
-      unlockPasscode.value = "";
-      unlockAdminBtn.disabled = false;
+    if (!ep || !token) {
+      setStatus(unlockStatus, "Web App URL and Self-Generated Token are required for first unlock", "err");
       return;
     }
 
-    verifyAdminPasscode(creds.endpoint, creds.token, passcode)
+    unlockAdminBtn.disabled = true;
+    setStatus(unlockStatus, "Verifying admin passcode...", "");
+
+    verifyAdminPasscode(ep, token, passcode)
       .then(function (result) {
         if (result.ok) {
+          persistEndpointAndToken(ep, token);
           sessionStorage.setItem(SESSION_PASSCODE_KEY, passcode);
           sessionStorage.setItem(SESSION_AUTH_KEY, "true");
+          populateConnectionFieldsFromStorage();
+          syncUnlockMode();
           restoreSavedSpreadsheetState();
           showAdminPanel();
           setStatus(unlockStatus, "Administration unlocked", "ok");
           unlockPasscode.value = "";
         } else {
+          if (
+            hasStoredUnlockCredentials() &&
+            /self-generated token|connection error|failed to fetch|network/i.test(result.message || "")
+          ) {
+            clearStoredEndpointAndToken();
+            populateConnectionFieldsFromStorage();
+            syncUnlockMode();
+            setStatus(
+              unlockStatus,
+              "Saved URL/Token could not be verified. Re-enter URL, Token, and passcode.",
+              "err",
+            );
+            return;
+          }
           sessionStorage.removeItem(SESSION_PASSCODE_KEY);
           sessionStorage.removeItem(SESSION_AUTH_KEY);
           setStatus(unlockStatus, result.message || "Failed to unlock administration", "err");
@@ -332,6 +388,7 @@
     sessionStorage.removeItem(SESSION_AUTH_KEY);
     sessionStorage.removeItem(SESSION_PASSCODE_KEY);
     unlockPasscode.value = "";
+    syncUnlockMode();
     setStatus(unlockStatus, "", "");
     showAdminLockPanel();
   }
@@ -394,9 +451,8 @@
       setStatus(connectionStatus, "Please enter both URL and Self-Generated Token", "err");
       return;
     }
-    localStorage.setItem("ledger_endpoint", ep);
-    localStorage.setItem("ledger_selfGeneratedToken", token);
-    localStorage.removeItem("ledger_apiKey");
+    persistEndpointAndToken(ep, token);
+    syncUnlockMode();
     setStatus(connectionStatus, "Settings saved", "ok");
   });
 
@@ -424,10 +480,9 @@
       .then(function (data) {
         if (data.status === "success" || data.status === "ok") {
           setStatus(connectionStatus, "Connection successful: " + (data.message || "Service is running"), "ok");
-          localStorage.setItem("ledger_endpoint", ep);
-          localStorage.setItem("ledger_selfGeneratedToken", token);
-          localStorage.removeItem("ledger_apiKey");
+          persistEndpointAndToken(ep, token);
           localStorage.setItem("ledger_connectionVerified", "true");
+          syncUnlockMode();
           revealStep2();
         } else {
           setStatus(connectionStatus, "Connection error: " + (data.message || "Unknown error"), "err");
@@ -570,13 +625,17 @@
 
   // --- Initial load ---
   populateConnectionFieldsFromStorage();
+  syncUnlockMode();
   if (
     sessionStorage.getItem(SESSION_AUTH_KEY) === "true" &&
-    sessionStorage.getItem(SESSION_PASSCODE_KEY)
+    sessionStorage.getItem(SESSION_PASSCODE_KEY) &&
+    hasStoredUnlockCredentials()
   ) {
     restoreSavedSpreadsheetState();
     showAdminPanel();
   } else {
+    sessionStorage.removeItem(SESSION_AUTH_KEY);
+    sessionStorage.removeItem(SESSION_PASSCODE_KEY);
     showAdminLockPanel();
   }
 
