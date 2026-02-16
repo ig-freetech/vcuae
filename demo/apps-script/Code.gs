@@ -528,18 +528,39 @@ function jsonResponse_(payload) {
  * GET endpoint for reading spreadsheet data (used by E2E verification).
  *
  * Query params:
- *   - apiKey: string (required)
+ *   - selfGeneratedToken: string (required)
  *   - action: "readLastRow" | "health"
  *
  * @param {Object} e - Apps Script event object
  * @returns {TextOutput} JSON response
  */
+function getStoredAuthToken_() {
+  var props = PropertiesService.getScriptProperties();
+  // Backward compatibility: allow legacy API_KEY until old clients are migrated.
+  return props.getProperty("SELF_GENERATED_TOKEN") || props.getProperty("API_KEY") || "";
+}
+
+function getProvidedTokenFromParams_(params) {
+  // Backward compatibility: accept legacy apiKey query param.
+  return params.selfGeneratedToken || params.apiKey || "";
+}
+
+function getProvidedTokenFromBody_(body) {
+  // Backward compatibility: accept legacy apiKey body field.
+  return body.selfGeneratedToken || body.apiKey || "";
+}
+
 function doGet(e) {
   try {
     var params = e.parameter || {};
-    var storedKey = PropertiesService.getScriptProperties().getProperty("API_KEY");
-    if (!params.apiKey || params.apiKey !== storedKey) {
-      return jsonResponse_({ status: "error", code: "AUTH_ERROR", message: "Invalid API key" });
+    var storedToken = getStoredAuthToken_();
+    var providedToken = getProvidedTokenFromParams_(params);
+    if (!providedToken || providedToken !== storedToken) {
+      return jsonResponse_({
+        status: "error",
+        code: "AUTH_ERROR",
+        message: "Invalid self-generated token",
+      });
     }
     var action = params.action || "health";
     if (action === "readLastRow") {
@@ -615,7 +636,7 @@ function ensureHeaders_(sheet) {
  *
  * Expected JSON body:
  * {
- *   apiKey: string,
+ *   selfGeneratedToken: string,
  *   data: {
  *     visitDate, csCategory, customerName, gender, birthday,
  *     mobileNumber, email?, address, ref?, paymentMethod,
@@ -630,13 +651,14 @@ function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents);
 
-    // --- 1. API Key authentication ---
-    var storedKey = PropertiesService.getScriptProperties().getProperty("API_KEY");
-    if (!body.apiKey || body.apiKey !== storedKey) {
+    // --- 1. Shared token authentication ---
+    var storedToken = getStoredAuthToken_();
+    var providedToken = getProvidedTokenFromBody_(body);
+    if (!providedToken || providedToken !== storedToken) {
       return jsonResponse_({
         status: "error",
         code: "AUTH_ERROR",
-        message: "Invalid API key",
+        message: "Invalid self-generated token",
       });
     }
 

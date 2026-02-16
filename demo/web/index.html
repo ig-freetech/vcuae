@@ -31,7 +31,7 @@
             <h3 class="settings-step-title">
               <span class="step-number">1</span> Connection
             </h3>
-            <p class="help-text">Enter the Web App URL and API Key from your Google Apps Script deployment.</p>
+            <p class="help-text">Enter the Web App URL and Self-Generated Token from your Google Apps Script deployment.</p>
             <div class="grid two-col">
               <label>
                 <span>Web App URL</span>
@@ -40,9 +40,9 @@
                   autocomplete="off" required />
               </label>
               <label>
-                <span>API Key</span>
-                <input id="api-key" name="apiKey" type="password"
-                  placeholder="Value set in Script Properties"
+                <span>Self-Generated Token</span>
+                <input id="self-generated-token" name="selfGeneratedToken" type="password"
+                  placeholder="Value set in Script Properties: SELF_GENERATED_TOKEN"
                   autocomplete="off" required />
               </label>
             </div>
@@ -107,11 +107,12 @@
                   </ul>
                 </li>
                 <li>
-                  <strong>Script Properties に API_KEY を設定</strong>
+                  <strong>Script Properties に SELF_GENERATED_TOKEN を設定</strong>
                   <ul>
                     <li>左サイドバー「プロジェクトの設定」（⚙ 歯車アイコン）をクリック</li>
                     <li>下部の「スクリプト プロパティを追加」をクリック</li>
-                    <li>プロパティ: <code>API_KEY</code>、値: 任意の文字列を入力して保存</li>
+                    <li>プロパティ: <code>SELF_GENERATED_TOKEN</code></li>
+                    <li>値: デプロイスクリプトが出力したトークンを保存（手動の場合は推測されにくいランダム文字列）</li>
                   </ul>
                 </li>
                 <li>
@@ -125,7 +126,7 @@
                   </ul>
                 </li>
                 <li>
-                  <strong>上の「Connection」に Web App URL と API Key を入力</strong>
+                  <strong>上の「Connection」に Web App URL と Self-Generated Token を入力</strong>
                 </li>
                 <li>
                   <strong>「Test Connection」で接続確認</strong>

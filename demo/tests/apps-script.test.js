@@ -91,7 +91,7 @@ function callDoPost(payload) {
 }
 
 function resetMocks() {
-  scriptProperties = { API_KEY: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
+  scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
@@ -144,7 +144,7 @@ function assertDeepEqual(actual, expected, message) {
 console.log("\n--- AUTH_ERROR ---");
 resetMocks();
 (function () {
-  var result = callDoPost({ apiKey: "wrong-key", data: {} });
+  var result = callDoPost({ selfGeneratedToken: "wrong-key", data: {} });
   assertEqual(result.status, "error", "auth error status");
   assertEqual(result.code, "AUTH_ERROR", "auth error code");
   assert(result.message.indexOf("Invalid") >= 0, "auth error message contains Invalid");
@@ -152,8 +152,8 @@ resetMocks();
 
 (function () {
   var result = callDoPost({ data: {} });
-  assertEqual(result.status, "error", "missing apiKey returns error");
-  assertEqual(result.code, "AUTH_ERROR", "missing apiKey returns AUTH_ERROR");
+  assertEqual(result.status, "error", "missing selfGeneratedToken returns error");
+  assertEqual(result.code, "AUTH_ERROR", "missing selfGeneratedToken returns AUTH_ERROR");
 })();
 
 // ===========================
@@ -163,7 +163,7 @@ console.log("\n--- VALIDATION_ERROR ---");
 resetMocks();
 (function () {
   var result = callDoPost({
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "",
       csCategory: "",
@@ -184,7 +184,7 @@ resetMocks();
 
 (function () {
   // Missing 'data' field entirely
-  var result = callDoPost({ apiKey: "test-key-123" });
+  var result = callDoPost({ selfGeneratedToken: "test-key-123" });
   assertEqual(result.status, "error", "missing data field returns error");
   assertEqual(result.code, "VALIDATION_ERROR", "missing data field returns VALIDATION_ERROR");
 })();
@@ -196,7 +196,7 @@ console.log("\n--- SUCCESS ---");
 resetMocks();
 (function () {
   var payload = {
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "2026-01-15",
       csCategory: "Sales (\u8ca9\u58f2)",
@@ -254,7 +254,7 @@ console.log("\n--- DERIVED FIELDS (country alias) ---");
 resetMocks();
 (function () {
   var payload = {
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "2026-06-01",
       csCategory: "buy (\u8cb7\u53d6)",
@@ -290,7 +290,7 @@ console.log("\n--- UNKNOWN COUNTRY ---");
 resetMocks();
 (function () {
   var payload = {
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "2026-03-01",
       csCategory: "Sales (\u8ca9\u58f2)",
@@ -322,13 +322,13 @@ resetMocks();
 // ===========================
 console.log("\n--- DEFAULT SHEET NAME ---");
 (function () {
-  scriptProperties = { API_KEY: "test-key-123", SHEET_ID: "sheet-xyz" };
+  scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-xyz" };
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
 
   var payload = {
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "2026-01-01",
       csCategory: "Sales (\u8ca9\u58f2)",
@@ -355,7 +355,7 @@ console.log("\n--- DEFAULT SHEET NAME ---");
 // ===========================
 console.log("\n--- SERVER_ERROR ---");
 (function () {
-  scriptProperties = { API_KEY: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
+  scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
   appendedRows = [];
 
   // Make appendRow throw
@@ -365,7 +365,7 @@ console.log("\n--- SERVER_ERROR ---");
   });
 
   var payload = {
-    apiKey: "test-key-123",
+    selfGeneratedToken: "test-key-123",
     data: {
       visitDate: "2026-01-01",
       csCategory: "Sales (\u8ca9\u58f2)",

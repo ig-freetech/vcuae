@@ -23,13 +23,16 @@ var LedgerCore = require(path.join(__dirname, "..", "..", "shared", "ledger-core
 // --- Read last row via GAS Web App doGet ---
 async function readLastRow() {
   var endpointUrl = process.env.GAS_ENDPOINT_URL;
-  var apiKey = process.env.GAS_API_KEY;
+  var selfGeneratedToken = process.env.GAS_SELF_GENERATED_TOKEN || process.env.GAS_API_KEY;
 
-  if (!endpointUrl || !apiKey) {
-    throw new Error("GAS_ENDPOINT_URL and GAS_API_KEY not set in .env");
+  if (!endpointUrl || !selfGeneratedToken) {
+    throw new Error("GAS_ENDPOINT_URL and GAS_SELF_GENERATED_TOKEN not set in .env");
   }
 
-  var url = endpointUrl + "?action=readLastRow&apiKey=" + encodeURIComponent(apiKey);
+  var url =
+    endpointUrl +
+    "?action=readLastRow&selfGeneratedToken=" +
+    encodeURIComponent(selfGeneratedToken);
   var res = await fetch(url, { redirect: "follow" });
   var json = await res.json();
 

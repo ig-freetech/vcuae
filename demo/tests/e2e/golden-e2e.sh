@@ -60,7 +60,7 @@ run 'await page.setDefaultTimeout(30000)'
 if [ "${MOCK_MODE:-}" != "true" ]; then
   run "await page.evaluate(() => {
     localStorage.setItem('ledger_endpoint', '${GAS_ENDPOINT_URL:-}');
-    localStorage.setItem('ledger_apiKey', '${GAS_API_KEY:-}');
+    localStorage.setItem('ledger_selfGeneratedToken', '${GAS_SELF_GENERATED_TOKEN:-${GAS_API_KEY:-}}');
   })"
   playwright-cli goto "$BASE_URL" -s="$SESSION"
 fi
@@ -69,7 +69,7 @@ fi
 if [ "${MOCK_MODE:-}" = "true" ]; then
   run "await page.evaluate(() => {
     localStorage.setItem('ledger_endpoint', 'https://script.google.com/macros/s/mock/exec');
-    localStorage.setItem('ledger_apiKey', 'mock-api-key');
+    localStorage.setItem('ledger_selfGeneratedToken', 'mock-self-generated-token');
   })"
   playwright-cli goto "$BASE_URL" -s="$SESSION"
 

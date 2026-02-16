@@ -9,7 +9,7 @@
 ```
 
 - **Web App（PWA）**: タブレットのブラウザで動作する入力フォーム
-- **Apps Script**: Google が提供するサーバーレス実行環境。API キー認証、バリデーション、派生フィールド計算を行い、スプレッドシートに 1 行追記する
+- **Apps Script**: Google が提供するサーバーレス実行環境。Self-Generated Token 認証、バリデーション、派生フィールド計算を行い、スプレッドシートに 1 行追記する
 - **Google Spreadsheet**: データの永続化先
 
 ## ディレクトリ構造
@@ -40,7 +40,7 @@ demo/
 ## ローカル実行
 
 1. `demo/web/index.html` をブラウザで開く（または `cd demo && npm run serve`）
-2. Connection Settings で Web App URL と API Key を入力 → Test Connection
+2. Connection Settings で Web App URL と Self-Generated Token を入力 → Test Connection
 3. Spreadsheet URL を入力 → Load Sheets → シート選択 → Apply Spreadsheet
 4. Column Mapping で全列 ✓ を確認
 5. Customer Info 入力 → Staff Review → Submit to Spreadsheet
@@ -56,7 +56,7 @@ node demo/tests/apps-script.test.js
 
 | プロパティ | 説明 | デフォルト |
 |---|---|---|
-| `API_KEY` | API 認証キー | （必須） |
+| `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
 
 ※ `SHEET_ID` と `SHEET_NAME` はアプリの Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。
 

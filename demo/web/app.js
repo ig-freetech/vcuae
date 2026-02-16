@@ -3,7 +3,7 @@
 
   // --- DOM refs ---
   var endpoint = document.getElementById("endpoint");
-  var apiKey = document.getElementById("api-key");
+  var selfGeneratedTokenInput = document.getElementById("self-generated-token");
   var saveSettings = document.getElementById("save-settings");
   var settingsPanel = document.getElementById("settings-panel");
 
@@ -178,8 +178,11 @@
     }
   }
 
-  function getHeaders(ep, ak, sheetName) {
-    var url = ep + "?action=getHeaders&apiKey=" + encodeURIComponent(ak);
+  function getHeaders(ep, token, sheetName) {
+    var url =
+      ep +
+      "?action=getHeaders&selfGeneratedToken=" +
+      encodeURIComponent(token);
     if (sheetName) {
       url += "&sheetName=" + encodeURIComponent(sheetName);
     }
@@ -215,10 +218,12 @@
 
   // --- Restore settings ---
   var savedEndpoint = localStorage.getItem("ledger_endpoint");
-  var savedApiKey = localStorage.getItem("ledger_apiKey");
+  var savedSelfGeneratedToken =
+    localStorage.getItem("ledger_selfGeneratedToken") ||
+    localStorage.getItem("ledger_apiKey");
   if (savedEndpoint) endpoint.value = savedEndpoint;
-  if (savedApiKey) apiKey.value = savedApiKey;
-  if (savedEndpoint && savedApiKey) {
+  if (savedSelfGeneratedToken) selfGeneratedTokenInput.value = savedSelfGeneratedToken;
+  if (savedEndpoint && savedSelfGeneratedToken) {
     settingsPanel.removeAttribute("open");
   }
 
@@ -231,7 +236,7 @@
   if (savedSpreadsheetUrl) {
     spreadsheetUrl.value = savedSpreadsheetUrl;
   }
-  if (savedConnectionVerified === "true" && savedEndpoint && savedApiKey) {
+  if (savedConnectionVerified === "true" && savedEndpoint && savedSelfGeneratedToken) {
     revealStep2();
     if (savedSheetName) {
       // Create a single option with saved sheet name
@@ -244,7 +249,7 @@
     }
     if (savedSpreadsheetId && savedSheetName) {
       revealStep3();
-      getHeaders(savedEndpoint, savedApiKey, savedSheetName);
+      getHeaders(savedEndpoint, savedSelfGeneratedToken, savedSheetName);
     }
   }
 
@@ -256,13 +261,14 @@
   // --- Save settings ---
   saveSettings.addEventListener("click", function () {
     var ep = endpoint.value.trim();
-    var ak = apiKey.value.trim();
-    if (!ep || !ak) {
-      showStatus("Please enter both URL and API Key", "err");
+    var token = selfGeneratedTokenInput.value.trim();
+    if (!ep || !token) {
+      showStatus("Please enter both URL and Self-Generated Token", "err");
       return;
     }
     localStorage.setItem("ledger_endpoint", ep);
-    localStorage.setItem("ledger_apiKey", ak);
+    localStorage.setItem("ledger_selfGeneratedToken", token);
+    localStorage.removeItem("ledger_apiKey");
     showStatus("Settings saved", "ok");
     setTimeout(clearStatus, 3000);
   });
@@ -270,9 +276,9 @@
   // --- Connection Test (Step 1 → Step 2) ---
   testConnectionBtn.addEventListener("click", function () {
     var ep = endpoint.value.trim();
-    var ak = apiKey.value.trim();
-    if (!ep || !ak) {
-      connectionStatus.textContent = "Please enter both URL and API Key";
+    var token = selfGeneratedTokenInput.value.trim();
+    if (!ep || !token) {
+      connectionStatus.textContent = "Please enter both URL and Self-Generated Token";
       connectionStatus.className = "status err";
       return;
     }
@@ -281,15 +287,20 @@
     connectionStatus.className = "status";
     testConnectionBtn.disabled = true;
 
-    fetch(ep + "?action=health&apiKey=" + encodeURIComponent(ak))
+    fetch(
+      ep +
+        "?action=health&selfGeneratedToken=" +
+        encodeURIComponent(token)
+    )
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        if (data.status === "success") {
+        if (data.status === "success" || data.status === "ok") {
           connectionStatus.textContent = "Connection successful: " + (data.message || "Service is running");
           connectionStatus.className = "status ok";
           // Save connection settings automatically
           localStorage.setItem("ledger_endpoint", ep);
-          localStorage.setItem("ledger_apiKey", ak);
+          localStorage.setItem("ledger_selfGeneratedToken", token);
+          localStorage.removeItem("ledger_apiKey");
           localStorage.setItem("ledger_connectionVerified", "true");
           revealStep2();
         } else {
@@ -309,7 +320,7 @@
   // --- Load Sheets (Step 2) ---
   loadSheetsBtn.addEventListener("click", function () {
     var ep = endpoint.value.trim();
-    var ak = apiKey.value.trim();
+    var token = selfGeneratedTokenInput.value.trim();
     var ssUrl = spreadsheetUrl.value.trim();
     var ssId = extractSpreadsheetId(ssUrl);
 
@@ -323,7 +334,13 @@
     spreadsheetStatus.className = "status";
     loadSheetsBtn.disabled = true;
 
-    fetch(ep + "?action=listSheets&apiKey=" + encodeURIComponent(ak) + "&spreadsheetId=" + encodeURIComponent(ssId))
+    fetch(
+      ep +
+        "?action=listSheets&selfGeneratedToken=" +
+        encodeURIComponent(token) +
+        "&spreadsheetId=" +
+        encodeURIComponent(ssId)
+    )
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.status === "success" && data.sheets) {
@@ -362,7 +379,7 @@
   // --- Apply Spreadsheet (Step 2 → Step 3) ---
   applySpreadsheetBtn.addEventListener("click", function () {
     var ep = endpoint.value.trim();
-    var ak = apiKey.value.trim();
+    var token = selfGeneratedTokenInput.value.trim();
     var ssUrl = spreadsheetUrl.value.trim();
     var ssId = extractSpreadsheetId(ssUrl);
     var selectedSheet = sheetNameSelect.value;
@@ -386,7 +403,7 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiKey: ak,
+        selfGeneratedToken: token,
         action: "configure",
         config: {
           spreadsheetId: ssId,
@@ -407,7 +424,7 @@
           spreadsheetStatus.className = "status ok";
 
           revealStep3();
-          getHeaders(ep, ak, selectedSheet);
+          getHeaders(ep, token, selectedSheet);
         } else {
           spreadsheetStatus.textContent = data.message || "Configuration failed";
           spreadsheetStatus.className = "status err";
@@ -530,8 +547,10 @@
 
     // Check connection settings
     var ep = localStorage.getItem("ledger_endpoint");
-    var ak = localStorage.getItem("ledger_apiKey");
-    if (!ep || !ak) {
+    var token =
+      localStorage.getItem("ledger_selfGeneratedToken") ||
+      localStorage.getItem("ledger_apiKey");
+    if (!ep || !token) {
       showStatus("Please configure connection settings first", "err");
       return;
     }
@@ -542,7 +561,7 @@
     fetch(ep, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ apiKey: ak, data: payload }),
+      body: JSON.stringify({ selfGeneratedToken: token, data: payload }),
     })
       .then(function (response) {
         return response.json().then(function (result) {
