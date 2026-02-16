@@ -25,6 +25,9 @@ demo/
 ├── apps-script/     # Google Apps Script
 │   ├── Code.gs
 │   └── README.md
+├── scripts/         # デプロイ・セットアップスクリプト
+│   ├── deploy-gas.sh
+│   └── setup-gas-project.js
 ├── tests/           # 自動テスト
 │   ├── fixtures.js
 │   └── apps-script.test.js
@@ -55,3 +58,33 @@ node demo/tests/apps-script.test.js
 ## 詳細セットアップ
 
 Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./apps-script/README.md) を参照。
+
+## E2E テスト
+
+### 前提条件
+
+- Node.js 18+
+- `googleapis` npm パッケージ（`npm install googleapis`）
+- Google アカウントで `clasp login` 済み
+
+### 初回セットアップ
+
+```bash
+cd demo
+npm install
+npx clasp login --no-localhost   # URL を開いて認証→コードを入力
+npm run deploy:gas               # スプレッドシート作成→GASデプロイ→.env出力
+```
+
+### テスト実行
+
+```bash
+npm run test:e2e                 # Full E2E（スプレッドシート検証込み）
+npm run test:e2e:mock            # Mock モード（Google 認証不要）
+npm run test:unit                # Unit テスト（122件）
+```
+
+### Mock モード
+
+`MOCK_MODE=true` で実行すると、GAS への送信をモックし、UI検証のみを行います。
+Google 認証なしで CI でも実行できます。
