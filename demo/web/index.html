@@ -75,6 +75,22 @@
                 />
                 <datalist id="country-list"></datalist>
               </label>
+              <label>
+                <span>REF <span class="col-badge">J</span></span>
+                <input id="ref" name="ref" list="ref-list" autocomplete="off" />
+                <datalist id="ref-list"></datalist>
+              </label>
+              <label>
+                <span>Payment Method <span class="col-badge">K</span></span>
+                <input
+                  id="payment-method"
+                  name="paymentMethod"
+                  list="payment-list"
+                  required
+                  autocomplete="off"
+                />
+                <datalist id="payment-list"></datalist>
+              </label>
               <label class="full">
                 <span>Address <span class="col-badge">I</span></span>
                 <textarea
@@ -140,14 +156,6 @@
               <label>
                 <span>CsCategory <span class="col-badge">B</span></span>
                 <select id="cs-category" name="csCategory" required></select>
-              </label>
-              <label>
-                <span>REF (optional) <span class="col-badge">J</span></span>
-                <input name="ref" autocomplete="off" />
-              </label>
-              <label>
-                <span>Payment Method <span class="col-badge">K</span></span>
-                <select id="payment-method" name="paymentMethod" required></select>
               </label>
               <label>
                 <span>Total Purchase <span class="col-badge">Q</span></span>

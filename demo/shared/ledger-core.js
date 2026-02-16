@@ -47,6 +47,13 @@
     "Tamara",
   ];
 
+  var REF_OPTIONS = [
+    "Google Search",
+    "Website",
+    "Facebook",
+    "Instagram",
+  ];
+
   var COUNTRY_METADATA = {
     "UNITED ARAB EMIRATES": {
       country: "United Arab Emirates",
@@ -550,15 +557,6 @@
       });
     }
 
-    if (
-      record.paymentMethod &&
-      PAYMENT_OPTIONS.indexOf(record.paymentMethod) === -1
-    ) {
-      errors.push({
-        field: "paymentMethod",
-        message: "PaymentMethod の選択肢が不正です",
-      });
-    }
 
     if (
       record.certificatePhotoUrl &&
@@ -643,6 +641,7 @@
     CATEGORY_OPTIONS: CATEGORY_OPTIONS,
     GENDER_OPTIONS: GENDER_OPTIONS,
     PAYMENT_OPTIONS: PAYMENT_OPTIONS,
+    REF_OPTIONS: REF_OPTIONS,
     COUNTRY_OPTIONS: COUNTRY_OPTIONS,
     COUNTRY_METADATA: COUNTRY_METADATA,
     normalizeInput: normalizeInput,

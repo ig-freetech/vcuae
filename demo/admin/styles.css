@@ -288,12 +288,13 @@ button:active:not(:disabled) {
 }
 
 button.btn-connect {
-  background: linear-gradient(135deg, #fff 0%, #ffe066 100%);
+  background: #ffe066;
   color: var(--brand);
   border-color: #e6c84a;
 }
 
 button.btn-connect:hover:not(:disabled) {
+  background: #ffd633;
   border-color: #d4a800;
   box-shadow: 0 8px 14px rgba(230, 200, 74, 0.18);
 }
@@ -310,12 +311,13 @@ button.secondary:hover:not(:disabled) {
 }
 
 button.btn-load-sheets {
-  background: linear-gradient(132deg, #29a55f 0%, #ffffff 100%);
-  color: #0f3a27;
-  border-color: #8fd5b0;
+  background: #29a55f;
+  color: #fff;
+  border-color: #1e8c4e;
 }
 
 button.btn-load-sheets:hover:not(:disabled) {
+  background: #238c50;
   box-shadow: 0 10px 16px rgba(25, 120, 68, 0.22);
 }
 

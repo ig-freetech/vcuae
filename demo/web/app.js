@@ -15,7 +15,8 @@
 
   var genderSelect = document.getElementById("gender");
   var csCategorySelect = document.getElementById("cs-category");
-  var paymentMethodSelect = document.getElementById("payment-method");
+  var refList = document.getElementById("ref-list");
+  var paymentList = document.getElementById("payment-list");
   var countryList = document.getElementById("country-list");
 
   var capturePhotoBtn = document.getElementById("capture-photo-btn");
@@ -216,7 +217,8 @@
   // --- Populate options ---
   populateSelect(genderSelect, LedgerCore.GENDER_OPTIONS, "-- Gender --");
   populateSelect(csCategorySelect, LedgerCore.CATEGORY_OPTIONS, "-- Category --");
-  populateSelect(paymentMethodSelect, LedgerCore.PAYMENT_OPTIONS, "-- Payment --");
+  populateDatalist(refList, LedgerCore.REF_OPTIONS);
+  populateDatalist(paymentList, LedgerCore.PAYMENT_OPTIONS);
   populateDatalist(countryList, LedgerCore.COUNTRY_OPTIONS);
 
   // --- Initial state ---
