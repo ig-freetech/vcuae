@@ -276,6 +276,17 @@
   populateSelect(csCategorySelect, LedgerCore.CATEGORY_OPTIONS, "-- Category --");
   populateSelect(countrySelect, LedgerCore.COUNTRY_OPTIONS, "-- Country --");
 
+  // --- Toggle Buy Total / Sales Total based on Category ---
+  var labelBuyTotal = document.getElementById("label-buy-total");
+  var labelSalesTotal = document.getElementById("label-sales-total");
+  csCategorySelect.addEventListener("change", function () {
+    var val = csCategorySelect.value;
+    var isBuy = val.indexOf("買取") !== -1;
+    var isSales = val.indexOf("販売") !== -1;
+    labelBuyTotal.classList.toggle("hidden", !isBuy);
+    labelSalesTotal.classList.toggle("hidden", !isSales);
+  });
+
   // --- "Other" toggle for REF and Payment Method ---
   function setupOtherToggle(selectEl, otherInput, hiddenInput) {
     otherInput.required = false;

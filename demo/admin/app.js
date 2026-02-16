@@ -907,7 +907,8 @@
       var configString = btoa(JSON.stringify({ e: creds.endpoint, t: creds.token }));
       navigator.clipboard.writeText(configString)
         .then(function () {
-          setStatus(shareConfigStatus, "Config copied! Open the Web App and paste it.", "ok");
+          setStatus(shareConfigStatus, "Config copied! Opening Web App...", "ok");
+          window.open("../web/?config=" + encodeURIComponent(configString), "_blank");
         })
         .catch(function () {
           setStatus(shareConfigStatus, "Auto-copy failed. Copy manually:", "err");
