@@ -47,6 +47,12 @@
   var headerMismatchWarning = document.getElementById("header-mismatch-warning");
   var headerDiff = document.getElementById("header-diff");
 
+  // --- Setup Guide DOM refs ---
+  var copyCodeGsBtn = document.getElementById("copy-code-gs");
+  var copyCodeGsStatus = document.getElementById("copy-code-gs-status");
+  var generateTokenBtn = document.getElementById("generate-token");
+  var generateTokenStatus = document.getElementById("generate-token-status");
+
   // --- View navigation refs ---
   var mainView = document.getElementById("main-view");
   var settingsView = document.getElementById("settings-view");
@@ -110,6 +116,65 @@
 
   function colIndexToLetter(i) {
     return String.fromCharCode(65 + i);
+  }
+
+  // --- Setup Guide Helpers ---
+  var CODE_GS_RAW_URL = "https://raw.githubusercontent.com/ig-freetech/vcuae/main/demo/apps-script/Code.gs";
+
+  function showGuideStatus(el, msg, cls) {
+    el.textContent = msg;
+    el.className = "guide-status " + (cls || "");
+    if (cls === "ok") {
+      setTimeout(function () { el.textContent = ""; el.className = "guide-status"; }, 5000);
+    }
+  }
+
+  function generateSecureToken(length) {
+    var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    var values = new Uint8Array(length);
+    crypto.getRandomValues(values);
+    var result = "";
+    for (var i = 0; i < length; i++) {
+      result += charset[values[i] % charset.length];
+    }
+    return result;
+  }
+
+  if (copyCodeGsBtn) {
+    copyCodeGsBtn.addEventListener("click", function () {
+      copyCodeGsBtn.disabled = true;
+      showGuideStatus(copyCodeGsStatus, "取得中...", "");
+      fetch(CODE_GS_RAW_URL)
+        .then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.text();
+        })
+        .then(function (code) {
+          return navigator.clipboard.writeText(code);
+        })
+        .then(function () {
+          showGuideStatus(copyCodeGsStatus, "コピーしました", "ok");
+        })
+        .catch(function () {
+          showGuideStatus(copyCodeGsStatus, "コピー失敗 — GitHubから直接コピーしてください", "err");
+        })
+        .finally(function () {
+          copyCodeGsBtn.disabled = false;
+        });
+    });
+  }
+
+  if (generateTokenBtn) {
+    generateTokenBtn.addEventListener("click", function () {
+      var token = generateSecureToken(48);
+      navigator.clipboard.writeText(token)
+        .then(function () {
+          showGuideStatus(generateTokenStatus, "コピーしました: " + token.substring(0, 8) + "...", "ok");
+        })
+        .catch(function () {
+          showGuideStatus(generateTokenStatus, "自動コピー失敗。手動でコピー: " + token, "err");
+        });
+    });
   }
 
   // --- Progressive Disclosure ---
