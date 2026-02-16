@@ -5,7 +5,7 @@
 ## 前提条件
 
 - Google アカウント
-- Google スプレッドシート（列順: VisitDate, CsCategory, CustomerName, Gender, Birthday, Age, MobileNumber, Email, Address, REF, PaymentMethod, Country, CountryJP, Continent大陸, Subregion小地域, 誕生月, 総買取額, 総合計）
+- Google スプレッドシート（列順: VisitDate, CsCategory, CustomerName, Gender, Birthday, Age, MobileNumber, Email, Address, REF, PaymentMethod, Country, CountryJP, Continent, Subregion, BirthMonth, TotalPurchase, GrandTotal）
 
 ## セットアップ手順
 
@@ -24,12 +24,10 @@
 | プロパティ名 | 値 | 説明 |
 |---|---|---|
 | `API_KEY` | 任意の文字列 | API 認証キー。クライアント（Web App）と同じ値を設定する |
-| `SHEET_ID` | スプレッドシートの ID | URL の `/d/` と `/edit` の間の文字列 |
-| `SHEET_NAME` | シート名 | デフォルト: `Sheet1`（省略可） |
+| `SHEET_ID` | - | ランタイム設定で自動保存（手動設定不要） |
+| `SHEET_NAME` | - | ランタイム設定で自動保存（デフォルト: `Sheet1`） |
 
-**スプレッドシート ID の確認方法:**
-
-スプレッドシートの URL が `https://docs.google.com/spreadsheets/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ/edit` の場合、ID は `1aBcDeFgHiJkLmNoPqRsTuVwXyZ` の部分。
+※ `SHEET_ID` と `SHEET_NAME` は、Web App の Connection Settings → Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。手動設定は不要です。
 
 ### 3. Web App デプロイ
 
@@ -42,6 +40,38 @@
 4. 「デプロイ」をクリック
 5. 「アクセスを承認」→ Google アカウントで認証
 6. 表示される **Web App URL** をコピーして控える
+
+## API エンドポイント
+
+### doGet（読み取り系）
+
+| action | パラメータ | 説明 |
+|--------|-----------|------|
+| `health` | なし | ヘルスチェック。`{ status: "ok" }` を返す |
+| `listSheets` | `apiKey`, `spreadsheetUrl` | 指定スプレッドシートのシート名一覧を返す |
+| `getHeaders` | `apiKey`, `sheetName` | 指定シートの1行目（ヘッダー）を返す |
+| `readLastRow` | `apiKey` | 設定済みシートの最終行データを返す |
+
+例（ヘルスチェック）:
+
+```bash
+curl -L 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?action=health'
+```
+
+### doPost（書き込み系）
+
+| action | body | 説明 |
+|--------|------|------|
+| （デフォルト） | `{ apiKey, data: {...} }` | スプレッドシートに1行追記 |
+| `configure` | `{ apiKey, action: "configure", spreadsheetId, sheetName }` | Script Properties の SHEET_ID/SHEET_NAME を更新 |
+
+例（ランタイム設定）:
+
+```bash
+curl -L -X POST 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec' \
+  -H 'Content-Type: application/json' \
+  -d '{ "apiKey": "YOUR_KEY", "action": "configure", "spreadsheetId": "SHEET_ID", "sheetName": "Sheet1" }'
+```
 
 ### 4. 動作確認
 

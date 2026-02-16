@@ -20,7 +20,10 @@ demo/
 │   └── ledger-core.js
 ├── web/             # タブレット向け PWA
 │   ├── index.html
+│   ├── app.js
 │   ├── styles.css
+│   ├── sw.js
+│   ├── manifest.webmanifest
 │   └── icons/
 ├── apps-script/     # Google Apps Script
 │   ├── Code.gs
@@ -36,9 +39,11 @@ demo/
 
 ## ローカル実行
 
-1. `demo/web/index.html` をブラウザで開く
-2. 「接続設定」に Apps Script の Web App URL と API Key を入力
-3. お客様情報を入力 → スタッフ確認 → 送信
+1. `demo/web/index.html` をブラウザで開く（または `cd demo && npm run serve`）
+2. Connection Settings で Web App URL と API Key を入力 → Test Connection
+3. Spreadsheet URL を入力 → Load Sheets → シート選択 → Apply Spreadsheet
+4. Column Mapping で全列 ✓ を確認
+5. Customer Info 入力 → Staff Review → Submit to Spreadsheet
 
 ## テスト実行
 
@@ -52,8 +57,8 @@ node demo/tests/apps-script.test.js
 | プロパティ | 説明 | デフォルト |
 |---|---|---|
 | `API_KEY` | API 認証キー | （必須） |
-| `SHEET_ID` | スプレッドシート ID | （必須） |
-| `SHEET_NAME` | シート名 | `Sheet1` |
+
+※ `SHEET_ID` と `SHEET_NAME` はアプリの Spreadsheet 設定ウィザードで自動的に Script Properties に保存されます。
 
 ## 詳細セットアップ
 
@@ -73,7 +78,7 @@ Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./app
 cd demo
 npm install
 npx clasp login --no-localhost   # URL を開いて認証→コードを入力
-npm run deploy:gas               # スプレッドシート作成→GASデプロイ→.env出力
+npm run deploy:gas               # GAS デプロイ→.env出力
 ```
 
 ### テスト実行
