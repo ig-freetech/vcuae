@@ -321,7 +321,7 @@
         var base64Data = commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : "";
         return fetch(creds.endpoint, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
           body: JSON.stringify({
             selfGeneratedToken: creds.token,
             action: "uploadCertificatePhoto",
@@ -384,7 +384,7 @@
 
     fetch(creds.endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
       body: JSON.stringify({ selfGeneratedToken: creds.token, data: payload }),
     })
       .then(function (response) {

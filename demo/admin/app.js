@@ -219,10 +219,27 @@
     localStorage.removeItem("ledger_connectionVerified");
   }
 
+  function checkHealthReachability(ep, token) {
+    return fetch(ep + "?action=health&selfGeneratedToken=" + encodeURIComponent(token))
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        var reachable = data && (data.status === "success" || data.status === "ok");
+        return {
+          reachable: reachable,
+          message: data && data.message ? data.message : "",
+        };
+      })
+      .catch(function () {
+        return { reachable: false, message: "" };
+      });
+  }
+
   function verifyAdminPasscode(ep, token, passcode) {
     return fetch(ep, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
       body: JSON.stringify({
         selfGeneratedToken: token,
         action: "verifyAdminPasscode",
@@ -239,7 +256,23 @@
         return { ok: false, message: data.message || "Invalid admin passcode" };
       })
       .catch(function (err) {
-        return { ok: false, message: "Connection error: " + err.message };
+        return checkHealthReachability(ep, token).then(function (diagnostic) {
+          if (diagnostic.reachable) {
+            return {
+              ok: false,
+              diagnosticCode: "POST_FAILED_HEALTH_OK",
+              message:
+                "Connection error: " +
+                err.message +
+                " (Health check succeeded; URL/Token are reachable, but POST verification failed)",
+            };
+          }
+          return {
+            ok: false,
+            diagnosticCode: "NETWORK_OR_ENDPOINT_FAILURE",
+            message: "Connection error: " + err.message,
+          };
+        });
       });
   }
 
@@ -402,9 +435,21 @@
               sourceParts.push("Token");
             }
 
-            clearStoredEndpointAndToken();
-            populateConnectionFieldsFromStorage();
-            syncUnlockMode();
+            if (result.diagnosticCode !== "POST_FAILED_HEALTH_OK") {
+              clearStoredEndpointAndToken();
+              populateConnectionFieldsFromStorage();
+              syncUnlockMode();
+            }
+            if (result.diagnosticCode === "POST_FAILED_HEALTH_OK") {
+              setStatus(
+                unlockStatus,
+                "Connection failed while using saved " +
+                  sourceParts.join("/") +
+                  " from localStorage. Health check succeeded, so saved values are reachable. Hard refresh this page and retry.",
+                "err",
+              );
+              return;
+            }
             setStatus(
               unlockStatus,
               "Connection failed while using saved " +
@@ -416,6 +461,14 @@
           }
 
           if (isConnectionError && !usedStoredCredential) {
+            if (result.diagnosticCode === "POST_FAILED_HEALTH_OK") {
+              setStatus(
+                unlockStatus,
+                "Connection failed while using entered values. Health check succeeded, so URL/Token are likely valid. Hard refresh this page and retry.",
+                "err",
+              );
+              return;
+            }
             setStatus(
               unlockStatus,
               "Connection failed while using entered values. Check Web App URL, deployment access (Anyone), and network.",
@@ -657,7 +710,7 @@
         }
         return fetch(ep, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
           body: JSON.stringify({
             selfGeneratedToken: token,
             action: "configure",

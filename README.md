@@ -29,6 +29,12 @@ Tablet input → Google Apps Script → automatic append to Google Spreadsheet �
 - User input (`/web`): [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/)
 - Admin panel (`/admin`): [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/)
 
+### QR Code — User Input Form (`/web`)
+
+Scan to open the customer input form on a phone or tablet:
+
+<img src="demo/assets/qr-web.png" alt="QR code for /web" width="300">
+
 ## Install as App on Phone / Tablet
 
 ### iPhone / iPad (Safari)
@@ -82,11 +88,11 @@ demo/
 
 ### 1. Values to decide (Apps Script Script Properties)
 
-| Property | Description | Default |
-|---|---|---|
-| `SELF_GENERATED_TOKEN` | Shared token you generate | (required) |
-| `ADMIN_PASSCODE` | Passcode to unlock the admin panel | (required) |
-| `DRIVE_FOLDER_ID` | Google Drive folder ID for certificate photos (auto-set from `/admin`) | (optional) |
+| Property               | Description                                                            | Default    |
+| ---------------------- | ---------------------------------------------------------------------- | ---------- |
+| `SELF_GENERATED_TOKEN` | Shared token you generate                                              | (required) |
+| `ADMIN_PASSCODE`       | Passcode to unlock the admin panel                                     | (required) |
+| `DRIVE_FOLDER_ID`      | Google Drive folder ID for certificate photos (auto-set from `/admin`) | (optional) |
 
 ### 2. Deploy & configure via the Admin Panel
 
