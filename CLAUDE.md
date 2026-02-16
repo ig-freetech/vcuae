@@ -45,6 +45,27 @@ bead 未起票の状態で Edit/Write を実行しようとした場合:
 
 これは「うっかり忘れた」では許容されない。規律として徹底する。
 
+## Plan-First 原則（ハードゲート）
+
+※ただし **10行未満の文書修正（Doc typo 等の超軽微）** は、このゲートの適用外。
+
+**中規模以上のタスク（10行以上 OR 2ファイル以上）は、plan ファイルを作成してから実装に着手すること**:
+
+1. Bead 起票後、`.cccp/plans/<bead-id>.md`（アプリ）or `.claude/plans/<bead-id>.md`（CCCP infra）に plan ファイルを作成
+2. bead に `plan_path:` を記載
+3. Epic の Plan が Sub-task をカバーしていれば Sub-task 個別の Plan は不要（`plan_path` で親を参照）
+4. `~/.claude/plans/` はプロジェクト外のため plan_path として認めない
+
+**違反時の自己停止**:
+
+1. **即座に停止**する
+2. 「⚠️ Plan-First 違反」と報告する
+3. Plan ファイルを作成してから再開する
+
+## Governed-Path Alignment Check
+
+**governed-paths-index.yaml に登録されたファイルの振る舞いを変更する場合は governing spec を確認・更新すること。** spec 更新を後回しにせず、実装ファイルと同一タスク内で完了する。違反時は即座に停止し「⚠️ Governed-Path Alignment 違反」と報告する。
+
 ## Sibling-First File Creation 原則（ハードゲート）
 
 ※ただし **10行未満の文書修正（Doc typo 等の超軽微）** は、このゲートの適用外。
