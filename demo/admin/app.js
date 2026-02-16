@@ -14,6 +14,7 @@
   var unlockPasscode = document.getElementById("unlock-passcode");
   var unlockHelpInitial = document.getElementById("unlock-help-initial");
   var unlockHelpSaved = document.getElementById("unlock-help-saved");
+  var unlockSetupGuide = document.getElementById("unlock-setup-guide");
   var unlockAdminBtn = document.getElementById("unlock-admin");
   var unlockStatus = document.getElementById("unlock-status");
   var lockAdminBtn = document.getElementById("lock-admin");
@@ -278,6 +279,9 @@
     }
     if (unlockHelpSaved) {
       unlockHelpSaved.classList.toggle("hidden", !hasSaved);
+    }
+    if (unlockSetupGuide) {
+      unlockSetupGuide.classList.toggle("hidden", hasSaved);
     }
 
     if (unlockEndpoint) {

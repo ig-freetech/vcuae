@@ -34,8 +34,9 @@ Apps Script 画面の「プロジェクトの設定」→「スクリプト プ�
    - `Web App URL`（控えた URL）
    - `Self-Generated Token`（`SELF_GENERATED_TOKEN`）
    - `ADMIN_PASSCODE`
+   - 初回のみセットアップガイドが表示されます
 3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
-4. 2回目以降の Unlock は `ADMIN_PASSCODE` のみ入力
+4. 2回目以降の Unlock は `ADMIN_PASSCODE` のみ入力（セットアップガイドは非表示）
 
 ### 今回の Web App URL（既に発行済み）
 

@@ -73,8 +73,9 @@ demo/
    - `Web App URL`（控えた URL）
    - `Self-Generated Token`（`SELF_GENERATED_TOKEN` の値）
    - `ADMIN_PASSCODE`
+   - この初回画面にだけセットアップガイドが表示されます
 3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
-4. 2回目以降は、保存済み URL/Token を使うため Unlock は `ADMIN_PASSCODE` のみ入力
+4. 2回目以降は、保存済み URL/Token を使うため Unlock は `ADMIN_PASSCODE` のみ入力（セットアップガイドは非表示）
 
 ### 5. 今回の Web App URL（貼り付け先）
 

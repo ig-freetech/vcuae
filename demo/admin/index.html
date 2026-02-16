@@ -67,6 +67,66 @@
           <button id="unlock-admin" type="button">Unlock Administration</button>
         </div>
         <output id="unlock-status" class="status" aria-live="polite"></output>
+
+        <div id="unlock-setup-guide" class="setup-guide">
+          <details>
+            <summary>セットアップガイド（初回のみ表示）</summary>
+            <ol class="guide-steps">
+              <li class="guide-step-item">
+                <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
+                <p class="guide-desc">
+                  <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>
+                  にアクセスし、「新しいプロジェクト」をクリックしてください。
+                </p>
+              </li>
+              <li class="guide-step-item">
+                <strong>Step 2: Code.gs を貼り付け</strong>
+                <p class="guide-desc">
+                  下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
+                </p>
+                <div class="guide-action">
+                  <button id="copy-code-gs" type="button" class="secondary guide-btn">
+                    <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
+                  </button>
+                  <span id="copy-code-gs-status" class="guide-status"></span>
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <strong>Step 3: トークンを生成して Script Properties と Unlock の Self-Generated Token に設定</strong>
+                <p class="guide-desc">
+                  下のボタンで SELF_GENERATED_TOKEN 用のランダムトークンを生成＆コピーします。
+                  さらに Script Properties に <code>ADMIN_PASSCODE</code> も任意値で追加してください。
+                </p>
+                <div class="guide-action">
+                  <button id="generate-token" type="button" class="secondary guide-btn">
+                    <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
+                  </button>
+                  <span id="generate-token-status" class="guide-status"></span>
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <strong>Step 4: Web App としてデプロイ</strong>
+                <p class="guide-desc">
+                  Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」。
+                  次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」を選択。
+                </p>
+              </li>
+              <li class="guide-step-item">
+                <strong>Step 5: Unlock で初回認証</strong>
+                <p class="guide-desc">
+                  Web App URL / Self-Generated Token / Admin Passcode を入力して解錠します。
+                </p>
+              </li>
+              <li class="guide-step-item">
+                <strong>Step 6: Connection → Spreadsheet → Column Mapping を完了</strong>
+                <p class="guide-desc">
+                  Test Connection → Load Sheets → Apply Spreadsheet の順で設定し、
+                  Column Mapping で全列 &#10003; を確認してください。
+                </p>
+              </li>
+            </ol>
+          </details>
+        </div>
       </section>
 
       <div id="admin-panel" class="hidden">
@@ -151,66 +211,6 @@
             </div>
           </div>
 
-          <div class="setup-guide">
-            <details>
-              <summary>セットアップガイド（初回設定）</summary>
-              <ol class="guide-steps">
-                <li class="guide-step-item">
-                  <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
-                  <p class="guide-desc">
-                    <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>
-                    にアクセスし、「新しいプロジェクト」をクリックしてください。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 2: Code.gs を貼り付け</strong>
-                  <p class="guide-desc">
-                    下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
-                  </p>
-                  <div class="guide-action">
-                    <button id="copy-code-gs" type="button" class="secondary guide-btn">
-                      <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
-                    </button>
-                    <span id="copy-code-gs-status" class="guide-status"></span>
-                  </div>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 3: トークンを生成して Script Properties と この画面上部の Self-Generated Token に設定</strong>
-                  <p class="guide-desc">
-                    下のボタンで SELF_GENERATED_TOKEN 用のランダムトークンを生成＆コピーします。
-                    さらに Script Properties に <code>ADMIN_PASSCODE</code> も任意値で追加してください。
-                  </p>
-                  <div class="guide-action">
-                    <button id="generate-token" type="button" class="secondary guide-btn">
-                      <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
-                    </button>
-                    <span id="generate-token-status" class="guide-status"></span>
-                  </div>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 4: Web App としてデプロイ</strong>
-                  <p class="guide-desc">
-                    Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」。
-                    次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」を選択。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 5: Unlock で認証</strong>
-                  <p class="guide-desc">
-                    初回は Web App URL / Self-Generated Token / Admin Passcode を入力します。
-                    2回目以降は Admin Passcode のみで解錠できます。
-                  </p>
-                </li>
-                <li class="guide-step-item">
-                  <strong>Step 6: Connection → Spreadsheet → Column Mapping を完了</strong>
-                  <p class="guide-desc">
-                    Test Connection → Load Sheets → Apply Spreadsheet の順で設定し、
-                    Column Mapping で全列 &#10003; を確認してください。
-                  </p>
-                </li>
-              </ol>
-            </details>
-          </div>
         </section>
 
         <div class="settings-footer">
