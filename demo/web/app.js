@@ -33,6 +33,21 @@
   var countryInput = document.getElementById("country");
   var visitDateInput = ledgerForm.elements.visitDate;
 
+  // --- Settings Step DOM refs ---
+  var settingsStep1 = document.getElementById("settings-step-1");
+  var settingsStep2 = document.getElementById("settings-step-2");
+  var settingsStep3 = document.getElementById("settings-step-3");
+  var testConnectionBtn = document.getElementById("test-connection");
+  var connectionStatus = document.getElementById("connection-status");
+  var spreadsheetUrl = document.getElementById("spreadsheet-url");
+  var sheetNameSelect = document.getElementById("sheet-name");
+  var loadSheetsBtn = document.getElementById("load-sheets");
+  var applySpreadsheetBtn = document.getElementById("apply-spreadsheet");
+  var spreadsheetStatus = document.getElementById("spreadsheet-status");
+  var columnMapping = document.getElementById("column-mapping");
+  var headerMismatchWarning = document.getElementById("header-mismatch-warning");
+  var headerDiff = document.getElementById("header-diff");
+
   // --- Helpers ---
   function populateSelect(selectEl, options, placeholder) {
     var frag = document.createDocumentFragment();
@@ -81,6 +96,109 @@
     status.className = "status";
   }
 
+  function extractSpreadsheetId(url) {
+    var match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+  }
+
+  function colIndexToLetter(i) {
+    return String.fromCharCode(65 + i);
+  }
+
+  // --- Progressive Disclosure ---
+  function revealStep2() {
+    settingsStep2.classList.remove("hidden");
+  }
+
+  function revealStep3() {
+    settingsStep3.classList.remove("hidden");
+  }
+
+  // --- Header Validation ---
+  function showColumnMapping(headers) {
+    var expectedHeaders = LedgerCore.SHEET_HEADERS;
+    columnMapping.innerHTML = "";
+
+    var table = document.createElement("table");
+    table.className = "mapping-table";
+    var thead = document.createElement("thead");
+    var headerRow = document.createElement("tr");
+    var cols = ["列", "ヘッダー（期待）", "ヘッダー（実際）", "状態"];
+    for (var c = 0; c < cols.length; c++) {
+      var th = document.createElement("th");
+      th.textContent = cols[c];
+      headerRow.appendChild(th);
+    }
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    var maxLen = Math.max(expectedHeaders.length, headers.length);
+    var hasMismatch = false;
+    var diffLines = [];
+
+    for (var i = 0; i < maxLen; i++) {
+      var tr = document.createElement("tr");
+      var tdCol = document.createElement("td");
+      tdCol.textContent = colIndexToLetter(i);
+      tr.appendChild(tdCol);
+
+      var tdExpected = document.createElement("td");
+      tdExpected.textContent = i < expectedHeaders.length ? expectedHeaders[i] : "(なし)";
+      tr.appendChild(tdExpected);
+
+      var tdActual = document.createElement("td");
+      tdActual.textContent = i < headers.length ? headers[i] : "(なし)";
+      tr.appendChild(tdActual);
+
+      var tdStatus = document.createElement("td");
+      var expected = i < expectedHeaders.length ? expectedHeaders[i] : "";
+      var actual = i < headers.length ? headers[i] : "";
+      if (expected === actual) {
+        tdStatus.textContent = "\u2713";
+        tdStatus.className = "match-ok";
+      } else {
+        tdStatus.textContent = "\u26A0";
+        tdStatus.className = "match-warn";
+        hasMismatch = true;
+        diffLines.push(colIndexToLetter(i) + ": 期待「" + expected + "」 実際「" + actual + "」");
+      }
+      tr.appendChild(tdStatus);
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    columnMapping.appendChild(table);
+
+    if (hasMismatch) {
+      headerMismatchWarning.classList.remove("hidden");
+      headerDiff.textContent = diffLines.join("\n");
+    } else {
+      headerMismatchWarning.classList.add("hidden");
+      headerDiff.textContent = "";
+    }
+  }
+
+  function getHeaders(ep, ak, sheetName) {
+    var url = ep + "?action=getHeaders&apiKey=" + encodeURIComponent(ak);
+    if (sheetName) {
+      url += "&sheetName=" + encodeURIComponent(sheetName);
+    }
+    return fetch(url)
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.status === "success" && data.headers) {
+          showColumnMapping(data.headers);
+        } else {
+          spreadsheetStatus.textContent = data.message || "ヘッダー取得に失敗しました";
+          spreadsheetStatus.className = "status err";
+        }
+      })
+      .catch(function (err) {
+        spreadsheetStatus.textContent = "通信エラー: " + err.message;
+        spreadsheetStatus.className = "status err";
+      });
+  }
+
   // --- Populate selects & datalist ---
   populateSelect(genderSelect, LedgerCore.GENDER_OPTIONS, "-- Gender --");
   populateSelect(
@@ -104,6 +222,32 @@
     settingsPanel.removeAttribute("open");
   }
 
+  // --- Restore spreadsheet settings ---
+  var savedSpreadsheetUrl = localStorage.getItem("ledger_spreadsheetUrl");
+  var savedSpreadsheetId = localStorage.getItem("ledger_spreadsheetId");
+  var savedSheetName = localStorage.getItem("ledger_sheetName");
+  var savedConnectionVerified = localStorage.getItem("ledger_connectionVerified");
+
+  if (savedSpreadsheetUrl) {
+    spreadsheetUrl.value = savedSpreadsheetUrl;
+  }
+  if (savedConnectionVerified === "true" && savedEndpoint && savedApiKey) {
+    revealStep2();
+    if (savedSheetName) {
+      // Create a single option with saved sheet name
+      var opt = document.createElement("option");
+      opt.value = savedSheetName;
+      opt.textContent = savedSheetName;
+      opt.selected = true;
+      sheetNameSelect.appendChild(opt);
+      sheetNameSelect.disabled = false;
+    }
+    if (savedSpreadsheetId && savedSheetName) {
+      revealStep3();
+      getHeaders(savedEndpoint, savedApiKey, savedSheetName);
+    }
+  }
+
   // --- Default visit date ---
   if (!visitDateInput.value) {
     visitDateInput.value = todayISO();
@@ -121,6 +265,161 @@
     localStorage.setItem("ledger_apiKey", ak);
     showStatus("設定を保存しました", "ok");
     setTimeout(clearStatus, 3000);
+  });
+
+  // --- Connection Test (Step 1 → Step 2) ---
+  testConnectionBtn.addEventListener("click", function () {
+    var ep = endpoint.value.trim();
+    var ak = apiKey.value.trim();
+    if (!ep || !ak) {
+      connectionStatus.textContent = "URL と API Key を両方入力してください";
+      connectionStatus.className = "status err";
+      return;
+    }
+
+    connectionStatus.textContent = "接続テスト中...";
+    connectionStatus.className = "status";
+    testConnectionBtn.disabled = true;
+
+    fetch(ep + "?action=health&apiKey=" + encodeURIComponent(ak))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.status === "success") {
+          connectionStatus.textContent = "接続成功: " + (data.message || "Service is running");
+          connectionStatus.className = "status ok";
+          // Save connection settings automatically
+          localStorage.setItem("ledger_endpoint", ep);
+          localStorage.setItem("ledger_apiKey", ak);
+          localStorage.setItem("ledger_connectionVerified", "true");
+          revealStep2();
+        } else {
+          connectionStatus.textContent = "接続エラー: " + (data.message || "不明なエラー");
+          connectionStatus.className = "status err";
+        }
+      })
+      .catch(function (err) {
+        connectionStatus.textContent = "通信エラー: " + err.message;
+        connectionStatus.className = "status err";
+      })
+      .finally(function () {
+        testConnectionBtn.disabled = false;
+      });
+  });
+
+  // --- Load Sheets (Step 2) ---
+  loadSheetsBtn.addEventListener("click", function () {
+    var ep = endpoint.value.trim();
+    var ak = apiKey.value.trim();
+    var ssUrl = spreadsheetUrl.value.trim();
+    var ssId = extractSpreadsheetId(ssUrl);
+
+    if (!ssId) {
+      spreadsheetStatus.textContent = "有効なスプレッドシート URL を入力してください";
+      spreadsheetStatus.className = "status err";
+      return;
+    }
+
+    spreadsheetStatus.textContent = "シート一覧を取得中...";
+    spreadsheetStatus.className = "status";
+    loadSheetsBtn.disabled = true;
+
+    fetch(ep + "?action=listSheets&apiKey=" + encodeURIComponent(ak) + "&spreadsheetId=" + encodeURIComponent(ssId))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.status === "success" && data.sheets) {
+          // Clear existing options
+          sheetNameSelect.innerHTML = "";
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "-- シートを選択 --";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          sheetNameSelect.appendChild(placeholder);
+
+          for (var i = 0; i < data.sheets.length; i++) {
+            var opt = document.createElement("option");
+            opt.value = data.sheets[i];
+            opt.textContent = data.sheets[i];
+            sheetNameSelect.appendChild(opt);
+          }
+          sheetNameSelect.disabled = false;
+          spreadsheetStatus.textContent = data.sheets.length + " シートを取得しました";
+          spreadsheetStatus.className = "status ok";
+        } else {
+          spreadsheetStatus.textContent = data.message || "シート一覧の取得に失敗しました";
+          spreadsheetStatus.className = "status err";
+        }
+      })
+      .catch(function (err) {
+        spreadsheetStatus.textContent = "通信エラー: " + err.message;
+        spreadsheetStatus.className = "status err";
+      })
+      .finally(function () {
+        loadSheetsBtn.disabled = false;
+      });
+  });
+
+  // --- Apply Spreadsheet (Step 2 → Step 3) ---
+  applySpreadsheetBtn.addEventListener("click", function () {
+    var ep = endpoint.value.trim();
+    var ak = apiKey.value.trim();
+    var ssUrl = spreadsheetUrl.value.trim();
+    var ssId = extractSpreadsheetId(ssUrl);
+    var selectedSheet = sheetNameSelect.value;
+
+    if (!ssId) {
+      spreadsheetStatus.textContent = "有効なスプレッドシート URL を入力してください";
+      spreadsheetStatus.className = "status err";
+      return;
+    }
+    if (!selectedSheet) {
+      spreadsheetStatus.textContent = "シートを選択してください";
+      spreadsheetStatus.className = "status err";
+      return;
+    }
+
+    spreadsheetStatus.textContent = "スプレッドシートを設定中...";
+    spreadsheetStatus.className = "status";
+    applySpreadsheetBtn.disabled = true;
+
+    fetch(ep, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiKey: ak,
+        action: "configure",
+        config: {
+          spreadsheetId: ssId,
+          sheetName: selectedSheet
+        }
+      })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.status === "success") {
+          // Save to localStorage
+          localStorage.setItem("ledger_spreadsheetUrl", ssUrl);
+          localStorage.setItem("ledger_spreadsheetId", ssId);
+          localStorage.setItem("ledger_sheetName", selectedSheet);
+          localStorage.setItem("ledger_connectionVerified", "true");
+
+          spreadsheetStatus.textContent = "スプレッドシートを設定しました";
+          spreadsheetStatus.className = "status ok";
+
+          revealStep3();
+          getHeaders(ep, ak, selectedSheet);
+        } else {
+          spreadsheetStatus.textContent = data.message || "設定に失敗しました";
+          spreadsheetStatus.className = "status err";
+        }
+      })
+      .catch(function (err) {
+        spreadsheetStatus.textContent = "通信エラー: " + err.message;
+        spreadsheetStatus.className = "status err";
+      })
+      .finally(function () {
+        applySpreadsheetBtn.disabled = false;
+      });
   });
 
   // --- Step navigation ---
