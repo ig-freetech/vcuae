@@ -265,6 +265,15 @@ test("validateInput: null grandTotal => errors", function () {
   assert.ok(fields.indexOf("grandTotal") !== -1, "grandTotal should be in errors");
 });
 
+test("validateInput: invalid certificatePhotoUrl => errors", function () {
+  var payload = Object.assign({}, fixtures.validCompletePayload, { certificatePhotoUrl: "not-a-url" });
+  var normalized = LedgerCore.normalizeInput(payload);
+  var result = LedgerCore.validateInput(normalized);
+  assert.strictEqual(result.valid, false);
+  var fields = result.errors.map(function (e) { return e.field; });
+  assert.ok(fields.indexOf("certificatePhotoUrl") !== -1, "certificatePhotoUrl should be in errors");
+});
+
 // =======================================================
 // 2.4 Integration: normalizeInput + toApiPayload
 // =======================================================
@@ -294,7 +303,7 @@ test("normalizeInput: null/undefined values become empty strings", function () {
 });
 
 test("toApiPayload: returns normalized payload with null currency as empty string", function () {
-  var raw = { visitDate: "15/01/2026", csCategory: "Sales (販売)", customerName: "  Test User  ", gender: "Male", birthday: "15-05-1990", mobileNumber: "+971501234567", email: "Test@Example.COM", address: "Dubai", ref: "REF-001", paymentMethod: "Cash", country: "India", totalPurchase: "abc", grandTotal: "16,500" };
+  var raw = { visitDate: "15/01/2026", csCategory: "Sales (販売)", customerName: "  Test User  ", gender: "Male", birthday: "15-05-1990", mobileNumber: "+971501234567", email: "Test@Example.COM", address: "Dubai", ref: "REF-001", paymentMethod: "Cash", country: "India", totalPurchase: "abc", grandTotal: "16,500", certificatePhotoUrl: " https://drive.google.com/file/d/file-1/view " };
   var out = LedgerCore.toApiPayload(raw);
   assert.strictEqual(out.visitDate, "2026-01-15");
   assert.strictEqual(out.birthday, "1990-05-15");
@@ -302,6 +311,7 @@ test("toApiPayload: returns normalized payload with null currency as empty strin
   assert.strictEqual(out.email, "test@example.com");
   assert.strictEqual(out.totalPurchase, "");
   assert.strictEqual(out.grandTotal, 16500);
+  assert.strictEqual(out.certificatePhotoUrl, "https://drive.google.com/file/d/file-1/view");
 });
 
 test("toApiPayload: complete valid payload preserves all fields", function () {
@@ -319,16 +329,17 @@ test("toApiPayload: complete valid payload preserves all fields", function () {
   assert.strictEqual(out.csCategory, "Sales (販売)");
   assert.strictEqual(out.totalPurchase, 15000);
   assert.strictEqual(out.grandTotal, 16500);
+  assert.strictEqual(out.certificatePhotoUrl, "https://drive.google.com/file/d/file-1/view");
 });
 
 // =======================================================
 // 2.5 Row mapping: buildSheetRow
 // =======================================================
 
-test("buildSheetRow: returns array of 18 elements matching SHEET_HEADERS", function () {
+test("buildSheetRow: returns array of 19 elements matching SHEET_HEADERS", function () {
   var normalized = LedgerCore.normalizeInput(fixtures.validCompletePayload);
   var row = LedgerCore.buildSheetRow(normalized);
-  assert.strictEqual(row.length, 18);
+  assert.strictEqual(row.length, 19);
   assert.strictEqual(row.length, LedgerCore.SHEET_HEADERS.length);
 });
 
@@ -338,7 +349,7 @@ test("buildSheetRow: header order matches values", function () {
   // SHEET_HEADERS: VisitDate, CsCategory, CustomerName, Gender, Birthday, Age,
   //   MobileNumber, Email, Address, REF, PaymentMethod,
   //   Country, CountryJP, Continent大陸, Subregion小地域, 誕生月,
-  //   総買取額, 総合計
+  //   総買取額, 総合計, CertificatePhotoUrl
   assert.strictEqual(row[0], "2026-01-15", "VisitDate");
   assert.strictEqual(row[1], "Sales (販売)", "CsCategory");
   assert.strictEqual(row[2], "John Smith", "CustomerName");
@@ -369,6 +380,8 @@ test("buildSheetRow: derived fields are in correct positions", function () {
   assert.strictEqual(row[16], 15000, "TotalPurchase");
   // grandTotal (index 17)
   assert.strictEqual(row[17], 16500, "GrandTotal");
+  // certificatePhotoUrl (index 18)
+  assert.strictEqual(row[18], "https://drive.google.com/file/d/file-1/view", "CertificatePhotoUrl");
 });
 
 test("buildSheetRow: optional fields (email, ref) can be empty", function () {
@@ -377,7 +390,7 @@ test("buildSheetRow: optional fields (email, ref) can be empty", function () {
   var row = LedgerCore.buildSheetRow(normalized);
   assert.strictEqual(row[7], "", "Email should be empty");
   assert.strictEqual(row[9], "", "REF should be empty");
-  assert.strictEqual(row.length, 18, "Still 18 elements");
+  assert.strictEqual(row.length, 19, "Still 19 elements");
 });
 
 test("buildSheetRow: age calculation for UAE country alias", function () {
@@ -392,8 +405,8 @@ test("buildSheetRow: age calculation for UAE country alias", function () {
 // 2.6 Constants export checks
 // =======================================================
 
-test("SHEET_HEADERS has 18 entries", function () {
-  assert.strictEqual(LedgerCore.SHEET_HEADERS.length, 18);
+test("SHEET_HEADERS has 19 entries", function () {
+  assert.strictEqual(LedgerCore.SHEET_HEADERS.length, 19);
 });
 
 test("CATEGORY_OPTIONS contains known values", function () {

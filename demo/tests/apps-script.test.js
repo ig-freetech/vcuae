@@ -11,6 +11,10 @@ var scriptProperties = {};
 var appendedRows = [];
 var lastSheetId = null;
 var lastSheetName = null;
+var createdFiles = [];
+var driveFolders = {};
+var driveAccessError = null;
+var lastDriveFolderId = null;
 
 global.PropertiesService = {
   getScriptProperties: function () {
@@ -60,6 +64,80 @@ function installSpreadsheetMock_(opts) {
 
 installSpreadsheetMock_({ hasHeader: true });
 
+function installDriveMock_(opts) {
+  var options = opts || {};
+  driveFolders = options.folders || {
+    "folder-abc": { name: "Certificate Photos" },
+    "folder-test-1": { name: "Test Folder 1" },
+  };
+  driveAccessError = options.accessError || null;
+  createdFiles = [];
+  lastDriveFolderId = null;
+
+  global.DriveApp = {
+    getFolderById: function (id) {
+      lastDriveFolderId = id;
+      if (driveAccessError) {
+        throw driveAccessError;
+      }
+      if (!driveFolders[id]) {
+        throw new Error("Folder not found: " + id);
+      }
+
+      return {
+        getName: function () {
+          return driveFolders[id].name;
+        },
+        createFile: function (blob) {
+          var fileId = "file-" + String(createdFiles.length + 1);
+          var file = {
+            id: fileId,
+            name: blob.getName(),
+            contentType: blob.getContentType(),
+            size: blob.getBytes().length,
+            folderId: id,
+            url: "https://drive.google.com/file/d/" + fileId + "/view",
+          };
+          createdFiles.push(file);
+          return {
+            getId: function () {
+              return file.id;
+            },
+            getName: function () {
+              return file.name;
+            },
+            getUrl: function () {
+              return file.url;
+            },
+          };
+        },
+      };
+    },
+  };
+}
+
+installDriveMock_();
+
+global.Utilities = {
+  base64Decode: function (input) {
+    return Buffer.from(String(input), "base64");
+  },
+  newBlob: function (bytes, mimeType, name) {
+    var data = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+    return {
+      getBytes: function () {
+        return data;
+      },
+      getContentType: function () {
+        return mimeType;
+      },
+      getName: function () {
+        return name;
+      },
+    };
+  },
+};
+
 global.ContentService = {
   createTextOutput: function (text) {
     return {
@@ -96,11 +174,13 @@ function resetMocks() {
     ADMIN_PASSCODE: "admin-9876",
     SHEET_ID: "sheet-abc",
     SHEET_NAME: "TestSheet",
+    DRIVE_FOLDER_ID: "folder-abc",
   };
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
   installSpreadsheetMock_({ hasHeader: true });
+  installDriveMock_();
 }
 
 // --- Test runner ---
@@ -202,6 +282,93 @@ resetMocks();
 })();
 
 // ===========================
+// Test: configure
+// ===========================
+console.log("\n--- CONFIGURE ---");
+resetMocks();
+(function () {
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "configure",
+    config: {
+      spreadsheetId: "sheet-abc",
+      sheetName: "ConfiguredSheet",
+      driveFolderUrl: "https://drive.google.com/drive/folders/folder-test-1",
+    },
+  });
+
+  assertEqual(result.status, "success", "configure success status");
+  assertEqual(scriptProperties.SHEET_ID, "sheet-abc", "configure stores SHEET_ID");
+  assertEqual(scriptProperties.SHEET_NAME, "ConfiguredSheet", "configure stores SHEET_NAME");
+  assertEqual(scriptProperties.DRIVE_FOLDER_ID, "folder-test-1", "configure stores DRIVE_FOLDER_ID");
+  assertEqual(result.currentConfig.driveFolderId, "folder-test-1", "configure response includes driveFolderId");
+})();
+
+(function () {
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "configure",
+    config: {
+      spreadsheetId: "sheet-abc",
+      sheetName: "ConfiguredSheet",
+      driveFolderUrl: "invalid drive folder url",
+    },
+  });
+
+  assertEqual(result.status, "error", "configure invalid drive URL status");
+  assertEqual(result.code, "VALIDATION_ERROR", "configure invalid drive URL code");
+})();
+
+// ===========================
+// Test: uploadCertificatePhoto
+// ===========================
+console.log("\n--- UPLOAD CERTIFICATE PHOTO ---");
+resetMocks();
+(function () {
+  var base64 = Buffer.from("fake-image-bytes").toString("base64");
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "uploadCertificatePhoto",
+    photoBase64: base64,
+    mimeType: "image/png",
+    fileNameHint: "2026-01-15_John_REF-001",
+  });
+
+  assertEqual(result.status, "success", "uploadCertificatePhoto success status");
+  assertEqual(createdFiles.length, 1, "upload creates one drive file");
+  assertEqual(createdFiles[0].folderId, "folder-abc", "upload uses configured drive folder");
+  assertEqual(createdFiles[0].contentType, "image/png", "upload preserves mime type");
+  assert(result.fileUrl.indexOf("https://drive.google.com/file/d/file-1/view") === 0, "upload returns file URL");
+})();
+
+(function () {
+  delete scriptProperties.DRIVE_FOLDER_ID;
+  var base64 = Buffer.from("fake-image-bytes").toString("base64");
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "uploadCertificatePhoto",
+    photoBase64: base64,
+    mimeType: "image/jpeg",
+  });
+
+  assertEqual(result.status, "error", "upload without configured folder status");
+  assertEqual(result.code, "CONFIG_ERROR", "upload without configured folder code");
+})();
+
+(function () {
+  resetMocks();
+  var result = callDoPost({
+    selfGeneratedToken: "test-key-123",
+    action: "uploadCertificatePhoto",
+    photoBase64: "",
+    mimeType: "image/jpeg",
+  });
+
+  assertEqual(result.status, "error", "upload missing base64 status");
+  assertEqual(result.code, "VALIDATION_ERROR", "upload missing base64 code");
+})();
+
+// ===========================
 // Test: VALIDATION_ERROR
 // ===========================
 console.log("\n--- VALIDATION_ERROR ---");
@@ -256,6 +423,7 @@ resetMocks();
       country: "United Arab Emirates",
       totalPurchase: 15000,
       grandTotal: 16500,
+      certificatePhotoUrl: "https://drive.google.com/file/d/file-1/view",
     },
   };
   var result = callDoPost(payload);
@@ -265,7 +433,7 @@ resetMocks();
   // Verify row was appended
   assertEqual(appendedRows.length, 1, "one row appended");
   var row = appendedRows[0];
-  assertEqual(row.length, 18, "row has 18 columns (SHEET_HEADERS length)");
+  assertEqual(row.length, 19, "row has 19 columns (SHEET_HEADERS length)");
 
   // Verify column values
   assertEqual(row[0], "2026-01-15", "VisitDate");
@@ -286,6 +454,7 @@ resetMocks();
   assertEqual(row[15], 5, "BirthMonth");
   assertEqual(row[16], 15000, "totalPurchase");
   assertEqual(row[17], 16500, "grandTotal");
+  assertEqual(row[18], "https://drive.google.com/file/d/file-1/view", "certificatePhotoUrl");
 
   // Verify spreadsheet target
   assertEqual(lastSheetId, "sheet-abc", "opened correct sheet ID");
@@ -468,6 +637,19 @@ console.log("\n--- HELPER FUNCTIONS ---");
   var unknown = resolveCountryMetadata_("Narnia");
   assertEqual(unknown.matched, false, "resolveCountryMetadata unknown not matched");
   assertEqual(unknown.countryJP, "N/A", "resolveCountryMetadata unknown countryJP");
+
+  // drive helpers
+  assertEqual(
+    extractDriveFolderId_("https://drive.google.com/drive/folders/folder-abc"),
+    "folder-abc",
+    "extractDriveFolderId extracts from folder URL",
+  );
+  assertEqual(
+    extractDriveFolderId_("https://drive.google.com/open?id=folder-abc"),
+    "folder-abc",
+    "extractDriveFolderId extracts from query id",
+  );
+  assertEqual(extractDriveFolderId_("folder-abc"), "folder-abc", "extractDriveFolderId accepts raw ID");
 })();
 
 // ===========================
@@ -516,6 +698,21 @@ console.log("\n--- VALIDATE PAYLOAD ---");
   var hasBirthdayError = dateErrors.some(function (e) { return e.field === "birthday"; });
   assert(hasVisitDateError, "invalid visitDate format detected");
   assert(hasBirthdayError, "invalid birthday format detected");
+
+  var urlErrors = validatePayload_({
+    visitDate: "2026-01-15",
+    csCategory: "Sales (\u8ca9\u58f2)",
+    customerName: "John",
+    gender: "Male",
+    birthday: "1990-05-15",
+    mobileNumber: "+971501234567",
+    address: "Dubai",
+    paymentMethod: "Cash",
+    country: "UAE",
+    certificatePhotoUrl: "invalid-url",
+  });
+  var hasPhotoUrlError = urlErrors.some(function (e) { return e.field === "certificatePhotoUrl"; });
+  assert(hasPhotoUrlError, "invalid certificatePhotoUrl format detected");
 })();
 
 // ===========================

@@ -18,6 +18,17 @@
   var paymentMethodSelect = document.getElementById("payment-method");
   var countryList = document.getElementById("country-list");
 
+  var capturePhotoBtn = document.getElementById("capture-photo-btn");
+  var retakePhotoBtn = document.getElementById("retake-photo-btn");
+  var savePhotoBtn = document.getElementById("save-photo-btn");
+  var certificatePhotoInput = document.getElementById("certificate-photo-input");
+  var certificatePhotoUrlInput = document.getElementById("certificate-photo-url");
+  var photoPreviewWrap = document.getElementById("photo-preview-wrap");
+  var certificatePhotoPreview = document.getElementById("certificate-photo-preview");
+  var photoSavedWrap = document.getElementById("photo-saved-wrap");
+  var photoSavedLink = document.getElementById("photo-saved-link");
+  var photoStatus = document.getElementById("photo-status");
+
   var derivedAge = document.getElementById("derived-age");
   var derivedMonth = document.getElementById("derived-month");
   var derivedCountryJP = document.getElementById("derived-country-jp");
@@ -28,6 +39,9 @@
   var countryInput = document.getElementById("country");
   var visitDateInput = ledgerForm.elements.visitDate;
   var configBanner = document.getElementById("config-banner");
+
+  var selectedPhotoFile = null;
+  var selectedPhotoPreviewUrl = "";
 
   function populateSelect(selectEl, options, placeholder) {
     var frag = document.createDocumentFragment();
@@ -74,6 +88,79 @@
   function clearStatus() {
     status.textContent = "";
     status.className = "status";
+  }
+
+  function setPhotoStatus(msg, cls) {
+    photoStatus.textContent = msg || "";
+    photoStatus.className = "status " + (cls || "");
+  }
+
+  function updateSavedPhotoLink(url) {
+    if (!url) {
+      photoSavedWrap.classList.add("hidden");
+      photoSavedLink.removeAttribute("href");
+      return;
+    }
+    photoSavedLink.href = url;
+    photoSavedWrap.classList.remove("hidden");
+  }
+
+  function revokeSelectedPhotoPreview() {
+    if (selectedPhotoPreviewUrl) {
+      URL.revokeObjectURL(selectedPhotoPreviewUrl);
+      selectedPhotoPreviewUrl = "";
+    }
+  }
+
+  function sanitizeFileNamePart(text) {
+    return String(text || "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9_-]/g, "")
+      .slice(0, 48);
+  }
+
+  function buildPhotoFileNameHint() {
+    var visitDate = sanitizeFileNamePart(visitDateInput.value || todayISO());
+    var customerName = sanitizeFileNamePart(ledgerForm.elements.customerName.value || "customer");
+    var ref = sanitizeFileNamePart(ledgerForm.elements.ref.value || "");
+    return [visitDate, customerName, ref].filter(Boolean).join("_");
+  }
+
+  function fileToDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve(reader.result || "");
+      };
+      reader.onerror = function () {
+        reject(new Error("Failed to read image file"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function resetPhotoUi() {
+    selectedPhotoFile = null;
+    revokeSelectedPhotoPreview();
+    certificatePhotoInput.value = "";
+    certificatePhotoUrlInput.value = "";
+    certificatePhotoPreview.removeAttribute("src");
+    photoPreviewWrap.classList.add("hidden");
+    retakePhotoBtn.classList.add("hidden");
+    savePhotoBtn.disabled = true;
+    updateSavedPhotoLink("");
+    setPhotoStatus("", "");
+  }
+
+  function getStoredEndpointAndToken() {
+    return {
+      endpoint: localStorage.getItem("ledger_endpoint") || "",
+      token:
+        localStorage.getItem("ledger_selfGeneratedToken") ||
+        localStorage.getItem("ledger_apiKey") ||
+        "",
+    };
   }
 
   function updateConfigBanner() {
@@ -140,6 +227,7 @@
     visitDateInput.value = todayISO();
   }
   updateDerived();
+  resetPhotoUi();
 
   // --- Step navigation ---
   nextBtn.addEventListener("click", function () {
@@ -179,6 +267,93 @@
   visitDateInput.addEventListener("input", updateDerived);
   visitDateInput.addEventListener("change", updateDerived);
 
+  // --- Photo upload flow ---
+  capturePhotoBtn.addEventListener("click", function () {
+    certificatePhotoInput.value = "";
+    certificatePhotoInput.click();
+  });
+
+  retakePhotoBtn.addEventListener("click", function () {
+    certificatePhotoInput.value = "";
+    certificatePhotoInput.click();
+  });
+
+  certificatePhotoInput.addEventListener("change", function () {
+    var file = certificatePhotoInput.files && certificatePhotoInput.files[0];
+    if (!file) {
+      return;
+    }
+    if (!/^image\//.test(file.type)) {
+      setPhotoStatus("Please select an image file", "err");
+      return;
+    }
+
+    selectedPhotoFile = file;
+    revokeSelectedPhotoPreview();
+    selectedPhotoPreviewUrl = URL.createObjectURL(file);
+    certificatePhotoPreview.src = selectedPhotoPreviewUrl;
+    photoPreviewWrap.classList.remove("hidden");
+    retakePhotoBtn.classList.remove("hidden");
+    savePhotoBtn.disabled = false;
+
+    certificatePhotoUrlInput.value = "";
+    updateSavedPhotoLink("");
+    setPhotoStatus("Photo selected. Review and tap Save to Drive.", "");
+  });
+
+  savePhotoBtn.addEventListener("click", function () {
+    var creds = getStoredEndpointAndToken();
+    if (!creds.endpoint || !creds.token) {
+      setPhotoStatus("Please configure connection settings first", "err");
+      return;
+    }
+    if (!selectedPhotoFile) {
+      setPhotoStatus("Take a photo first", "err");
+      return;
+    }
+
+    savePhotoBtn.disabled = true;
+    capturePhotoBtn.disabled = true;
+    retakePhotoBtn.disabled = true;
+    setPhotoStatus("Uploading photo to Drive...", "");
+
+    fileToDataUrl(selectedPhotoFile)
+      .then(function (dataUrl) {
+        var commaIndex = dataUrl.indexOf(",");
+        var base64Data = commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : "";
+        return fetch(creds.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            selfGeneratedToken: creds.token,
+            action: "uploadCertificatePhoto",
+            photoBase64: base64Data,
+            mimeType: selectedPhotoFile.type || "image/jpeg",
+            fileNameHint: buildPhotoFileNameHint(),
+          }),
+        });
+      })
+      .then(function (response) {
+        return response.json().then(function (result) {
+          if (response.ok && result.status === "success") {
+            certificatePhotoUrlInput.value = result.fileUrl || "";
+            updateSavedPhotoLink(certificatePhotoUrlInput.value);
+            setPhotoStatus("Photo saved to Drive", "ok");
+          } else {
+            setPhotoStatus(result.message || "Photo upload failed", "err");
+          }
+        });
+      })
+      .catch(function (err) {
+        setPhotoStatus("Photo upload error: " + err.message, "err");
+      })
+      .finally(function () {
+        savePhotoBtn.disabled = false;
+        capturePhotoBtn.disabled = false;
+        retakePhotoBtn.disabled = false;
+      });
+  });
+
   // --- Form submission ---
   ledgerForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -201,21 +376,18 @@
       return;
     }
 
-    var ep = localStorage.getItem("ledger_endpoint");
-    var token =
-      localStorage.getItem("ledger_selfGeneratedToken") ||
-      localStorage.getItem("ledger_apiKey");
-    if (!ep || !token) {
+    var creds = getStoredEndpointAndToken();
+    if (!creds.endpoint || !creds.token) {
       showStatus("Please configure connection settings first", "err");
       return;
     }
 
     submitBtn.disabled = true;
 
-    fetch(ep, {
+    fetch(creds.endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ selfGeneratedToken: token, data: payload }),
+      body: JSON.stringify({ selfGeneratedToken: creds.token, data: payload }),
     })
       .then(function (response) {
         return response.json().then(function (result) {
@@ -228,6 +400,7 @@
             derivedCountryJP.textContent = "-";
             derivedContinent.textContent = "-";
             derivedSubregion.textContent = "-";
+            resetPhotoUi();
             showPane("customer");
             updateConfigBanner();
           } else {

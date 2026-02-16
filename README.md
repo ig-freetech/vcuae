@@ -1,54 +1,65 @@
-# 買取台帳 自動転記デモ
+# Purchase Ledger Auto-Posting Demo
 
-タブレット入力 → Google Apps Script → スプレッドシート自動追記のサーバーレスデモ。
+Tablet input → Google Apps Script → automatic append to Google Spreadsheet — a serverless demo.
 
-## アーキテクチャ
+## Architecture
 
 ```
 [Tablet Web App] → POST JSON → [Apps Script Web App] → appendRow → [Google Spreadsheet]
 ```
 
-- **Web App（PWA）**: タブレットのブラウザで動作する入力フォーム
-- **Apps Script**: Google が提供するサーバーレス実行環境。Self-Generated Token 認証、バリデーション、派生フィールド計算を行い、スプレッドシートに 1 行追記する
-- **Google Spreadsheet**: データの永続化先
+- **Web App (PWA)**: Input form running in a tablet browser
+- **Apps Script**: Google's serverless runtime. Handles Self-Generated Token auth, validation, derived-field calculation, and appends one row to the spreadsheet
+- **Google Spreadsheet**: Data store
 
-## GitHub Pages 公開 URL
+## Input Flow
 
-- カスタムドメイン: [vcuae.zer0ai.dev](https://vcuae.zer0ai.dev/)
-- ユーザー入力画面（`/web`）: [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/)
-- 管理画面（`/admin`）: [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/)
+1. **Customer Input**
+   - Customer information entry
+   - All 4 consent checkboxes must be checked before proceeding to Staff Review
+   - The 3rd consent item is highlighted in yellow
+2. **Staff Review**
+   - `CsCategory` is entered by staff
+   - Take a certificate photo, preview it, then "Save to Drive" to upload to Google Drive
+   - The saved image URL is recorded in the `CertificatePhotoUrl` column on submit
 
-## スマホ・タブレットにアプリとしてインストールする手順
+## Published URLs (GitHub Pages)
 
-### iPhone / iPad（Safari）
+- Custom domain: [vcuae.zer0ai.dev](https://vcuae.zer0ai.dev/)
+- User input (`/web`): [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/)
+- Admin panel (`/admin`): [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/)
 
-1. Safari で [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) を開く
-2. 共有ボタンをタップ
-3. 「ホーム画面に追加」を選択
-4. 名前を確認して「追加」
+## Install as App on Phone / Tablet
 
-### Android（Chrome）
+### iPhone / iPad (Safari)
 
-1. Chrome で [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) を開く
-2. メニューから「アプリをインストール」または「ホーム画面に追加」を選択
-3. 確認ダイアログでインストール
+1. Open [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) in Safari
+2. Tap the Share button
+3. Select "Add to Home Screen"
+4. Confirm the name and tap "Add"
 
-管理者設定をアプリ化したい場合は [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/) に対して同じ手順を行ってください。
+### Android (Chrome)
 
-## ディレクトリ構造
+1. Open [vcuae.zer0ai.dev/web/](https://vcuae.zer0ai.dev/web/) in Chrome
+2. From the menu, select "Install app" or "Add to Home screen"
+3. Confirm the install dialog
+
+To install the admin panel as an app, repeat the same steps for [vcuae.zer0ai.dev/admin/](https://vcuae.zer0ai.dev/admin/).
+
+## Directory Structure
 
 ```
 demo/
-├── shared/          # 共通ロジック（バリデーション、派生計算）
+├── shared/          # Shared logic (validation, derived-field calculation)
 │   └── ledger-core.js
-├── web/             # ユーザー入力用 PWA（/web）
+├── web/             # User input PWA (/web)
 │   ├── index.html
 │   ├── app.js
 │   ├── styles.css
 │   ├── sw.js
 │   ├── manifest.webmanifest
 │   └── icons/
-├── admin/           # 管理者設定用 PWA（/admin）
+├── admin/           # Admin settings PWA (/admin)
 │   ├── index.html
 │   ├── app.js
 │   ├── styles.css
@@ -58,106 +69,78 @@ demo/
 ├── apps-script/     # Google Apps Script
 │   ├── Code.gs
 │   └── README.md
-├── scripts/         # デプロイ・セットアップスクリプト
+├── scripts/         # Deploy & setup scripts
 │   ├── deploy-gas.sh
 │   └── setup-gas-project.js
-├── tests/           # 自動テスト
+├── tests/           # Automated tests
 │   ├── fixtures.js
 │   └── apps-script.test.js
-└── README.md        # このファイル
+└── README.md        # This file
 ```
 
-## 最小セットアップ（非エンジニア向け）
+## Quick Setup
 
-### 1. 先に決める値（Apps Script Script Properties）
+### 1. Values to decide (Apps Script Script Properties)
 
-| プロパティ | 説明 | デフォルト |
+| Property | Description | Default |
 |---|---|---|
-| `SELF_GENERATED_TOKEN` | 自前生成の共有トークン | （必須） |
-| `ADMIN_PASSCODE` | 管理画面の解錠用パスコード | （必須） |
+| `SELF_GENERATED_TOKEN` | Shared token you generate | (required) |
+| `ADMIN_PASSCODE` | Passcode to unlock the admin panel | (required) |
+| `DRIVE_FOLDER_ID` | Google Drive folder ID for certificate photos (auto-set from `/admin`) | (optional) |
 
-### 2. Apps Script 側で設定する
+### 2. Deploy & configure via the Admin Panel
 
-1. Apps Script エディタで「プロジェクトの設定」→「スクリプト プロパティ」を開く  
-2. `SELF_GENERATED_TOKEN` と `ADMIN_PASSCODE` を追加して保存する  
-3. Web App としてデプロイすると URL が発行されるので控える
+For step-by-step instructions, open [/admin](https://vcuae.zer0ai.dev/admin/) and follow the **Setup Guide** shown on first visit. It covers:
 
-### 3. Web App デプロイ時の設定（重要）
+1. Creating an Apps Script project
+2. Pasting Code.gs (one-click copy)
+3. Generating a token & setting Script Properties
+4. Deploying as a Web App
+5. Unlocking the admin panel
+6. Configuring Spreadsheet & Column Mapping
 
-- **次のユーザーとして実行**: `自分`（推奨）
-- **アクセスできるユーザー**: `全員`
+The guide also includes troubleshooting tips and instructions for updating the code after changes.
 
-`次のユーザーとして実行` を `ウェブアプリケーションにアクセスしているユーザー` にすると、利用者ごとに Google ログインとスプレッドシート権限が必要になり、店舗運用では失敗しやすくなります。
-
-### 4. 管理画面 `/admin` で初回認証する
-
-1. 管理画面を開く  
-2. 初回 Unlock で次の3つを入力  
-   - `Web App URL`（控えた URL）
-   - `Self-Generated Token`（`SELF_GENERATED_TOKEN` の値）
-   - `ADMIN_PASSCODE`
-   - この初回画面にだけセットアップガイドが表示されます
-3. Unlock 成功後、`Test Connection` → `Spreadsheet` 設定 → `Apply Spreadsheet`
-4. 2回目以降は、保存済み URL/Token を使うため Unlock は `ADMIN_PASSCODE` のみ入力（セットアップガイドは非表示）
-
-### 5. Web App URL の入力先
-
-`/admin` の初回 Unlock（または Connection > Web App URL）には、**あなたの Apps Script プロジェクトで発行した Web App URL** を入力してください。
-
-形式は通常 `https://script.google.com/macros/s/.../exec` です。
-
-### 6. よくあるエラー
-
-- `CONFIG_ERROR: ADMIN_PASSCODE is not configured`
-  - 原因: Script Properties に `ADMIN_PASSCODE` が未設定
-  - 対処: Apps Script 側で `ADMIN_PASSCODE` を追加して保存し、`/admin` で再実行
-
-※ `SHEET_ID` と `SHEET_NAME` は管理画面（`/admin`）の Spreadsheet 設定ウィザードで自動保存されます。
-
-## 詳細セットアップ（必要な場合のみ）
-
-Apps Script のデプロイ・設定手順は [demo/apps-script/README.md](./demo/apps-script/README.md) を参照。
-
-## ローカル実行（開発者向け）
+## Local Development
 
 1. `cd demo && npm run serve`
-2. 管理画面 [http://localhost:3000/admin/](http://localhost:3000/admin/) を開く
-3. 上記「最小セットアップ」に沿って接続設定
-4. ユーザー画面 [http://localhost:3000/web/](http://localhost:3000/web/) を開き、Customer Info → Staff Review → Submit
+2. Open the admin panel at [http://localhost:3000/admin/](http://localhost:3000/admin/)
+3. Follow the Quick Setup steps above to configure the connection
+4. Open the user form at [http://localhost:3000/web/](http://localhost:3000/web/) — Customer Info (4 consent checks) → Staff Review (enter CsCategory, optionally save photo) → Submit
 
-## テスト実行
+## Running Tests
 
 ```bash
-# Apps Script エンドポイントのテスト
+# Apps Script endpoint tests
 node demo/tests/apps-script.test.js
 ```
 
-## E2E テスト
+## E2E Tests
 
-### 前提条件
+### Prerequisites
 
 - Node.js 18+
-- `googleapis` npm パッケージ（`npm install googleapis`）
-- Google アカウントで `clasp login` 済み
+- `googleapis` npm package (`npm install googleapis`)
+- Signed in via `clasp login`
 
-### 初回セットアップ
+### First-time Setup
 
 ```bash
 cd demo
 npm install
-npx clasp login --no-localhost   # URL を開いて認証→コードを入力
-npm run deploy:gas               # GAS デプロイ→.env出力
+npx clasp login --no-localhost   # Open the URL, authorize, paste the code
+npm run deploy:gas               # Deploy GAS → outputs .env
 ```
 
-### テスト実行
+### Test Commands
 
 ```bash
-npm run test:e2e                 # Full E2E（スプレッドシート検証込み）
-npm run test:e2e:mock            # Mock モード（Google 認証不要）
-npm run test:unit                # Unit テスト（122件）
+npm run test:e2e                 # Full E2E (spreadsheet verification included)
+npm run test:e2e:mock            # Mock mode (no Google auth required)
+npm run test:unit                # Unit tests
 ```
 
-### Mock モード
+### Mock Mode
 
-`MOCK_MODE=true` で実行すると、GAS への送信をモックし、UI検証のみを行います。
-Google 認証なしで CI でも実行できます。
+Run with `MOCK_MODE=true` to mock the GAS submission and test only the UI.
+Works in CI without Google credentials.

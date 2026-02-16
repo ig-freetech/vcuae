@@ -4,7 +4,7 @@
 /**
  * E2E golden test: Spreadsheet verification
  * Reads the last row from Google Sheets and compares against
- * the expected 18-column row built by LedgerCore.buildSheetRow().
+ * the expected 19-column row built by LedgerCore.buildSheetRow().
  *
  * Prerequisites:
  *   - ~/.clasprc.json with valid OAuth credentials (run: npx clasp login)
@@ -95,6 +95,7 @@ async function main() {
     "\u8A95\u751F\u6708",
     "\u7DCF\u8CB7\u53D6\u984D",
     "\u7DCF\u5408\u8A08",
+    "CertificatePhotoUrl",
   ];
 
   for (var i = 0; i < expectedRow.length; i++) {
@@ -133,7 +134,7 @@ async function main() {
   }
 
   if (allMatch) {
-    console.log("\n\u2713 All 18 columns match!");
+    console.log("\n\u2713 All 19 columns match!");
     process.exit(0);
   } else {
     console.log("\n\u2717 Column mismatch detected");

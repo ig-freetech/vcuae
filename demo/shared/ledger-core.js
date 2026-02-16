@@ -27,6 +27,7 @@
     "誕生月",
     "総買取額",
     "総合計",
+    "CertificatePhotoUrl",
   ];
 
   var CATEGORY_OPTIONS = [
@@ -474,6 +475,7 @@
       country: sanitizeText(input.country),
       totalPurchase: parseCurrency(input.totalPurchase),
       grandTotal: parseCurrency(input.grandTotal),
+      certificatePhotoUrl: sanitizeText(input.certificatePhotoUrl),
     };
 
     return normalized;
@@ -558,6 +560,16 @@
       });
     }
 
+    if (
+      record.certificatePhotoUrl &&
+      !/^https?:\/\/[^\s]+$/i.test(record.certificatePhotoUrl)
+    ) {
+      errors.push({
+        field: "certificatePhotoUrl",
+        message: "CertificatePhotoUrl の形式が不正です",
+      });
+    }
+
     return {
       valid: errors.length === 0,
       errors: errors,
@@ -601,6 +613,7 @@
       derived.birthMonth,
       record.totalPurchase,
       record.grandTotal,
+      record.certificatePhotoUrl || "",
     ];
   }
 
@@ -621,6 +634,7 @@
       totalPurchase:
         normalized.totalPurchase === null ? "" : normalized.totalPurchase,
       grandTotal: normalized.grandTotal === null ? "" : normalized.grandTotal,
+      certificatePhotoUrl: normalized.certificatePhotoUrl,
     };
   }
 

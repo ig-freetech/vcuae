@@ -31,6 +31,7 @@ var SHEET_HEADERS = [
   "誕生月",
   "総買取額",
   "総合計",
+  "CertificatePhotoUrl",
 ];
 
 var COUNTRY_METADATA = {
@@ -435,11 +436,61 @@ function resolveCountryMetadata_(country) {
   };
 }
 
+function extractDriveFolderId_(urlOrId) {
+  var text = sanitizeText_(urlOrId);
+  if (!text) {
+    return "";
+  }
+
+  if (/^[a-zA-Z0-9_-]{10,}$/.test(text)) {
+    return text;
+  }
+
+  var folderMatch = text.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  if (folderMatch && folderMatch[1]) {
+    return folderMatch[1];
+  }
+
+  var queryMatch = text.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (queryMatch && queryMatch[1]) {
+    return queryMatch[1];
+  }
+
+  return "";
+}
+
+function getExtensionByMimeType_(mimeType) {
+  var m = sanitizeText_(mimeType).toLowerCase();
+  if (m === "image/png") {
+    return "png";
+  }
+  if (m === "image/webp") {
+    return "webp";
+  }
+  if (m === "image/heic") {
+    return "heic";
+  }
+  return "jpg";
+}
+
+function sanitizeFileNamePart_(value) {
+  return sanitizeText_(value)
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 48);
+}
+
+function buildCertificateFileName_(fileNameHint, mimeType) {
+  var safeHint = sanitizeFileNamePart_(fileNameHint) || "certificate";
+  var timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+  return safeHint + "_" + timestamp + "." + getExtensionByMimeType_(mimeType);
+}
+
 /**
  * Validate the incoming data payload. Returns an array of error objects.
  * @param {Object} data
  * @returns {Array<{field: string, message: string}>}
- */
+*/
 function validatePayload_(data) {
   var errors = [];
   var requiredFields = [
@@ -467,6 +518,15 @@ function validatePayload_(data) {
   }
   if (data.birthday && !isValidIsoDate_(String(data.birthday))) {
     errors.push({ field: "birthday", message: "birthday の日付形式が不正です" });
+  }
+  if (
+    data.certificatePhotoUrl &&
+    !/^https?:\/\/[^\s]+$/i.test(String(data.certificatePhotoUrl))
+  ) {
+    errors.push({
+      field: "certificatePhotoUrl",
+      message: "certificatePhotoUrl の形式が不正です",
+    });
   }
 
   return errors;
@@ -502,6 +562,7 @@ function buildSheetRow_(data, derived) {
     data.grandTotal === undefined || data.grandTotal === null || data.grandTotal === ""
       ? ""
       : data.grandTotal,
+    data.certificatePhotoUrl || "",
   ];
 }
 
@@ -641,12 +702,12 @@ function ensureHeaders_(sheet) {
  * Expected JSON body:
  * {
  *   selfGeneratedToken: string,
- *   action?: "appendRow" | "configure" | "verifyAdminPasscode",
+ *   action?: "appendRow" | "configure" | "verifyAdminPasscode" | "uploadCertificatePhoto",
  *   adminPasscode?: string,
  *   data: {
  *     visitDate, csCategory, customerName, gender, birthday,
  *     mobileNumber, email?, address, ref?, paymentMethod,
- *     country, totalPurchase?, grandTotal?
+ *     country, totalPurchase?, grandTotal?, certificatePhotoUrl?
  *   }
  * }
  *
@@ -714,14 +775,82 @@ function doPost(e) {
       if (config.sheetName) {
         props.setProperty("SHEET_NAME", config.sheetName);
       }
+      if (config.driveFolderUrl) {
+        var driveFolderId = extractDriveFolderId_(config.driveFolderUrl);
+        if (!driveFolderId) {
+          return jsonResponse_({
+            status: "error",
+            code: "VALIDATION_ERROR",
+            message: "Invalid Google Drive folder URL",
+          });
+        }
+        try {
+          DriveApp.getFolderById(driveFolderId).getName();
+        } catch (folderErr) {
+          return jsonResponse_({
+            status: "error",
+            code: "ACCESS_ERROR",
+            message: "Cannot access Google Drive folder: " + folderErr.message,
+          });
+        }
+        props.setProperty("DRIVE_FOLDER_ID", driveFolderId);
+      }
       return jsonResponse_({
         status: "success",
         message: "Configuration updated",
         currentConfig: {
           sheetId: props.getProperty("SHEET_ID"),
-          sheetName: props.getProperty("SHEET_NAME") || "Sheet1"
+          sheetName: props.getProperty("SHEET_NAME") || "Sheet1",
+          driveFolderId: props.getProperty("DRIVE_FOLDER_ID") || "",
         }
       });
+    }
+
+    if (action === "uploadCertificatePhoto") {
+      var photoBase64 = sanitizeText_(body.photoBase64);
+      var mimeType = sanitizeText_(body.mimeType) || "image/jpeg";
+      var fileNameHint = sanitizeText_(body.fileNameHint);
+      var configuredDriveFolderId =
+        PropertiesService.getScriptProperties().getProperty("DRIVE_FOLDER_ID") || "";
+
+      if (!configuredDriveFolderId) {
+        return jsonResponse_({
+          status: "error",
+          code: "CONFIG_ERROR",
+          message: "Google Drive folder is not configured",
+        });
+      }
+      if (!photoBase64) {
+        return jsonResponse_({
+          status: "error",
+          code: "VALIDATION_ERROR",
+          message: "photoBase64 is required",
+        });
+      }
+
+      try {
+        var bytes = Utilities.base64Decode(photoBase64);
+        var blob = Utilities.newBlob(
+          bytes,
+          mimeType,
+          buildCertificateFileName_(fileNameHint, mimeType),
+        );
+        var folder = DriveApp.getFolderById(configuredDriveFolderId);
+        var file = folder.createFile(blob);
+        return jsonResponse_({
+          status: "success",
+          message: "Certificate photo uploaded",
+          fileId: file.getId(),
+          fileName: file.getName(),
+          fileUrl: file.getUrl(),
+        });
+      } catch (uploadErr) {
+        return jsonResponse_({
+          status: "error",
+          code: "SERVER_ERROR",
+          message: "Photo upload failed: " + uploadErr.message,
+        });
+      }
     }
 
     // --- 2. Extract data payload (appendRow action) ---

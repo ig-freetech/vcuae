@@ -98,7 +98,10 @@ run 'await page.fill("input[name=\"mobileNumber\"]", "+971501234567")'
 run 'await page.fill("input[name=\"email\"]", "john.smith@example.com")'
 run 'await page.fill("#country", "United Arab Emirates")'
 run 'await page.fill("textarea[name=\"address\"]", "Dubai Marina, Tower 5, Apt 1201")'
-run 'await page.selectOption("#cs-category", "Sales (販売)")'
+run 'await page.check("input[name=\"consent1\"]")'
+run 'await page.check("input[name=\"consent2\"]")'
+run 'await page.check("input[name=\"consent3\"]")'
+run 'await page.check("input[name=\"consent4\"]")'
 
 # Derived field verification
 SNAP_FILE="/tmp/golden-e2e-snap-$$.yml"
@@ -114,6 +117,7 @@ sleep 1
 
 echo "=== STEP 3: Staff pane ==="
 run 'await page.fill("input[name=\"visitDate\"]", "2026-01-15")'
+run 'await page.selectOption("#cs-category", "Sales (販売)")'
 run 'await page.fill("input[name=\"ref\"]", "REF-001")'
 run 'await page.selectOption("#payment-method", "Cash")'
 run 'await page.fill("input[name=\"totalPurchase\"]", "15000")'
@@ -142,10 +146,10 @@ if [ "${MOCK_MODE:-}" != "true" ]; then
   SHEET_RESULT=0
   node "$SCRIPT_DIR/verify-spreadsheet.js" || SHEET_RESULT=$?
   if [ $SHEET_RESULT -eq 0 ]; then
-    echo "  ✓ spreadsheet-18-columns"
+    echo "  ✓ spreadsheet-19-columns"
     PASS=$((PASS + 1))
   else
-    echo "  ✗ spreadsheet-18-columns"
+    echo "  ✗ spreadsheet-19-columns"
     FAIL=$((FAIL + 1))
   fi
 else

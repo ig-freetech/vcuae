@@ -70,59 +70,91 @@
 
         <div id="unlock-setup-guide" class="setup-guide">
           <details>
-            <summary>セットアップガイド（初回のみ表示）</summary>
+            <summary>Setup Guide (shown on first visit only)</summary>
             <ol class="guide-steps">
               <li class="guide-step-item">
-                <strong>Step 1: Google Apps Script プロジェクトを作成</strong>
+                <strong>Step 1: Create a Google Apps Script project</strong>
                 <p class="guide-desc">
-                  <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>
-                  にアクセスし、「新しいプロジェクト」をクリックしてください。
+                  Go to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a>
+                  and click "New project".
                 </p>
               </li>
               <li class="guide-step-item">
-                <strong>Step 2: Code.gs を貼り付け</strong>
+                <strong>Step 2: Paste Code.gs</strong>
                 <p class="guide-desc">
-                  下のボタンで Code.gs の内容をコピーし、Apps Script エディタに貼り付けて保存してください。
+                  Click the button below to copy the Code.gs contents, then paste them into the Apps Script editor and save.
                 </p>
                 <div class="guide-action">
                   <button id="copy-code-gs" type="button" class="secondary guide-btn">
-                    <span class="guide-btn-icon">&#128203;</span> Code.gs をコピー
+                    <span class="guide-btn-icon">&#128203;</span> Copy Code.gs
                   </button>
                   <span id="copy-code-gs-status" class="guide-status"></span>
                 </div>
               </li>
               <li class="guide-step-item">
-                <strong>Step 3: トークンを生成して Script Properties と Unlock の Self-Generated Token に設定</strong>
+                <strong>Step 3: Generate a token and set Script Properties</strong>
                 <p class="guide-desc">
-                  下のボタンで SELF_GENERATED_TOKEN 用のランダムトークンを生成＆コピーします。
-                  さらに Script Properties に <code>ADMIN_PASSCODE</code> も任意値で追加してください。
+                  Click the button below to generate and copy a random <code>SELF_GENERATED_TOKEN</code>.
+                  Also add <code>ADMIN_PASSCODE</code> (any value you choose) to Script Properties.
                 </p>
                 <div class="guide-action">
                   <button id="generate-token" type="button" class="secondary guide-btn">
-                    <span class="guide-btn-icon">&#128272;</span> トークンを生成してコピー
+                    <span class="guide-btn-icon">&#128272;</span> Generate &amp; Copy Token
                   </button>
                   <span id="generate-token-status" class="guide-status"></span>
                 </div>
               </li>
               <li class="guide-step-item">
-                <strong>Step 4: Web App としてデプロイ</strong>
+                <strong>Step 4: Deploy as Web App</strong>
                 <p class="guide-desc">
-                  Apps Script 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」。
-                  次のユーザーとして実行:「自分」、アクセスできるユーザー:「全員」を選択。
+                  In Apps Script, click "Deploy" &rarr; "New deployment" &rarr; Type: "Web app".
+                  Set <strong>Execute as</strong>: "Me" and <strong>Who has access</strong>: "Anyone".
+                </p>
+                <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
+                  Why "Me"? If you choose "User accessing the web app", every user needs a Google login and spreadsheet permissions &mdash; impractical for shared tablets in a store.
                 </p>
               </li>
               <li class="guide-step-item">
-                <strong>Step 5: Unlock で初回認証</strong>
+                <strong>Step 5: Unlock (first-time authentication)</strong>
                 <p class="guide-desc">
-                  Web App URL / Self-Generated Token / Admin Passcode を入力して解錠します。
+                  Enter the Web App URL, Self-Generated Token, and Admin Passcode above to unlock.
                 </p>
               </li>
               <li class="guide-step-item">
-                <strong>Step 6: Connection → Spreadsheet → Column Mapping を完了</strong>
+                <strong>Step 6: Connection &rarr; Spreadsheet &rarr; Column Mapping</strong>
                 <p class="guide-desc">
-                  Test Connection → Load Sheets → Apply Spreadsheet の順で設定し、
-                  Column Mapping で全列 &#10003; を確認してください。
+                  Test Connection &rarr; Load Sheets &rarr; Apply Spreadsheet, then verify all columns show &#10003; in Column Mapping.
                 </p>
+              </li>
+            </ol>
+
+            <h4 style="margin:1em 0 0.5em;">Troubleshooting</h4>
+            <ul class="guide-steps" style="list-style:none;padding-left:0;">
+              <li class="guide-step-item">
+                <code>CONFIG_ERROR: ADMIN_PASSCODE is not configured</code>
+                <p class="guide-desc">Add <code>ADMIN_PASSCODE</code> to Script Properties and save.</p>
+              </li>
+              <li class="guide-step-item">
+                <code>AUTH_ERROR: Invalid self-generated token</code>
+                <p class="guide-desc">The token entered here does not match <code>SELF_GENERATED_TOKEN</code> in Script Properties.</p>
+              </li>
+              <li class="guide-step-item">
+                <code>AUTH_ERROR: Invalid admin passcode</code>
+                <p class="guide-desc">The passcode entered here does not match <code>ADMIN_PASSCODE</code> in Script Properties.</p>
+              </li>
+              <li class="guide-step-item">
+                <code>CONFIG_ERROR: Google Drive folder is not configured</code>
+                <p class="guide-desc">Set a Google Drive Folder URL in Step 6 and click "Apply Spreadsheet".</p>
+              </li>
+            </ul>
+
+            <h4 style="margin:1em 0 0.5em;">Updating Code</h4>
+            <ol class="guide-steps">
+              <li class="guide-step-item">
+                <p class="guide-desc">Update Code.gs in the Apps Script editor and save.</p>
+              </li>
+              <li class="guide-step-item">
+                <p class="guide-desc">"Deploy" &rarr; "Manage deployments" &rarr; Edit &rarr; select "New version" &rarr; re-deploy. The URL stays the same.</p>
               </li>
             </ol>
           </details>
@@ -184,6 +216,16 @@
                 name="spreadsheetUrl"
                 type="url"
                 placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                autocomplete="off"
+              />
+            </label>
+            <label class="full-width">
+              <span>Google Drive Folder URL (for certificate photos)</span>
+              <input
+                id="drive-folder-url"
+                name="driveFolderUrl"
+                type="url"
+                placeholder="https://drive.google.com/drive/folders/..."
                 autocomplete="off"
               />
             </label>

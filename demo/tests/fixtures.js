@@ -23,6 +23,7 @@ var validStaffInput = {
   paymentMethod: "Cash",
   totalPurchase: "15,000",
   grandTotal: "16,500",
+  certificatePhotoUrl: "https://drive.google.com/file/d/file-1/view",
 };
 
 // --- Complete submission payload (customer + staff merged) ---
@@ -40,6 +41,7 @@ var validCompletePayload = {
   paymentMethod: "Cash",
   totalPurchase: "15,000",
   grandTotal: "16,500",
+  certificatePhotoUrl: "https://drive.google.com/file/d/file-1/view",
 };
 
 // --- Validation error cases ---
@@ -58,6 +60,7 @@ var validationErrorCases = {
     paymentMethod: "Cash",
     totalPurchase: "15000",
     grandTotal: "16500",
+    certificatePhotoUrl: "",
   },
   invalidEmail: {
     customerName: "Test User",
@@ -73,6 +76,7 @@ var validationErrorCases = {
     paymentMethod: "Card",
     totalPurchase: "5000",
     grandTotal: "5500",
+    certificatePhotoUrl: "",
   },
   shortPhone: {
     customerName: "Test User",
@@ -88,6 +92,7 @@ var validationErrorCases = {
     paymentMethod: "Cash",
     totalPurchase: "8000",
     grandTotal: "8800",
+    certificatePhotoUrl: "",
   },
   invalidDate: {
     customerName: "Test User",
@@ -103,6 +108,7 @@ var validationErrorCases = {
     paymentMethod: "Cash",
     totalPurchase: "10000",
     grandTotal: "11000",
+    certificatePhotoUrl: "",
   },
   invalidGender: {
     customerName: "Test User",
@@ -118,6 +124,7 @@ var validationErrorCases = {
     paymentMethod: "Cash",
     totalPurchase: "10000",
     grandTotal: "11000",
+    certificatePhotoUrl: "",
   },
   invalidCategory: {
     customerName: "Test User",
@@ -133,6 +140,7 @@ var validationErrorCases = {
     paymentMethod: "Cash",
     totalPurchase: "10000",
     grandTotal: "11000",
+    certificatePhotoUrl: "",
   },
   invalidPayment: {
     customerName: "Test User",
@@ -148,6 +156,7 @@ var validationErrorCases = {
     paymentMethod: "Bitcoin",
     totalPurchase: "10000",
     grandTotal: "11000",
+    certificatePhotoUrl: "",
   },
 };
 

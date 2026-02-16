@@ -84,10 +84,6 @@
                   autocomplete="street-address"
                 ></textarea>
               </label>
-              <label>
-                <span>CsCategory <span class="col-badge">B</span></span>
-                <select id="cs-category" name="csCategory" required></select>
-              </label>
               <div class="derived">
                 <p>Age <span class="col-badge">F</span>: <strong id="derived-age">-</strong></p>
                 <p>Birth Month <span class="col-badge">P</span>: <strong id="derived-month">-</strong></p>
@@ -96,6 +92,46 @@
                 <p>Subregion <span class="col-badge">O</span>: <strong id="derived-subregion">-</strong></p>
               </div>
             </div>
+            <section class="consent-block">
+              <h3>Conditions</h3>
+              <label class="consent-item">
+                <input type="checkbox" name="consent1" required />
+                <span
+                  >If an item is found to be stolen or counterfeit after purchase, we will immediately
+                  notify the police and hand over the item, and legal action will be taken in
+                  accordance with the laws of the United Arab Emirates.</span
+                >
+              </label>
+              <label class="consent-item">
+                <input type="checkbox" name="consent2" required />
+                <span
+                  >If items do not meet our quality standards during the authentication process, the
+                  initial quotation given over the phone will be revised or the item will be rejected
+                  and returned as per the company policy.</span
+                >
+              </label>
+              <label class="consent-item consent-item-highlight">
+                <input type="checkbox" name="consent3" required />
+                <span
+                  >If the authenticity of the item(s) are found to be Fake, Counterfeit or Undetermined
+                  by the 3rd party authentication systems used by the company, the customer is
+                  responsible to pay a fee of AED 250 per item to the company by cash or card at the
+                  point of collecting the item back after inspection. Items will be inspected through
+                  LegitGrails and/or Entrupy and will be presented to the customer.</span
+                >
+              </label>
+              <label class="consent-item">
+                <input type="checkbox" name="consent4" required />
+                <span
+                  >By signing this document, the customer confirms that they are the rightful owner of
+                  the items and that the company has paid the total amount as per the final agreed
+                  estimate and has purchased the items in good faith. By doing so, the customer
+                  acknowledges that ownership of the items is transferred to the company. The customer
+                  also acknowledges that they have fully read and understood the company's terms and
+                  conditions at the time of sale.</span
+                >
+              </label>
+            </section>
             <div class="actions">
               <button id="next-btn" type="button">Next: Staff Review</button>
             </div>
@@ -107,6 +143,10 @@
               <label>
                 <span>Visit Date <span class="col-badge">A</span></span>
                 <input name="visitDate" type="date" required />
+              </label>
+              <label>
+                <span>CsCategory <span class="col-badge">B</span></span>
+                <select id="cs-category" name="csCategory" required></select>
               </label>
               <label>
                 <span>REF (optional) <span class="col-badge">J</span></span>
@@ -136,6 +176,35 @@
                   placeholder="e.g. 1200"
                 />
               </label>
+              <section class="photo-capture full">
+                <h3>Certificate Photo</h3>
+                <p class="photo-help">
+                  Take a photo, review preview, then press Save to upload it to the configured Google
+                  Drive folder.
+                </p>
+                <input
+                  id="certificate-photo-input"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  class="hidden"
+                />
+                <input id="certificate-photo-url" name="certificatePhotoUrl" type="hidden" />
+                <div class="photo-actions">
+                  <button id="capture-photo-btn" type="button" class="secondary">
+                    Take Certificate Photo
+                  </button>
+                  <button id="retake-photo-btn" type="button" class="secondary hidden">Retake</button>
+                  <button id="save-photo-btn" type="button" disabled>Save to Drive</button>
+                </div>
+                <figure id="photo-preview-wrap" class="photo-preview-wrap hidden">
+                  <img id="certificate-photo-preview" class="photo-preview" alt="Certificate preview" />
+                </figure>
+                <p id="photo-saved-wrap" class="photo-saved-wrap hidden">
+                  Saved: <a id="photo-saved-link" href="#" target="_blank" rel="noopener">Open file</a>
+                </p>
+                <output id="photo-status" class="status" aria-live="polite"></output>
+              </section>
             </div>
             <div class="actions split">
               <button id="back-btn" type="button" class="secondary">

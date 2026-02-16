@@ -29,6 +29,7 @@
   var testConnectionBtn = document.getElementById("test-connection");
   var connectionStatus = document.getElementById("connection-status");
   var spreadsheetUrl = document.getElementById("spreadsheet-url");
+  var driveFolderUrl = document.getElementById("drive-folder-url");
   var sheetNameSelect = document.getElementById("sheet-name");
   var loadSheetsBtn = document.getElementById("load-sheets");
   var applySpreadsheetBtn = document.getElementById("apply-spreadsheet");
@@ -78,6 +79,28 @@
   function extractSpreadsheetId(url) {
     var match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
     return match ? match[1] : null;
+  }
+
+  function extractDriveFolderId(urlOrId) {
+    var text = String(urlOrId || "").trim();
+    if (!text) {
+      return "";
+    }
+    if (/^[a-zA-Z0-9_-]{10,}$/.test(text)) {
+      return text;
+    }
+
+    var folderMatch = text.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    if (folderMatch && folderMatch[1]) {
+      return folderMatch[1];
+    }
+
+    var queryMatch = text.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (queryMatch && queryMatch[1]) {
+      return queryMatch[1];
+    }
+
+    return "";
   }
 
   function colIndexToLetter(i) {
@@ -299,10 +322,14 @@
     var savedSpreadsheetUrl = localStorage.getItem("ledger_spreadsheetUrl");
     var savedSpreadsheetId = localStorage.getItem("ledger_spreadsheetId");
     var savedSheetName = localStorage.getItem("ledger_sheetName");
+    var savedDriveFolderUrl = localStorage.getItem("ledger_driveFolderUrl");
     var savedConnectionVerified = localStorage.getItem("ledger_connectionVerified");
 
     if (savedSpreadsheetUrl) {
       spreadsheetUrl.value = savedSpreadsheetUrl;
+    }
+    if (savedDriveFolderUrl) {
+      driveFolderUrl.value = savedDriveFolderUrl;
     }
 
     if (savedConnectionVerified === "true" && creds.endpoint && creds.token) {
@@ -570,10 +597,16 @@
     var token = selfGeneratedTokenInput.value.trim();
     var ssUrl = spreadsheetUrl.value.trim();
     var ssId = extractSpreadsheetId(ssUrl);
+    var driveFolderUrlValue = driveFolderUrl.value.trim();
+    var driveFolderId = extractDriveFolderId(driveFolderUrlValue);
     var selectedSheet = sheetNameSelect.value;
 
     if (!ssId) {
       setStatus(spreadsheetStatus, "Please enter a valid spreadsheet URL", "err");
+      return;
+    }
+    if (!driveFolderUrlValue || !driveFolderId) {
+      setStatus(spreadsheetStatus, "Please enter a valid Google Drive folder URL", "err");
       return;
     }
     if (!selectedSheet) {
@@ -598,6 +631,7 @@
             config: {
               spreadsheetId: ssId,
               sheetName: selectedSheet,
+              driveFolderUrl: driveFolderUrlValue,
             },
           }),
         });
@@ -610,6 +644,7 @@
           localStorage.setItem("ledger_spreadsheetUrl", ssUrl);
           localStorage.setItem("ledger_spreadsheetId", ssId);
           localStorage.setItem("ledger_sheetName", selectedSheet);
+          localStorage.setItem("ledger_driveFolderUrl", driveFolderUrlValue);
           localStorage.setItem("ledger_connectionVerified", "true");
 
           setStatus(spreadsheetStatus, "Spreadsheet configured", "ok");
