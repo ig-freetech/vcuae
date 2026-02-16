@@ -1,10 +1,11 @@
-var CACHE_NAME = "ledger-web-v24";
+var CACHE_NAME = "ledger-web-v26";
 var PRECACHE_URLS = [
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.webmanifest",
-  "../assets/VC_logo_blue.webp",
+  "../assets/icon-192.png",
+  "../assets/icon-512.png",
   "../shared/ledger-core.js",
 ];
 
