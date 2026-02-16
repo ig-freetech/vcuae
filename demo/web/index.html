@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#06162c" />
-    <title>Purchase Ledger</title>
+    <title>Transaction Ledger</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
@@ -15,8 +15,8 @@
   <body>
     <main class="shell">
       <header class="hero">
-        <p class="hero-kicker">Purchase Ledger</p>
-        <h1>Purchase Ledger</h1>
+        <p class="hero-kicker">Value Creation UAE</p>
+        <h1>Transaction Ledger</h1>
       </header>
 
       <div id="config-banner" class="config-banner hidden">
@@ -196,8 +196,8 @@
               <section class="photo-capture full">
                 <h3>Certificate Photo</h3>
                 <p class="photo-help">
-                  Take a photo, review preview, then press Save to upload it to the configured Google
-                  Drive folder.
+                  Take a photo and review the preview. The photo will be uploaded to Google Drive
+                  when you submit.
                 </p>
                 <input
                   id="certificate-photo-input"
@@ -212,7 +212,6 @@
                     Take Certificate Photo
                   </button>
                   <button id="retake-photo-btn" type="button" class="secondary hidden">Retake</button>
-                  <button id="save-photo-btn" type="button" disabled>Save to Drive</button>
                 </div>
                 <figure id="photo-preview-wrap" class="photo-preview-wrap hidden">
                   <img id="certificate-photo-preview" class="photo-preview" alt="Certificate preview" />
@@ -227,10 +226,18 @@
               <button id="back-btn" type="button" class="secondary">
                 Back
               </button>
-              <button id="submit-btn" type="submit">Submit to Spreadsheet</button>
+              <button id="submit-btn" type="submit" disabled>Submit</button>
             </div>
           </section>
         </form>
+
+        <div id="success-overlay" class="success-overlay hidden">
+          <div class="success-overlay-content">
+            <div class="success-checkmark">&#10003;</div>
+            <h2 class="success-title">Successful</h2>
+            <button id="new-entry-btn" type="button" class="success-new-entry-btn">New Entry</button>
+          </div>
+        </div>
 
         <output id="status" class="status" aria-live="polite"></output>
       </section>

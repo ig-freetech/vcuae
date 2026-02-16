@@ -1,5 +1,5 @@
 {
-  "name": "Purchase Ledger",
+  "name": "Transaction Ledger",
   "short_name": "Ledger",
   "start_url": "./index.html",
   "display": "standalone",

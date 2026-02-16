@@ -25,7 +25,6 @@
 
   var capturePhotoBtn = document.getElementById("capture-photo-btn");
   var retakePhotoBtn = document.getElementById("retake-photo-btn");
-  var savePhotoBtn = document.getElementById("save-photo-btn");
   var certificatePhotoInput = document.getElementById("certificate-photo-input");
   var certificatePhotoUrlInput = document.getElementById("certificate-photo-url");
   var photoPreviewWrap = document.getElementById("photo-preview-wrap");
@@ -44,6 +43,8 @@
   var countryInput = countrySelect;
   var visitDateInput = ledgerForm.elements.visitDate;
   var configBanner = document.getElementById("config-banner");
+  var successOverlay = document.getElementById("success-overlay");
+  var newEntryBtn = document.getElementById("new-entry-btn");
 
   var selectedPhotoFile = null;
   var selectedPhotoPreviewUrl = "";
@@ -153,9 +154,9 @@
     certificatePhotoPreview.removeAttribute("src");
     photoPreviewWrap.classList.add("hidden");
     retakePhotoBtn.classList.add("hidden");
-    savePhotoBtn.disabled = true;
     updateSavedPhotoLink("");
     setPhotoStatus("", "");
+    updateSubmitBtnState();
   }
 
   function getStoredEndpointAndToken() {
@@ -317,69 +318,89 @@
     certificatePhotoPreview.src = selectedPhotoPreviewUrl;
     photoPreviewWrap.classList.remove("hidden");
     retakePhotoBtn.classList.remove("hidden");
-    savePhotoBtn.disabled = false;
 
     certificatePhotoUrlInput.value = "";
     updateSavedPhotoLink("");
-    setPhotoStatus("Photo selected. Review and tap Save to Drive.", "");
+    setPhotoStatus("Photo ready. It will be uploaded when you submit.", "");
+    updateSubmitBtnState();
   });
 
-  savePhotoBtn.addEventListener("click", function () {
-    var creds = getStoredEndpointAndToken();
-    if (!creds.endpoint || !creds.token) {
-      setPhotoStatus("Please configure connection settings first", "err");
-      return;
-    }
-    if (!selectedPhotoFile) {
-      setPhotoStatus("Take a photo first", "err");
-      return;
-    }
+  // --- Submit button state ---
+  function updateSubmitBtnState() {
+    submitBtn.disabled = !selectedPhotoFile;
+  }
 
-    savePhotoBtn.disabled = true;
-    capturePhotoBtn.disabled = true;
-    retakePhotoBtn.disabled = true;
-    setPhotoStatus("Uploading photo to Drive...", "");
-
-    fileToDataUrl(selectedPhotoFile)
-      .then(function (dataUrl) {
-        var commaIndex = dataUrl.indexOf(",");
-        var base64Data = commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : "";
-        return fetch(creds.endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify({
-            selfGeneratedToken: creds.token,
-            action: "uploadCertificatePhoto",
-            photoBase64: base64Data,
-            mimeType: selectedPhotoFile.type || "image/jpeg",
-            fileNameHint: buildPhotoFileNameHint(),
-          }),
-        });
-      })
-      .then(function (response) {
+  // --- Photo upload to Drive ---
+  function uploadPhotoToDrive(creds) {
+    return fileToDataUrl(selectedPhotoFile).then(function (dataUrl) {
+      var commaIndex = dataUrl.indexOf(",");
+      var base64Data = commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : "";
+      return fetch(creds.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify({
+          selfGeneratedToken: creds.token,
+          action: "uploadCertificatePhoto",
+          photoBase64: base64Data,
+          mimeType: selectedPhotoFile.type || "image/jpeg",
+          fileNameHint: buildPhotoFileNameHint(),
+        }),
+      }).then(function (response) {
         return response.json().then(function (result) {
           if (response.ok && result.status === "success") {
-            certificatePhotoUrlInput.value = result.fileUrl || "";
-            updateSavedPhotoLink(certificatePhotoUrlInput.value);
-            setPhotoStatus("Photo saved to Drive", "ok");
-          } else {
-            setPhotoStatus(result.message || "Photo upload failed", "err");
+            return result.fileUrl || "";
           }
+          throw new Error(result.message || "Photo upload failed");
         });
-      })
-      .catch(function (err) {
-        setPhotoStatus("Photo upload error: " + err.message, "err");
-      })
-      .finally(function () {
-        savePhotoBtn.disabled = false;
-        capturePhotoBtn.disabled = false;
-        retakePhotoBtn.disabled = false;
       });
+    });
+  }
+
+  // --- Success overlay ---
+  function showSuccessOverlay() {
+    successOverlay.classList.remove("hidden");
+  }
+
+  function hideSuccessOverlay() {
+    successOverlay.classList.add("hidden");
+  }
+
+  function resetFormCompletely() {
+    hideSuccessOverlay();
+    ledgerForm.reset();
+    visitDateInput.value = todayISO();
+    derivedAge.textContent = "-";
+    derivedMonth.textContent = "-";
+    derivedCountryJP.textContent = "-";
+    derivedContinent.textContent = "-";
+    derivedSubregion.textContent = "-";
+    resetPhotoUi();
+    // Reset "Other" input fields
+    refOtherInput.classList.add("hidden");
+    refOtherInput.required = false;
+    refOtherInput.value = "";
+    refHidden.value = "";
+    paymentOtherInput.classList.add("hidden");
+    paymentOtherInput.required = false;
+    paymentOtherInput.value = "";
+    paymentHidden.value = "";
+    showPane("customer");
+    updateConfigBanner();
+    clearStatus();
+  }
+
+  newEntryBtn.addEventListener("click", function () {
+    resetFormCompletely();
   });
 
   // --- Form submission ---
   ledgerForm.addEventListener("submit", function (e) {
     e.preventDefault();
+
+    if (!selectedPhotoFile) {
+      showStatus("Please take a certificate photo", "err");
+      return;
+    }
 
     var fd = new FormData(ledgerForm);
     var rawInput = {};
@@ -406,37 +427,38 @@
     }
 
     submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+    submitBtn.classList.add("btn-submitting");
+    clearStatus();
 
-    fetch(creds.endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=UTF-8" },
-      body: JSON.stringify({ selfGeneratedToken: creds.token, data: payload }),
-    })
+    uploadPhotoToDrive(creds)
+      .then(function (fileUrl) {
+        certificatePhotoUrlInput.value = fileUrl;
+        updateSavedPhotoLink(fileUrl);
+        payload.certificatePhotoUrl = fileUrl;
+
+        return fetch(creds.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({ selfGeneratedToken: creds.token, data: payload }),
+        });
+      })
       .then(function (response) {
         return response.json().then(function (result) {
           if (response.ok && result.status === "success") {
-            showStatus("Submission successful", "ok");
-            ledgerForm.reset();
-            visitDateInput.value = todayISO();
-            derivedAge.textContent = "-";
-            derivedMonth.textContent = "-";
-            derivedCountryJP.textContent = "-";
-            derivedContinent.textContent = "-";
-            derivedSubregion.textContent = "-";
-            resetPhotoUi();
-            showPane("customer");
-            updateConfigBanner();
+            showSuccessOverlay();
           } else {
             showStatus(result.message || "Submission error: " + response.status, "err");
           }
         });
       })
       .catch(function (err) {
-        showStatus("Connection error: " + err.message, "err");
+        showStatus("Error: " + err.message, "err");
       })
       .finally(function () {
-        submitBtn.disabled = false;
-        setTimeout(clearStatus, 3000);
+        submitBtn.textContent = "Submit";
+        submitBtn.classList.remove("btn-submitting");
+        updateSubmitBtnState();
       });
   });
 

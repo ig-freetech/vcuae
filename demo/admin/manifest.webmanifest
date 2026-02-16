@@ -1,5 +1,5 @@
 {
-  "name": "Purchase Ledger Admin",
+  "name": "Transaction Ledger Admin",
   "short_name": "Ledger Admin",
   "start_url": "./index.html",
   "display": "standalone",

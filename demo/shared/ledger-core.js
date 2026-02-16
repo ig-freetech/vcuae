@@ -483,15 +483,15 @@
   function validateInput(record) {
     var errors = [];
     var requiredFields = [
-      ["visitDate", "VisitDate は必須です"],
-      ["csCategory", "CsCategory は必須です"],
-      ["customerName", "CustomerName は必須です"],
-      ["gender", "Gender は必須です"],
-      ["birthday", "Birthday は必須です"],
-      ["mobileNumber", "MobileNumber は必須です"],
-      ["address", "Address は必須です"],
-      ["paymentMethod", "PaymentMethod は必須です"],
-      ["country", "Country は必須です"],
+      ["visitDate", "Visit Date is required"],
+      ["csCategory", "Category is required"],
+      ["customerName", "Customer Name is required"],
+      ["gender", "Gender is required"],
+      ["birthday", "Birthday is required"],
+      ["mobileNumber", "Mobile Number is required"],
+      ["address", "Address is required"],
+      ["paymentMethod", "Payment Method is required"],
+      ["country", "Country is required"],
     ];
 
     requiredFields.forEach(function (entry) {
@@ -501,21 +501,21 @@
     });
 
     if (record.visitDate && !isValidIsoDate(record.visitDate)) {
-      errors.push({ field: "visitDate", message: "VisitDate の形式が不正です" });
+      errors.push({ field: "visitDate", message: "Invalid Visit Date format" });
     }
     if (record.birthday && !isValidIsoDate(record.birthday)) {
-      errors.push({ field: "birthday", message: "Birthday の形式が不正です" });
+      errors.push({ field: "birthday", message: "Invalid Birthday format" });
     }
 
     if (record.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(record.email)) {
-      errors.push({ field: "email", message: "Email の形式が不正です" });
+      errors.push({ field: "email", message: "Invalid Email format" });
     }
 
     var phoneDigits = record.mobileNumber.replace(/\D/g, "");
     if (record.mobileNumber && phoneDigits.length < 7) {
       errors.push({
         field: "mobileNumber",
-        message: "MobileNumber は7桁以上で入力してください",
+        message: "Mobile Number must be at least 7 digits",
       });
     }
 
@@ -526,14 +526,14 @@
     ) {
       errors.push({
         field: "csCategory",
-        message: "CsCategory の選択肢が不正です",
+        message: "Invalid Category selection",
       });
     }
 
     if (record.gender && GENDER_OPTIONS.indexOf(record.gender) === -1) {
       errors.push({
         field: "gender",
-        message: "Gender の選択肢が不正です",
+        message: "Invalid Gender selection",
       });
     }
 
@@ -544,7 +544,7 @@
     ) {
       errors.push({
         field: "certificatePhotoUrl",
-        message: "CertificatePhotoUrl の形式が不正です",
+        message: "Invalid Certificate Photo URL format",
       });
     }
 

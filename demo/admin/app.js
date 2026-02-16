@@ -570,7 +570,7 @@
   if (copyCodeGsBtn) {
     copyCodeGsBtn.addEventListener("click", function () {
       copyCodeGsBtn.disabled = true;
-      showGuideStatus(copyCodeGsStatus, "取得中...", "");
+      showGuideStatus(copyCodeGsStatus, "Fetching...", "");
       fetch(CODE_GS_RAW_URL)
         .then(function (res) {
           if (!res.ok) {
@@ -582,10 +582,10 @@
           return navigator.clipboard.writeText(code);
         })
         .then(function () {
-          showGuideStatus(copyCodeGsStatus, "コピーしました", "ok");
+          showGuideStatus(copyCodeGsStatus, "Copied!", "ok");
         })
         .catch(function () {
-          showGuideStatus(copyCodeGsStatus, "コピー失敗 — GitHubから直接コピーしてください", "err");
+          showGuideStatus(copyCodeGsStatus, "Copy failed — please copy directly from GitHub", "err");
         })
         .finally(function () {
           copyCodeGsBtn.disabled = false;
@@ -599,10 +599,10 @@
       navigator.clipboard
         .writeText(token)
         .then(function () {
-          showGuideStatus(generateTokenStatus, "コピーしました: " + token.substring(0, 8) + "...", "ok");
+          showGuideStatus(generateTokenStatus, "Copied: " + token.substring(0, 8) + "...", "ok");
         })
         .catch(function () {
-          showGuideStatus(generateTokenStatus, "自動コピー失敗。手動でコピー: " + token, "err");
+          showGuideStatus(generateTokenStatus, "Auto-copy failed. Copy manually: " + token, "err");
         });
     });
   }
