@@ -363,8 +363,12 @@
     }
 
     var creds = getStoredEndpointAndToken();
-    var ep = creds.endpoint || unlockEndpoint.value.trim();
-    var token = creds.token || unlockToken.value.trim();
+    var enteredEndpoint = unlockEndpoint.value.trim();
+    var enteredToken = unlockToken.value.trim();
+    var endpointFromStorage = Boolean(creds.endpoint);
+    var tokenFromStorage = Boolean(creds.token);
+    var ep = endpointFromStorage ? creds.endpoint : enteredEndpoint;
+    var token = tokenFromStorage ? creds.token : enteredToken;
 
     if (!ep || !token) {
       setStatus(unlockStatus, "Web App URL and Self-Generated Token are required for first unlock", "err");
@@ -387,6 +391,39 @@
           setStatus(unlockStatus, "Administration unlocked", "ok");
           unlockPasscode.value = "";
         } else {
+          var isConnectionError = /connection error|failed to fetch|network/i.test(result.message || "");
+          var usedStoredCredential = endpointFromStorage || tokenFromStorage;
+          if (isConnectionError && usedStoredCredential) {
+            var sourceParts = [];
+            if (endpointFromStorage) {
+              sourceParts.push("URL");
+            }
+            if (tokenFromStorage) {
+              sourceParts.push("Token");
+            }
+
+            clearStoredEndpointAndToken();
+            populateConnectionFieldsFromStorage();
+            syncUnlockMode();
+            setStatus(
+              unlockStatus,
+              "Connection failed while using saved " +
+                sourceParts.join("/") +
+                " from localStorage. Re-enter URL, Token, and passcode.",
+              "err",
+            );
+            return;
+          }
+
+          if (isConnectionError && !usedStoredCredential) {
+            setStatus(
+              unlockStatus,
+              "Connection failed while using entered values. Check Web App URL, deployment access (Anyone), and network.",
+              "err",
+            );
+            return;
+          }
+
           if (
             hasStoredUnlockCredentials() &&
             /self-generated token|connection error|failed to fetch|network/i.test(result.message || "")
