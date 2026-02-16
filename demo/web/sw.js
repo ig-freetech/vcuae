@@ -1,4 +1,4 @@
-var CACHE_NAME = "ledger-demo-v2";
+var CACHE_NAME = "ledger-demo-v3";
 var URLS_TO_CACHE = [
   "./index.html",
   "./styles.css",
