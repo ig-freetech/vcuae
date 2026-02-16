@@ -1,6 +1,6 @@
 {
-  "name": "買取台帳デモ",
-  "short_name": "買取台帳",
+  "name": "Purchase Ledger Demo",
+  "short_name": "PurchaseLedger",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f7ed",
