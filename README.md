@@ -73,6 +73,7 @@ demo/
 │   ├── manifest.webmanifest
 │   └── icons/
 ├── apps-script/     # Google Apps Script
+│   ├── appsscript.json
 │   ├── Code.gs
 │   └── README.md
 ├── scripts/         # Deploy & setup scripts
