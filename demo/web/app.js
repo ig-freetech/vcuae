@@ -470,8 +470,8 @@
     }
     successWriteTargetMeta.textContent = metaParts.length > 0 ? metaParts.join(" / ") : "Saved destination";
     successWriteTargetLink.href = sheetUrl;
-    successWriteTargetLink.textContent = sheetUrl;
-    successWriteTargetLink.removeAttribute("title");
+    successWriteTargetLink.textContent = "Spreadsheet URL";
+    successWriteTargetLink.title = sheetUrl;
     successWriteTargetWrap.classList.remove("hidden");
   }
 

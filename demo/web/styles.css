@@ -841,14 +841,13 @@ button:disabled {
 
 /* === Success Overlay === */
 .success-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 10;
   background: rgba(78, 202, 139, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-lg);
 }
 
 .success-overlay.hidden {
@@ -902,6 +901,7 @@ button:disabled {
   border: none;
   border-radius: var(--radius-sm);
   padding: 0.76rem 1.6rem;
+  margin: 0 1rem;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
