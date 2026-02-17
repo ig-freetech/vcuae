@@ -47,6 +47,9 @@
   var applyConfigBtn = document.getElementById("apply-config");
   var configStatus = document.getElementById("config-status");
   var successOverlay = document.getElementById("success-overlay");
+  var successWriteTargetWrap = document.getElementById("success-write-target-wrap");
+  var successWriteTargetMeta = document.getElementById("success-write-target-meta");
+  var successWriteTargetLink = document.getElementById("success-write-target-link");
   var newEntryBtn = document.getElementById("new-entry-btn");
 
   var selectedPhotoFile = null;
@@ -444,7 +447,36 @@
   }
 
   // --- Success overlay ---
-  function showSuccessOverlay() {
+  function updateSuccessWriteTarget(writeTarget) {
+    if (!successWriteTargetWrap || !successWriteTargetLink || !successWriteTargetMeta) {
+      return;
+    }
+    var target = writeTarget || {};
+    var sheetUrl = String(target.sheetUrl || "");
+    if (!sheetUrl) {
+      successWriteTargetWrap.classList.add("hidden");
+      successWriteTargetMeta.textContent = "";
+      successWriteTargetLink.removeAttribute("href");
+      successWriteTargetLink.textContent = "";
+      return;
+    }
+    var rowNumber = Number(target.rowNumber);
+    var metaParts = [];
+    if (target.sheetName) {
+      metaParts.push("Sheet: " + String(target.sheetName));
+    }
+    if (rowNumber > 0) {
+      metaParts.push("Row: " + rowNumber);
+    }
+    successWriteTargetMeta.textContent = metaParts.length > 0 ? metaParts.join(" / ") : "Saved destination";
+    successWriteTargetLink.href = sheetUrl;
+    successWriteTargetLink.textContent = sheetUrl;
+    successWriteTargetLink.removeAttribute("title");
+    successWriteTargetWrap.classList.remove("hidden");
+  }
+
+  function showSuccessOverlay(result) {
+    updateSuccessWriteTarget(result && result.writeTarget);
     successOverlay.classList.remove("hidden");
   }
 
@@ -454,6 +486,7 @@
 
   function resetFormCompletely() {
     hideSuccessOverlay();
+    updateSuccessWriteTarget(null);
     ledgerForm.reset();
     visitDateInput.value = todayISO();
     derivedAge.textContent = "-";
@@ -537,7 +570,7 @@
       .then(function (response) {
         return response.json().then(function (result) {
           if (response.ok && result.status === "success") {
-            showSuccessOverlay();
+            showSuccessOverlay(result);
           } else {
             showStatus(result.message || "Submission error: " + response.status, "err");
           }

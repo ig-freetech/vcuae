@@ -873,6 +873,29 @@ button:disabled {
   letter-spacing: 0.02em;
 }
 
+.success-write-target-wrap {
+  margin: 0 0 1.2rem;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.success-write-target-meta {
+  display: block;
+  margin-bottom: 0.28rem;
+  font-weight: 700;
+}
+
+.success-write-target-link {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.success-write-target-link:hover {
+  opacity: 0.88;
+}
+
 .success-new-entry-btn {
   background: #fff;
   color: #2a8c5a;

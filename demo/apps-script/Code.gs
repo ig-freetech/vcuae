@@ -903,13 +903,29 @@ function doPost(e) {
     var sheetName =
       PropertiesService.getScriptProperties().getProperty("SHEET_NAME") || "Sheet1";
     var sheet = SpreadsheetApp.openById(sheetId).getSheetByName(sheetName);
+    if (!sheet) {
+      return jsonResponse_({
+        status: "error",
+        code: "NOT_FOUND",
+        message: "Sheet '" + sheetName + "' not found",
+      });
+    }
     ensureHeaders_(sheet);
     sheet.appendRow(row);
+    var rowNumber = sheet.getLastRow();
+    var gid = sheet.getSheetId();
+    var sheetUrl = "https://docs.google.com/spreadsheets/d/" + sheetId + "/edit#gid=" + gid;
 
     // --- 7. Success ---
     return jsonResponse_({
       status: "success",
       message: "Row appended successfully",
+      writeTarget: {
+        sheetId: sheetId,
+        sheetName: sheetName,
+        rowNumber: rowNumber,
+        sheetUrl: sheetUrl,
+      },
     });
   } catch (err) {
     return jsonResponse_({

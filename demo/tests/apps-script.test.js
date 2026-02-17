@@ -31,19 +31,23 @@ global.PropertiesService = {
 
 function makeSheetMock_(opts) {
   var options = opts || {};
-  var hasHeader = options.hasHeader !== false;
+  var lastRow = options.hasHeader === false ? 0 : 1;
   var appendError = options.appendError || null;
+  var sheetTabId = options.sheetTabId === undefined ? 123456789 : options.sheetTabId;
 
   return {
     getLastRow: function () {
-      return hasHeader ? 1 : 0;
+      return lastRow;
+    },
+    getSheetId: function () {
+      return sheetTabId;
     },
     appendRow: function (row) {
       if (appendError) {
         throw appendError;
       }
       appendedRows.push(row);
-      hasHeader = true;
+      lastRow += 1;
     },
   };
 }
@@ -429,6 +433,14 @@ resetMocks();
   var result = callDoPost(payload);
   assertEqual(result.status, "success", "success status");
   assert(result.message.indexOf("appended") >= 0, "success message mentions appended");
+  assertEqual(result.writeTarget.sheetId, "sheet-abc", "success response includes writeTarget.sheetId");
+  assertEqual(result.writeTarget.sheetName, "TestSheet", "success response includes writeTarget.sheetName");
+  assertEqual(result.writeTarget.rowNumber, 2, "success response includes writeTarget.rowNumber");
+  assertEqual(
+    result.writeTarget.sheetUrl,
+    "https://docs.google.com/spreadsheets/d/sheet-abc/edit#gid=123456789",
+    "success response includes writeTarget.sheetUrl",
+  );
 
   // Verify row was appended
   assertEqual(appendedRows.length, 1, "one row appended");
