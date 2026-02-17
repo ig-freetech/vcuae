@@ -971,7 +971,26 @@ function doPost(e) {
     ensureHeaders_(sheet);
     var rowNumber = findNextWriteRow_(sheet, SHEET_HEADERS.length);
     logWritePreview_(buildWritePreview_(row, sheetId, sheetName, rowNumber));
-    sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
+    try {
+      var targetRange = sheet.getRange(rowNumber, 1, 1, row.length);
+      targetRange.clearDataValidations();
+      targetRange.setValues([row]);
+    } catch (writeErr) {
+      var writeMessage =
+        writeErr && writeErr.message ? String(writeErr.message) : String(writeErr);
+      if (/data validation|入力規則|データ入力規則/i.test(writeMessage)) {
+        return jsonResponse_({
+          status: "error",
+          code: "SHEET_VALIDATION_ERROR",
+          message: "Sheet validation rejected the row: " + writeMessage,
+        });
+      }
+      return jsonResponse_({
+        status: "error",
+        code: "SHEET_WRITE_ERROR",
+        message: "Failed to write row: " + writeMessage,
+      });
+    }
     var gid = sheet.getSheetId();
     var sheetUrl = "https://docs.google.com/spreadsheets/d/" + sheetId + "/edit#gid=" + gid;
 

@@ -15,6 +15,7 @@ var createdFiles = [];
 var driveFolders = {};
 var driveAccessError = null;
 var lastDriveFolderId = null;
+var clearedDataValidationRanges = [];
 
 global.PropertiesService = {
   getScriptProperties: function () {
@@ -113,6 +114,15 @@ function makeSheetMock_(opts) {
             setRow_(rowNumber, current);
             appendedRows.push(incoming.slice());
           }
+          return this;
+        },
+        clearDataValidations: function () {
+          clearedDataValidationRanges.push({
+            startRow: startRow,
+            startCol: startCol,
+            numRows: numRows,
+            numCols: numCols,
+          });
           return this;
         },
       };
@@ -251,6 +261,7 @@ function resetMocks() {
   appendedRows = [];
   lastSheetId = null;
   lastSheetName = null;
+  clearedDataValidationRanges = [];
   installSpreadsheetMock_({ hasHeader: true });
   installDriveMock_();
 }
@@ -509,6 +520,12 @@ resetMocks();
     "https://docs.google.com/spreadsheets/d/sheet-abc/edit#gid=123456789",
     "success response includes writeTarget.sheetUrl",
   );
+  assertEqual(clearedDataValidationRanges.length, 1, "clears data validations before write");
+  assertDeepEqual(
+    clearedDataValidationRanges[0],
+    { startRow: 2, startCol: 1, numRows: 1, numCols: 19 },
+    "clears validation on target write range",
+  );
 
   // Verify row was appended
   assertEqual(appendedRows.length, 1, "one row appended");
@@ -681,9 +698,9 @@ console.log("\n--- WRITE ROW RESOLUTION ---");
 })();
 
 // ===========================
-// Test: SERVER_ERROR
+// Test: SHEET_WRITE_ERROR
 // ===========================
-console.log("\n--- SERVER_ERROR ---");
+console.log("\n--- SHEET_WRITE_ERROR ---");
 (function () {
   scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
   appendedRows = [];
@@ -714,10 +731,49 @@ console.log("\n--- SERVER_ERROR ---");
   };
   var result = callDoPost(payload);
   assertEqual(result.status, "error", "server error status");
-  assertEqual(result.code, "SERVER_ERROR", "server error code");
-  assert(result.message.indexOf("Spreadsheet write failed") >= 0, "server error preserves message");
+  assertEqual(result.code, "SHEET_WRITE_ERROR", "sheet write error code");
+  assert(result.message.indexOf("Spreadsheet write failed") >= 0, "sheet write error preserves message");
 
   // Restore mock
+  installSpreadsheetMock_({ hasHeader: true });
+})();
+
+// ===========================
+// Test: SHEET_VALIDATION_ERROR
+// ===========================
+console.log("\n--- SHEET_VALIDATION_ERROR ---");
+(function () {
+  scriptProperties = { SELF_GENERATED_TOKEN: "test-key-123", SHEET_ID: "sheet-abc", SHEET_NAME: "TestSheet" };
+  appendedRows = [];
+
+  installSpreadsheetMock_({
+    hasHeader: true,
+    appendError: new Error("セル B3 に入力したデータは、このセルのデータ入力規則に違反しています。"),
+  });
+
+  var payload = {
+    selfGeneratedToken: "test-key-123",
+    data: {
+      visitDate: "2026-01-01",
+      csCategory: "Sales (\u8ca9\u58f2)",
+      customerName: "Test",
+      gender: "Male",
+      birthday: "1990-01-01",
+      mobileNumber: "+971501234567",
+      email: "",
+      address: "Test Address",
+      ref: "",
+      paymentMethod: "Cash",
+      country: "UAE",
+      totalPurchase: 100,
+      grandTotal: 110,
+    },
+  };
+  var result = callDoPost(payload);
+  assertEqual(result.status, "error", "validation error status");
+  assertEqual(result.code, "SHEET_VALIDATION_ERROR", "validation error code");
+  assert(result.message.indexOf("入力規則") >= 0, "validation error preserves message");
+
   installSpreadsheetMock_({ hasHeader: true });
 })();
 
