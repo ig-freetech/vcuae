@@ -565,7 +565,7 @@ function buildSheetRow_(data, derived) {
     derived.countryJP,
     derived.continent,
     derived.subregion,
-    derived.birthMonthDate === null ? "" : derived.birthMonthDate,
+    derived.birthMonth === null ? "" : derived.birthMonth,
     data.totalPurchase === undefined || data.totalPurchase === null || data.totalPurchase === ""
       ? ""
       : data.totalPurchase,
