@@ -279,14 +279,14 @@ test("validateInput: invalid certificatePhotoUrl => errors", function () {
 // =======================================================
 
 test("normalizeInput: parseCurrency removes commas", function () {
-  var input = { visitDate: "2026-01-15", csCategory: "Sales (販売)", customerName: "Test", gender: "Male", birthday: "1990-01-01", mobileNumber: "+971501234567", email: "t@t.com", address: "Addr", ref: "", paymentMethod: "Cash", country: "India", totalPurchase: "15,000", grandTotal: "16,500" };
+  var input = { visitDate: "2026-01-15", csCategory: "Sales", customerName: "Test", gender: "Male", birthday: "1990-01-01", mobileNumber: "+971501234567", email: "t@t.com", address: "Addr", ref: "", paymentMethod: "Cash", country: "India", totalPurchase: "15,000", grandTotal: "16,500" };
   var out = LedgerCore.normalizeInput(input);
   assert.strictEqual(out.totalPurchase, 15000);
   assert.strictEqual(out.grandTotal, 16500);
 });
 
 test("normalizeInput: sanitizeText trims and collapses spaces", function () {
-  var input = { visitDate: "2026-01-15", csCategory: "Sales (販売)", customerName: "  John   Smith  ", gender: "Male", birthday: "1990-01-01", mobileNumber: "+971501234567", email: "  JOHN@EXAMPLE.COM  ", address: "Addr", ref: "", paymentMethod: "Cash", country: "India", totalPurchase: "0", grandTotal: "0" };
+  var input = { visitDate: "2026-01-15", csCategory: "Sales", customerName: "  John   Smith  ", gender: "Male", birthday: "1990-01-01", mobileNumber: "+971501234567", email: "  JOHN@EXAMPLE.COM  ", address: "Addr", ref: "", paymentMethod: "Cash", country: "India", totalPurchase: "0", grandTotal: "0" };
   var out = LedgerCore.normalizeInput(input);
   assert.strictEqual(out.customerName, "John Smith");
   assert.strictEqual(out.email, "john@example.com");
@@ -303,7 +303,7 @@ test("normalizeInput: null/undefined values become empty strings", function () {
 });
 
 test("toApiPayload: returns normalized payload with null currency as empty string", function () {
-  var raw = { visitDate: "15/01/2026", csCategory: "Sales (販売)", customerName: "  Test User  ", gender: "Male", birthday: "15-05-1990", mobileNumber: "+971501234567", email: "Test@Example.COM", address: "Dubai", ref: "REF-001", paymentMethod: "Cash", country: "India", totalPurchase: "abc", grandTotal: "16,500", certificatePhotoUrl: " https://drive.google.com/file/d/file-1/view " };
+  var raw = { visitDate: "15/01/2026", csCategory: "Sales", customerName: "  Test User  ", gender: "Male", birthday: "15-05-1990", mobileNumber: "+971501234567", email: "Test@Example.COM", address: "Dubai", ref: "REF-001", paymentMethod: "Cash", country: "India", totalPurchase: "abc", grandTotal: "16,500", certificatePhotoUrl: " https://drive.google.com/file/d/file-1/view " };
   var out = LedgerCore.toApiPayload(raw);
   assert.strictEqual(out.visitDate, "2026-01-15");
   assert.strictEqual(out.birthday, "1990-05-15");
@@ -326,7 +326,7 @@ test("toApiPayload: complete valid payload preserves all fields", function () {
   assert.strictEqual(out.address, "Dubai Marina, Tower 5, Apt 1201");
   assert.strictEqual(out.ref, "REF-001");
   assert.strictEqual(out.paymentMethod, "Cash");
-  assert.strictEqual(out.csCategory, "Sales (販売)");
+  assert.strictEqual(out.csCategory, "Sales");
   assert.strictEqual(out.totalPurchase, 15000);
   assert.strictEqual(out.grandTotal, 16500);
   assert.strictEqual(out.certificatePhotoUrl, "https://drive.google.com/file/d/file-1/view");
@@ -351,7 +351,7 @@ test("buildSheetRow: header order matches values", function () {
   //   Country, CountryJP, Continent大陸, Subregion小地域, 誕生月,
   //   総買取額, 総合計, CertificatePhotoUrl
   assert.strictEqual(row[0], "2026-01-15", "VisitDate");
-  assert.strictEqual(row[1], "Sales (販売)", "CsCategory");
+  assert.strictEqual(row[1], "Sales", "CsCategory");
   assert.strictEqual(row[2], "John Smith", "CustomerName");
   assert.strictEqual(row[3], "Male", "Gender");
   assert.strictEqual(row[4], "1990-05-15", "Birthday");
@@ -410,8 +410,8 @@ test("SHEET_HEADERS has 19 entries", function () {
 });
 
 test("CATEGORY_OPTIONS contains known values", function () {
-  assert.ok(LedgerCore.CATEGORY_OPTIONS.indexOf("Sales (販売)") !== -1);
-  assert.ok(LedgerCore.CATEGORY_OPTIONS.indexOf("buy (買取)") !== -1);
+  assert.ok(LedgerCore.CATEGORY_OPTIONS.indexOf("Sales") !== -1);
+  assert.ok(LedgerCore.CATEGORY_OPTIONS.indexOf("buy") !== -1);
 });
 
 test("GENDER_OPTIONS contains Male, Female, Other", function () {

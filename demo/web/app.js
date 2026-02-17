@@ -281,8 +281,8 @@
   var labelSalesTotal = document.getElementById("label-sales-total");
   csCategorySelect.addEventListener("change", function () {
     var val = csCategorySelect.value;
-    var isBuy = val.indexOf("買取") !== -1;
-    var isSales = val.indexOf("販売") !== -1;
+    var isBuy = val.toLowerCase().indexOf("buy") !== -1;
+    var isSales = val.toLowerCase().indexOf("sales") !== -1;
     labelBuyTotal.classList.toggle("hidden", !isBuy);
     labelSalesTotal.classList.toggle("hidden", !isSales);
   });
@@ -393,6 +393,25 @@
     submitBtn.disabled = !selectedPhotoFile;
   }
 
+  function isLegacyUploadUnsupportedError(result) {
+    if (!result || typeof result !== "object") {
+      return false;
+    }
+    if (String(result.code || "") !== "VALIDATION_ERROR") {
+      return false;
+    }
+    if (/missing or invalid data field/i.test(String(result.message || ""))) {
+      return true;
+    }
+    var errors = Array.isArray(result.errors) ? result.errors : [];
+    for (var i = 0; i < errors.length; i++) {
+      if (errors[i] && String(errors[i].field || "") === "data") {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // --- Photo upload to Drive ---
   function uploadPhotoToDrive(creds) {
     return fileToDataUrl(selectedPhotoFile).then(function (dataUrl) {
@@ -412,6 +431,11 @@
         return response.json().then(function (result) {
           if (response.ok && result.status === "success") {
             return result.fileUrl || "";
+          }
+          if (isLegacyUploadUnsupportedError(result)) {
+            throw new Error(
+              "Endpoint does not support photo upload action. Update GAS deployment URL and redeploy latest Code.gs.",
+            );
           }
           throw new Error(result.message || "Photo upload failed");
         });
@@ -503,7 +527,11 @@
         return fetch(creds.endpoint, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify({ selfGeneratedToken: creds.token, data: payload }),
+          body: JSON.stringify({
+            selfGeneratedToken: creds.token,
+            action: "appendRow",
+            data: payload,
+          }),
         });
       })
       .then(function (response) {

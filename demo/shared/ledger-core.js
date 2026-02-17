@@ -31,10 +31,10 @@
   ];
 
   var CATEGORY_OPTIONS = [
-    "repeatSales (販売)",
-    "repeatBuy (買取)",
-    "Sales (販売)",
-    "buy (買取)",
+    "repeatSales",
+    "repeatBuy",
+    "Sales",
+    "buy",
   ];
 
   var GENDER_OPTIONS = ["Male", "Female", "Other"];

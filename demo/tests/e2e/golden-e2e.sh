@@ -117,7 +117,7 @@ sleep 1
 
 echo "=== STEP 3: Staff pane ==="
 run 'await page.fill("input[name=\"visitDate\"]", "2026-01-15")'
-run 'await page.selectOption("#cs-category", "Sales (販売)")'
+run 'await page.selectOption("#cs-category", "Sales")'
 run 'await page.fill("input[name=\"ref\"]", "REF-001")'
 run 'await page.selectOption("#payment-method", "Cash")'
 run 'await page.fill("input[name=\"totalPurchase\"]", "15000")'
