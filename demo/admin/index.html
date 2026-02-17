@@ -107,11 +107,14 @@
               <li class="guide-step-item">
                 <strong>Step 4: Deploy as Web App</strong>
                 <p class="guide-desc">
-                  In Apps Script, click "Deploy" &rarr; "New deployment" &rarr; Type: "Web app".
+                  For first publish, in Apps Script click "Deploy" &rarr; "New deployment" &rarr; Type: "Web app".
                   Set <strong>Execute as</strong>: "Me" and <strong>Who has access</strong>: "Anyone".
                 </p>
                 <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
                   Why "Me"? If you choose "User accessing the web app", every user needs a Google login and spreadsheet permissions &mdash; impractical for shared tablets in a store.
+                </p>
+                <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
+                  After first publish, update code with "Deploy" &rarr; "Manage deployments" &rarr; Edit &rarr; "New version" &rarr; Deploy (recommended). This keeps the same URL.
                 </p>
               </li>
               <li class="guide-step-item">
@@ -155,6 +158,12 @@
               </li>
               <li class="guide-step-item">
                 <p class="guide-desc">"Deploy" &rarr; "Manage deployments" &rarr; Edit &rarr; select "New version" &rarr; re-deploy. The URL stays the same.</p>
+              </li>
+              <li class="guide-step-item">
+                <p class="guide-desc">If URL and <code>SELF_GENERATED_TOKEN</code> are unchanged, config re-generation is not required.</p>
+              </li>
+              <li class="guide-step-item">
+                <p class="guide-desc">If you use "New deployment" (new URL) or change <code>SELF_GENERATED_TOKEN</code>, regenerate config in Step 5 and re-apply it in the Web app.</p>
               </li>
             </ol>
           </details>
