@@ -382,6 +382,14 @@ function deriveBirthMonth_(birthdayIso) {
   return Number(birthdayIso.split("-")[1]);
 }
 
+function deriveBirthMonthDate_(birthdayIso) {
+  if (!birthdayIso || !isValidIsoDate_(birthdayIso)) {
+    return null;
+  }
+  var parts = birthdayIso.split("-").map(Number);
+  return new Date(parts[0], parts[1] - 1, 1);
+}
+
 /**
  * Normalize a country name to its uppercase key, resolving aliases.
  * @param {string} country
@@ -555,7 +563,7 @@ function buildSheetRow_(data, derived) {
     derived.countryJP,
     derived.continent,
     derived.subregion,
-    derived.birthMonth === null ? "" : derived.birthMonth,
+    derived.birthMonthDate === null ? "" : derived.birthMonthDate,
     data.totalPurchase === undefined || data.totalPurchase === null || data.totalPurchase === ""
       ? ""
       : data.totalPurchase,
@@ -686,6 +694,54 @@ function doGet(e) {
 function ensureHeaders_(sheet) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(SHEET_HEADERS);
+  }
+}
+
+function rowHasData_(row) {
+  if (!row || !row.length) return false;
+  for (var i = 0; i < row.length; i++) {
+    var value = row[i];
+    if (value !== "" && value !== null) return true;
+  }
+  return false;
+}
+
+function findNextWriteRow_(sheet, width) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 2;
+
+  var values = sheet.getRange(2, 1, lastRow - 1, width).getValues();
+  for (var i = values.length - 1; i >= 0; i--) {
+    if (rowHasData_(values[i])) {
+      return i + 3;
+    }
+  }
+  return 2;
+}
+
+function buildWritePreview_(row, sheetId, sheetName, rowNumber) {
+  var mapped = {};
+  for (var i = 0; i < SHEET_HEADERS.length && i < row.length; i++) {
+    mapped[SHEET_HEADERS[i]] = row[i];
+  }
+  return {
+    sheetId: sheetId,
+    sheetName: sheetName,
+    rowNumber: rowNumber,
+    rowData: mapped,
+  };
+}
+
+function logWritePreview_(preview) {
+  var serialized = JSON.stringify({
+    event: "appendRow.beforeWrite",
+    preview: preview,
+  });
+  if (typeof console !== "undefined" && console.log) {
+    console.log(serialized);
+  }
+  if (typeof Logger !== "undefined" && Logger.log) {
+    Logger.log(serialized);
   }
 }
 
@@ -885,10 +941,12 @@ function doPost(e) {
     var countryMeta = resolveCountryMetadata_(data.country);
     var age = calculateAge_(String(data.birthday), String(data.visitDate));
     var birthMonth = deriveBirthMonth_(String(data.birthday));
+    var birthMonthDate = deriveBirthMonthDate_(String(data.birthday));
 
     var derived = {
       age: age,
       birthMonth: birthMonth,
+      birthMonthDate: birthMonthDate,
       country: countryMeta.country || data.country,
       countryJP: countryMeta.countryJP,
       continent: countryMeta.continent,
@@ -911,8 +969,9 @@ function doPost(e) {
       });
     }
     ensureHeaders_(sheet);
-    sheet.appendRow(row);
-    var rowNumber = sheet.getLastRow();
+    var rowNumber = findNextWriteRow_(sheet, SHEET_HEADERS.length);
+    logWritePreview_(buildWritePreview_(row, sheetId, sheetName, rowNumber));
+    sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
     var gid = sheet.getSheetId();
     var sheetUrl = "https://docs.google.com/spreadsheets/d/" + sheetId + "/edit#gid=" + gid;
 

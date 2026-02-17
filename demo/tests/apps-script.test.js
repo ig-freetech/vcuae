@@ -31,23 +31,91 @@ global.PropertiesService = {
 
 function makeSheetMock_(opts) {
   var options = opts || {};
-  var lastRow = options.hasHeader === false ? 0 : 1;
+  var width = options.width || 19;
+  var rows = {};
+  var actualLastRow = 0;
   var appendError = options.appendError || null;
   var sheetTabId = options.sheetTabId === undefined ? 123456789 : options.sheetTabId;
+  var forcedLastRow =
+    typeof options.forcedLastRow === "number" ? options.forcedLastRow : null;
+
+  function setRow_(rowNumber, rowValues) {
+    rows[rowNumber] = rowValues.slice();
+    if (rowNumber > actualLastRow) {
+      actualLastRow = rowNumber;
+    }
+  }
+
+  function getCell_(rowNumber, colNumber) {
+    if (!rows[rowNumber]) return "";
+    var value = rows[rowNumber][colNumber - 1];
+    return value === undefined ? "" : value;
+  }
+
+  if (options.hasHeader !== false) {
+    setRow_(1, new Array(width).fill("HEADER"));
+  }
+
+  if (options.seedRows && typeof options.seedRows === "object") {
+    Object.keys(options.seedRows).forEach(function (key) {
+      var rowNumber = Number(key);
+      if (rowNumber > 0) {
+        setRow_(rowNumber, options.seedRows[key]);
+      }
+    });
+  }
 
   return {
     getLastRow: function () {
-      return lastRow;
+      if (forcedLastRow !== null) {
+        return Math.max(actualLastRow, forcedLastRow);
+      }
+      return actualLastRow;
     },
     getSheetId: function () {
       return sheetTabId;
+    },
+    getLastColumn: function () {
+      return width;
     },
     appendRow: function (row) {
       if (appendError) {
         throw appendError;
       }
-      appendedRows.push(row);
-      lastRow += 1;
+      var targetRow = actualLastRow + 1;
+      setRow_(targetRow, row);
+      appendedRows.push(row.slice());
+    },
+    getRange: function (startRow, startCol, numRows, numCols) {
+      return {
+        getValues: function () {
+          var out = [];
+          for (var r = 0; r < numRows; r++) {
+            var rowValues = [];
+            for (var c = 0; c < numCols; c++) {
+              rowValues.push(getCell_(startRow + r, startCol + c));
+            }
+            out.push(rowValues);
+          }
+          return out;
+        },
+        setValues: function (values) {
+          if (appendError) {
+            throw appendError;
+          }
+          for (var r = 0; r < values.length; r++) {
+            var rowNumber = startRow + r;
+            var current = rows[rowNumber] ? rows[rowNumber].slice() : [];
+            var incoming = values[r] || [];
+            for (var c = 0; c < numCols; c++) {
+              current[startCol + c - 1] = incoming[c];
+            }
+            setRow_(rowNumber, current);
+            appendedRows.push(incoming.slice());
+          }
+          return this;
+        },
+      };
     },
   };
 }
@@ -463,7 +531,8 @@ resetMocks();
   assertEqual(row[12], "\u30a2\u30e9\u30d6\u9996\u9577\u56fd\u9023\u90a6", "CountryJP");
   assertEqual(row[13], "Asia", "Continent");
   assertEqual(row[14], "Western Asia", "Subregion");
-  assertEqual(row[15], 5, "BirthMonth");
+  assert(row[15] instanceof Date, "BirthMonth is written as date value");
+  assertEqual(row[15].getMonth() + 1, 5, "BirthMonth month is May");
   assertEqual(row[16], 15000, "totalPurchase");
   assertEqual(row[17], 16500, "grandTotal");
   assertEqual(row[18], "https://drive.google.com/file/d/file-1/view", "certificatePhotoUrl");
@@ -506,7 +575,8 @@ resetMocks();
   assertEqual(row[13], "Europe", "Continent for UK");
   assertEqual(row[14], "Northern Europe", "Subregion for UK");
   assertEqual(row[5], 25, "Age (born 2000-12-25, visit 2026-06-01)");
-  assertEqual(row[15], 12, "BirthMonth December");
+  assert(row[15] instanceof Date, "BirthMonth for UK row is date value");
+  assertEqual(row[15].getMonth() + 1, 12, "BirthMonth December");
 })();
 
 // ===========================
@@ -574,6 +644,40 @@ console.log("\n--- DEFAULT SHEET NAME ---");
   var result = callDoPost(payload);
   assertEqual(result.status, "success", "success with default sheet name");
   assertEqual(lastSheetName, "Sheet1", "default sheet name is Sheet1");
+})();
+
+// ===========================
+// Test: Write row resolution (ignore sparse tail rows)
+// ===========================
+console.log("\n--- WRITE ROW RESOLUTION ---");
+(function () {
+  resetMocks();
+  installSpreadsheetMock_({
+    hasHeader: true,
+    forcedLastRow: 1580,
+  });
+
+  var payload = {
+    selfGeneratedToken: "test-key-123",
+    data: {
+      visitDate: "2026-01-01",
+      csCategory: "Sales (\u8ca9\u58f2)",
+      customerName: "Tail Test",
+      gender: "Male",
+      birthday: "1990-01-01",
+      mobileNumber: "+971501234567",
+      email: "",
+      address: "Test Address",
+      ref: "",
+      paymentMethod: "Cash",
+      country: "UAE",
+      totalPurchase: 100,
+      grandTotal: 110,
+    },
+  };
+  var result = callDoPost(payload);
+  assertEqual(result.status, "success", "success with sparse tail rows");
+  assertEqual(result.writeTarget.rowNumber, 2, "writes to row 2 when data rows are effectively empty");
 })();
 
 // ===========================
