@@ -689,6 +689,15 @@ function ensureHeaders_(sheet) {
   }
 }
 
+/**
+ * One-time authorization helper for Drive scope.
+ * Run manually from Apps Script editor to approve Drive access.
+ * @returns {string}
+ */
+function authorizeDrive() {
+  return DriveApp.getRootFolder().getName();
+}
+
 // =====================================================================
 // Main endpoint
 // =====================================================================

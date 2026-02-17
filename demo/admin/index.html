@@ -89,6 +89,9 @@
                 <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
                   The manifest's Drive scope is required for Google Drive folder validation in Admin and certificate photo upload from Web.
                 </p>
+                <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
+                  After saving, if a Google authorization popup appears for new scopes, complete it. If no popup appears, run <code>authorizeDrive</code> once from the Apps Script function dropdown.
+                </p>
                 <div class="guide-action">
                   <button id="copy-code-gs" type="button" class="secondary guide-btn">
                     <span class="guide-btn-icon">&#128203;</span> Copy Code.gs
@@ -156,7 +159,7 @@
               </li>
               <li class="guide-step-item">
                 <code>Cannot access Google Drive folder: DriveApp.getFolderById ... permission</code>
-                <p class="guide-desc">Confirm <code>appsscript.json</code> includes Drive scope and re-deploy with <code>New version</code>. Re-deploying without <code>New version</code> does not apply updated manifest/code.</p>
+                <p class="guide-desc">Confirm <code>appsscript.json</code> includes Drive scope, complete the authorization popup (or run <code>authorizeDrive</code> once), then re-deploy with <code>New version</code>. Re-deploying without <code>New version</code> does not apply updated manifest/code.</p>
               </li>
             </ul>
 

@@ -114,6 +114,8 @@ Manual setup requirement for Google Drive save:
 - `appsscript.json` includes the Drive OAuth scope (`https://www.googleapis.com/auth/drive`) required for:
   - Google Drive folder validation in `/admin`
   - Certificate photo upload from `/web`
+- After saving, if a Google authorization popup appears (for new scopes), complete it
+- If no popup appears, in Apps Script editor select `authorizeDrive` from the function dropdown and click **Run** once, then complete the authorization screen
 - If you update `Code.gs` or `appsscript.json`, re-deploy with **New version** (without `New version`, updated code/manifest is not applied)
 
 Operational note for later Code.gs updates:
