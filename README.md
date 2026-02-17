@@ -99,13 +99,21 @@ demo/
 For step-by-step instructions, open [/admin](https://vcuae.zer0ai.dev/admin/) and follow the **Setup Guide** shown on first visit. It covers:
 
 1. Creating an Apps Script project
-2. Pasting Code.gs (one-click copy)
+2. Pasting `Code.gs` and `appsscript.json` (manual setup)
 3. Generating a token & setting Script Properties
 4. Deploying as a Web App
 5. Unlocking the admin panel
 6. Configuring Spreadsheet & Column Mapping
 
 The guide also includes troubleshooting tips and instructions for updating the code after changes.
+
+Manual setup requirement for Google Drive save:
+
+- Copy both `demo/apps-script/Code.gs` and `demo/apps-script/appsscript.json` into your Apps Script project
+- `appsscript.json` includes the Drive OAuth scope (`https://www.googleapis.com/auth/drive`) required for:
+  - Google Drive folder validation in `/admin`
+  - Certificate photo upload from `/web`
+- If you update `Code.gs` or `appsscript.json`, re-deploy with **New version** (without `New version`, updated code/manifest is not applied)
 
 Operational note for later Code.gs updates:
 

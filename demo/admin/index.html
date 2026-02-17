@@ -80,9 +80,14 @@
                 </p>
               </li>
               <li class="guide-step-item">
-                <strong>Step 2: Paste Code.gs</strong>
+                <strong>Step 2: Paste Code.gs and appsscript.json</strong>
                 <p class="guide-desc">
                   Click the button below to copy the Code.gs contents, then paste them into the Apps Script editor and save.
+                  Also open Project Settings, enable "Show \"appsscript.json\" manifest file in editor",
+                  then paste <code>demo/apps-script/appsscript.json</code> from this repository.
+                </p>
+                <p class="guide-desc" style="font-size:0.85em;opacity:0.85;">
+                  The manifest's Drive scope is required for Google Drive folder validation in Admin and certificate photo upload from Web.
                 </p>
                 <div class="guide-action">
                   <button id="copy-code-gs" type="button" class="secondary guide-btn">
@@ -148,6 +153,10 @@
               <li class="guide-step-item">
                 <code>CONFIG_ERROR: Google Drive folder is not configured</code>
                 <p class="guide-desc">Set a Google Drive Folder URL in Step 6 and click "Apply" in the Google Drive section.</p>
+              </li>
+              <li class="guide-step-item">
+                <code>Cannot access Google Drive folder: DriveApp.getFolderById ... permission</code>
+                <p class="guide-desc">Confirm <code>appsscript.json</code> includes Drive scope and re-deploy with <code>New version</code>. Re-deploying without <code>New version</code> does not apply updated manifest/code.</p>
               </li>
             </ul>
 
