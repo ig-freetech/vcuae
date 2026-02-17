@@ -1,4 +1,4 @@
-# Purchase Ledger Auto-Posting Demo
+# Ledger Auto-Posting Demo
 
 Tablet input → Google Apps Script → automatic append to Google Spreadsheet — a serverless demo.
 
