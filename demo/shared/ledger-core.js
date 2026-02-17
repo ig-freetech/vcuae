@@ -452,11 +452,13 @@
     return hasHadBirthday ? age : age - 1;
   }
 
+  var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
   function deriveBirthMonth(birthdayIso) {
     if (!birthdayIso || !isValidIsoDate(birthdayIso)) {
       return null;
     }
-    return Number(birthdayIso.split("-")[1]);
+    return MONTH_NAMES[Number(birthdayIso.split("-")[1]) - 1];
   }
 
   function normalizeInput(input) {

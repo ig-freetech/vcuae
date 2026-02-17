@@ -375,11 +375,13 @@ function calculateAge_(birthdayIso, visitDateIso) {
  * @param {string} birthdayIso
  * @returns {number|null}
  */
+var MONTH_NAMES_ = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
 function deriveBirthMonth_(birthdayIso) {
   if (!birthdayIso || !isValidIsoDate_(birthdayIso)) {
     return null;
   }
-  return Number(birthdayIso.split("-")[1]);
+  return MONTH_NAMES_[Number(birthdayIso.split("-")[1]) - 1];
 }
 
 function deriveBirthMonthDate_(birthdayIso) {

@@ -790,8 +790,8 @@ console.log("\n--- HELPER FUNCTIONS ---");
   assertEqual(calculateAge_("1990-05-15", ""), null, "calculateAge with empty visitDate");
 
   // deriveBirthMonth
-  assertEqual(deriveBirthMonth_("1990-05-15"), 5, "deriveBirthMonth May");
-  assertEqual(deriveBirthMonth_("2000-12-25"), 12, "deriveBirthMonth December");
+  assertEqual(deriveBirthMonth_("1990-05-15"), "May", "deriveBirthMonth May");
+  assertEqual(deriveBirthMonth_("2000-12-25"), "December", "deriveBirthMonth December");
   assertEqual(deriveBirthMonth_(""), null, "deriveBirthMonth empty");
 
   // normalizeCountryKey

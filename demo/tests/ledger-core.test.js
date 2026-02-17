@@ -100,22 +100,22 @@ test("calculateAge: missing birthday returns empty string", function () {
 
 // --- deriveBirthMonth via deriveFields ---
 
-test("deriveBirthMonth: valid birthday returns month number", function () {
+test("deriveBirthMonth: valid birthday returns English month name", function () {
   var record = { birthday: "1990-05-15", visitDate: "2026-01-15", country: "India" };
   var derived = LedgerCore.deriveFields(record);
-  assert.strictEqual(derived.birthMonth, 5);
+  assert.strictEqual(derived.birthMonth, "May");
 });
 
-test("deriveBirthMonth: January birthday returns 1", function () {
+test("deriveBirthMonth: January birthday returns January", function () {
   var record = { birthday: "1985-01-20", visitDate: "2026-01-15", country: "India" };
   var derived = LedgerCore.deriveFields(record);
-  assert.strictEqual(derived.birthMonth, 1);
+  assert.strictEqual(derived.birthMonth, "January");
 });
 
-test("deriveBirthMonth: December birthday returns 12", function () {
+test("deriveBirthMonth: December birthday returns December", function () {
   var record = { birthday: "1985-12-25", visitDate: "2026-01-15", country: "India" };
   var derived = LedgerCore.deriveFields(record);
-  assert.strictEqual(derived.birthMonth, 12);
+  assert.strictEqual(derived.birthMonth, "December");
 });
 
 test("deriveBirthMonth: invalid birthday returns empty string", function () {
@@ -375,7 +375,7 @@ test("buildSheetRow: derived fields are in correct positions", function () {
   // Subregion (index 14)
   assert.strictEqual(row[14], "Western Asia", "Subregion");
   // BirthMonth (index 15)
-  assert.strictEqual(row[15], 5, "BirthMonth");
+  assert.strictEqual(row[15], "May", "BirthMonth");
   // totalPurchase (index 16)
   assert.strictEqual(row[16], 15000, "TotalPurchase");
   // grandTotal (index 17)
