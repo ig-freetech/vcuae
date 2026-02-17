@@ -111,6 +111,7 @@ Operational note for later Code.gs updates:
 
 - Initial publish: use **Deploy -> New deployment** to create the first Web App URL
 - After initial publish: use **Deploy -> Manage deployments -> Edit -> New version -> Deploy** on the existing deployment to keep the same URL
+- Re-deploying without selecting **New version** does not apply updated `Code.gs` contents
 - If Web App URL and `SELF_GENERATED_TOKEN` are unchanged, you do **not** need to regenerate/reapply the Web config
 - If you create a new deployment (URL changes) or change `SELF_GENERATED_TOKEN`, regenerate config in `/admin` and apply it again in `/web`
 
